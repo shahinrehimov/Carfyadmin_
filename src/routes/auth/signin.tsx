@@ -4,14 +4,16 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
+import { toast } from "sonner";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useRedirectBack } from "./-utils";
 import { controlApi } from "@/lib/axios/controlApi";
-import { isAxiosError } from "axios";
 import { useAuthStore } from "@/store/auth";
 import { useTheme } from "@/components/themes/provider";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/utils/translationLoader";
+
 const loginPageSchema = z.object({
   redirect: z.string().optional(),
 });
@@ -37,6 +39,7 @@ function RouteComponent() {
   const isDark = theme === "dark";
   const { t } = useTranslation();
   const redirect = useRedirectBack(searchParams.redirect);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(LoginFormSchema),
@@ -87,16 +90,33 @@ function RouteComponent() {
             </p>
           )}
 
-          <input
-            type="password"
-            placeholder={t("password")}
-            className={`w-full rounded-md border ${
-              isDark
-                ? "border-gray-600 bg-gray-800 text-white"
-                : "border-gray-300 bg-white text-black"
-            } focus:border-primary px-4 py-3 focus:outline-none`}
-            {...form.register("password")}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder={t("password")}
+              className={`w-full rounded-md border ${
+                isDark
+                  ? "border-gray-600 bg-gray-800 text-white"
+                  : "border-gray-300 bg-white text-black"
+              } focus:border-primary px-4 py-3 pr-12 focus:outline-none`}
+              {...form.register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 ${
+                isDark
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
           {form.formState.errors.password && (
             <p className="text-sm text-red-500">
               {form.formState.errors.password.message}
