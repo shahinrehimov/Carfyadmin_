@@ -49,7 +49,7 @@ export function SidebarItem({
                 to={href}
                 onClick={handleClick}
                 className={cn(
-                  "flex items-center gap-3 px-6 py-3 text-sm rounded-l-lg transition-colors my-1 relative ",
+                  "flex items-center gap-3 px-6 py-3 text-sm rounded-lg transition-colors my-1 relative ",
                   "text-white ",
                   !isActive && "hover:bg-white/10 hover:z-10",
                   isPrimary && "text-white",
@@ -59,12 +59,6 @@ export function SidebarItem({
                 )}
               >
                 <span className="text-lg">{icon}</span>
-                {isActive && (
-                  <>
-                    <b className='absolute right-0 top-[-20px] w-[10px] h-[20px] bg-white dark:bg-[#242428] before:content-[""] before:absolute before:left-0 before:top-0 before:w-[10px] before:h-full before:rounded-br-lg before:bg-primary dark:before:bg-[#1A1B23]'></b>
-                    <b className='absolute right-0 bottom-[-20px] w-[10px] h-[20px] bg-white dark:bg-[#242428] before:content-[""] before:absolute before:left-0 before:top-0 before:w-[10px] before:h-full before:rounded-tr-lg before:bg-primary dark:before:bg-[#1A1B23]'></b>
-                  </>
-                )}
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">{label}</TooltipContent>
@@ -75,8 +69,8 @@ export function SidebarItem({
           to={href}
           onClick={handleClick}
           className={cn(
-            "flex items-center gap-3  py-3 text-sm rounded-l-lg transition-colors my-1 relative ",
-            isMobile ? "text-primary rounded-r-lg px-4" : "text-white px-6",
+            "flex items-center gap-3  py-3 text-sm rounded-lg transition-colors my-1 relative ",
+            isMobile ? "text-primary  px-4" : "text-white px-6",
             !isActive && "hover:bg-white/10 hover:z-10",
             isPrimary && "text-white",
             isActive &&
@@ -89,12 +83,6 @@ export function SidebarItem({
         >
           <span className="text-lg">{icon}</span>
           <span>{label}</span>
-          {isActive && !isMobile && (
-            <>
-              <b className='absolute right-0 top-[-20px] w-[10px] h-[20px] bg-white dark:bg-[#242428] before:content-[""] before:absolute before:left-0 before:top-0 before:w-[10px] before:h-full before:rounded-br-lg before:bg-primary dark:before:bg-[#1A1B23]'></b>
-              <b className='absolute right-0 bottom-[-20px] w-[10px] h-[20px] bg-white dark:bg-[#242428] before:content-[""] before:absolute before:left-0 before:top-0 before:w-[10px] before:h-full before:rounded-tr-lg before:bg-primary dark:before:bg-[#1A1B23]'></b>
-            </>
-          )}
         </Link>
       )}
     </div>
@@ -145,7 +133,11 @@ export function Sidebar({
           )}
         >
           {(!isCollapsed || isMobile) && (
-            <img src="/logo.svg" alt="logo" className="w-30 " />
+            <img
+              src="/logo.svg"
+              alt="logo"
+              className="w-30 brightness-0 invert "
+            />
           )}
 
           <button
@@ -162,7 +154,7 @@ export function Sidebar({
       </div>
       <div
         className={cn(
-          "flex-1 py-4 overflow-y-auto mt-10 transition-all duration-300 ease-in-out",
+          "flex-1 py-4 overflow-y-auto mt-2 transition-all duration-300 ease-in-out",
           isMobile &&
             (isCollapsed
               ? "opacity-0 pointer-events-none transform translate-y-[-20px]"
@@ -173,9 +165,9 @@ export function Sidebar({
       >
         <nav
           className={cn(
-            "space-y-1 pl-2",
+            "space-y-1 px-2",
             isMobile &&
-              "pr-2 w-[90%] mx-auto bg-white dark:bg-[#242428] rounded-lg py-2",
+              " w-[90%] mx-auto bg-white dark:bg-[#242428] rounded-lg py-2",
           )}
         >
           {childrenWithProps}

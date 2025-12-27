@@ -41,16 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     { icon: <Languages />, label: t("translations"), href: "/translations" },
     { icon: <Tag />, label: t("brands"), href: "/brands" },
     { icon: <List />, label: t("categories"), href: "/categories" },
-    { icon: <Package />, label: t("products"), href: "/products" },
-    {
-      icon: <Grid3x3 />,
-      label: t("product_options"),
-      href: "/product-options",
-    },
-    { icon: <Layers />, label: t("groups"), href: "/groups" },
-    { icon: <ShoppingCart />, label: t("orders"), href: "/orders" },
-    { icon: <Star />, label: t("reviews"), href: "/reviews" },
-    { icon: <Layers />, label: t("sliders"), href: "/sliders" },
+
     { icon: <MapPin />, label: t("address_types"), href: "/address-types" },
     { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
     { icon: <Share2 />, label: t("socials"), href: "/socials" },

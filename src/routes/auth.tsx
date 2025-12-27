@@ -36,19 +36,10 @@ function AuthLayout() {
   const isDark = theme === "dark";
 
   return (
-    <div className="flex h-screen w-screen flex-col-reverse lg:flex-row">
-      <div
-        className={`flex flex-1 flex-col justify-center px-8 ${isDark ? "bg-[#1D1D1D]" : "bg-white"}`}
-      >
-        <Outlet />
-      </div>
-      <div className="relative flex lg:flex-1 flex-col items-center justify-center bg-primary dark:bg-[#060C18] overflow-hidden h-[150px] lg:h-full">
-        <img src="/logo.svg" alt="DeTech" className="w-1/2 object-contain" />
-        {/* Top left circle */}
-        <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full border-[40px] border-primary-foreground/20 dark:border-primary-foreground/10 hidden lg:block"></div>
-        {/* Bottom right circle */}
-        <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full border-[40px] border-primary-foreground/20  dark:border-primary-foreground/10 hidden lg:block"></div>
-      </div>
+    <div
+      className={`h-screen w-screen ${isDark ? "bg-[#1D1D1D]" : "bg-gray-50"}`}
+    >
+      <Outlet />
     </div>
   );
 }
