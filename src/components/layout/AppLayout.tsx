@@ -1,6 +1,7 @@
 import { Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import {
+  Building2,
   FileText,
   Globe,
   Languages,
@@ -30,6 +31,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const sidebarItems = [
     { icon: <LayoutDashboard />, label: t("dashboard"), href: "/" },
+    { icon: <Building2 />, label: t("companies"), href: "/companies" },
     { icon: <UserCheck />, label: t("admins"), href: "/admins" },
     { icon: <Users />, label: t("users"), href: "/users" },
     { icon: <Globe />, label: t("languages"), href: "/languages" },
