@@ -23,6 +23,7 @@ import { Route as AppSocialsIndexImport } from './routes/_app/socials/index'
 import { Route as AppSettingsIndexImport } from './routes/_app/settings/index'
 import { Route as AppReviewsIndexImport } from './routes/_app/reviews/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
+import { Route as AppProductsIndexImport } from './routes/_app/products/index'
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
@@ -30,13 +31,16 @@ import { Route as AppCategoriesIndexImport } from './routes/_app/categories/inde
 import { Route as AppBrandsIndexImport } from './routes/_app/brands/index'
 import { Route as AppAdminsIndexImport } from './routes/_app/admins/index'
 import { Route as AppAddressTypesIndexImport } from './routes/_app/address-types/index'
+import { Route as AppProductsProductIdIndexImport } from './routes/_app/products/$productId/index'
 import { Route as AppCompaniesAddIndexImport } from './routes/_app/companies/add/index'
 import { Route as AppAdminsAddIndexImport } from './routes/_app/admins/add/index'
 import { Route as AppCompaniesIdEditImport } from './routes/_app/companies/$id/edit'
 import { Route as AppAdminsIdEditImport } from './routes/_app/admins/$id/edit'
 import { Route as AppUsersUserIdAddressesIndexImport } from './routes/_app/users/$userId/addresses/index'
+import { Route as AppProductsProductIdVariantsIndexImport } from './routes/_app/products/$productId/variants/index'
 import { Route as AppCompaniesIdAdminsIndexImport } from './routes/_app/companies/$id/admins/index'
 import { Route as AppCategoriesIdSubcategoriesIndexImport } from './routes/_app/categories/$id/subcategories/index'
+import { Route as AppProductsProductIdVariantsVariantIdIndexImport } from './routes/_app/products/$productId/variants/$variantId/index'
 
 // Create/Update Routes
 
@@ -111,6 +115,12 @@ const AppProfileIndexRoute = AppProfileIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppProductsIndexRoute = AppProductsIndexImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppMetaIndexRoute = AppMetaIndexImport.update({
   id: '/meta/',
   path: '/meta/',
@@ -153,6 +163,12 @@ const AppAddressTypesIndexRoute = AppAddressTypesIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppProductsProductIdIndexRoute = AppProductsProductIdIndexImport.update({
+  id: '/products/$productId/',
+  path: '/products/$productId/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppCompaniesAddIndexRoute = AppCompaniesAddIndexImport.update({
   id: '/companies/add/',
   path: '/companies/add/',
@@ -184,6 +200,13 @@ const AppUsersUserIdAddressesIndexRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppProductsProductIdVariantsIndexRoute =
+  AppProductsProductIdVariantsIndexImport.update({
+    id: '/products/$productId/variants/',
+    path: '/products/$productId/variants/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompaniesIdAdminsIndexRoute = AppCompaniesIdAdminsIndexImport.update({
   id: '/companies/$id/admins/',
   path: '/companies/$id/admins/',
@@ -194,6 +217,13 @@ const AppCategoriesIdSubcategoriesIndexRoute =
   AppCategoriesIdSubcategoriesIndexImport.update({
     id: '/categories/$id/subcategories/',
     path: '/categories/$id/subcategories/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppProductsProductIdVariantsVariantIdIndexRoute =
+  AppProductsProductIdVariantsVariantIdIndexImport.update({
+    id: '/products/$productId/variants/$variantId/',
+    path: '/products/$productId/variants/$variantId/',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -292,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetaIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/products/': {
+      id: '/_app/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof AppProductsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/profile/': {
       id: '/_app/profile/'
       path: '/profile'
@@ -362,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesAddIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/products/$productId/': {
+      id: '/_app/products/$productId/'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof AppProductsProductIdIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/categories/$id/subcategories/': {
       id: '/_app/categories/$id/subcategories/'
       path: '/categories/$id/subcategories'
@@ -376,11 +420,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesIdAdminsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/products/$productId/variants/': {
+      id: '/_app/products/$productId/variants/'
+      path: '/products/$productId/variants'
+      fullPath: '/products/$productId/variants'
+      preLoaderRoute: typeof AppProductsProductIdVariantsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/users/$userId/addresses/': {
       id: '/_app/users/$userId/addresses/'
       path: '/users/$userId/addresses'
       fullPath: '/users/$userId/addresses'
       preLoaderRoute: typeof AppUsersUserIdAddressesIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/products/$productId/variants/$variantId/': {
+      id: '/_app/products/$productId/variants/$variantId/'
+      path: '/products/$productId/variants/$variantId'
+      fullPath: '/products/$productId/variants/$variantId'
+      preLoaderRoute: typeof AppProductsProductIdVariantsVariantIdIndexImport
       parentRoute: typeof AppImport
     }
   }
@@ -397,6 +455,7 @@ interface AppRouteChildren {
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppReviewsIndexRoute: typeof AppReviewsIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
@@ -407,9 +466,12 @@ interface AppRouteChildren {
   AppCompaniesIdEditRoute: typeof AppCompaniesIdEditRoute
   AppAdminsAddIndexRoute: typeof AppAdminsAddIndexRoute
   AppCompaniesAddIndexRoute: typeof AppCompaniesAddIndexRoute
+  AppProductsProductIdIndexRoute: typeof AppProductsProductIdIndexRoute
   AppCategoriesIdSubcategoriesIndexRoute: typeof AppCategoriesIdSubcategoriesIndexRoute
   AppCompaniesIdAdminsIndexRoute: typeof AppCompaniesIdAdminsIndexRoute
+  AppProductsProductIdVariantsIndexRoute: typeof AppProductsProductIdVariantsIndexRoute
   AppUsersUserIdAddressesIndexRoute: typeof AppUsersUserIdAddressesIndexRoute
+  AppProductsProductIdVariantsVariantIdIndexRoute: typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -421,6 +483,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
+  AppProductsIndexRoute: AppProductsIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppReviewsIndexRoute: AppReviewsIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
@@ -431,10 +494,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompaniesIdEditRoute: AppCompaniesIdEditRoute,
   AppAdminsAddIndexRoute: AppAdminsAddIndexRoute,
   AppCompaniesAddIndexRoute: AppCompaniesAddIndexRoute,
+  AppProductsProductIdIndexRoute: AppProductsProductIdIndexRoute,
   AppCategoriesIdSubcategoriesIndexRoute:
     AppCategoriesIdSubcategoriesIndexRoute,
   AppCompaniesIdAdminsIndexRoute: AppCompaniesIdAdminsIndexRoute,
+  AppProductsProductIdVariantsIndexRoute:
+    AppProductsProductIdVariantsIndexRoute,
   AppUsersUserIdAddressesIndexRoute: AppUsersUserIdAddressesIndexRoute,
+  AppProductsProductIdVariantsVariantIdIndexRoute:
+    AppProductsProductIdVariantsVariantIdIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -467,6 +535,7 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AppCompaniesIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
+  '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
@@ -477,9 +546,12 @@ export interface FileRoutesByFullPath {
   '/companies/$id/edit': typeof AppCompaniesIdEditRoute
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
+  '/products/$productId': typeof AppProductsProductIdIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
+  '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -495,6 +567,7 @@ export interface FileRoutesByTo {
   '/companies': typeof AppCompaniesIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
+  '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
@@ -505,9 +578,12 @@ export interface FileRoutesByTo {
   '/companies/$id/edit': typeof AppCompaniesIdEditRoute
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
+  '/products/$productId': typeof AppProductsProductIdIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
+  '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -525,6 +601,7 @@ export interface FileRoutesById {
   '/_app/companies/': typeof AppCompaniesIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
+  '/_app/products/': typeof AppProductsIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
   '/_app/reviews/': typeof AppReviewsIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
@@ -535,9 +612,12 @@ export interface FileRoutesById {
   '/_app/companies/$id/edit': typeof AppCompaniesIdEditRoute
   '/_app/admins/add/': typeof AppAdminsAddIndexRoute
   '/_app/companies/add/': typeof AppCompaniesAddIndexRoute
+  '/_app/products/$productId/': typeof AppProductsProductIdIndexRoute
   '/_app/categories/$id/subcategories/': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/_app/companies/$id/admins/': typeof AppCompaniesIdAdminsIndexRoute
+  '/_app/products/$productId/variants/': typeof AppProductsProductIdVariantsIndexRoute
   '/_app/users/$userId/addresses/': typeof AppUsersUserIdAddressesIndexRoute
+  '/_app/products/$productId/variants/$variantId/': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -556,6 +636,7 @@ export interface FileRouteTypes {
     | '/companies'
     | '/languages'
     | '/meta'
+    | '/products'
     | '/profile'
     | '/reviews'
     | '/settings'
@@ -566,9 +647,12 @@ export interface FileRouteTypes {
     | '/companies/$id/edit'
     | '/admins/add'
     | '/companies/add'
+    | '/products/$productId'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/products/$productId/variants'
     | '/users/$userId/addresses'
+    | '/products/$productId/variants/$variantId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -583,6 +667,7 @@ export interface FileRouteTypes {
     | '/companies'
     | '/languages'
     | '/meta'
+    | '/products'
     | '/profile'
     | '/reviews'
     | '/settings'
@@ -593,9 +678,12 @@ export interface FileRouteTypes {
     | '/companies/$id/edit'
     | '/admins/add'
     | '/companies/add'
+    | '/products/$productId'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/products/$productId/variants'
     | '/users/$userId/addresses'
+    | '/products/$productId/variants/$variantId'
   id:
     | '__root__'
     | '/_app'
@@ -611,6 +699,7 @@ export interface FileRouteTypes {
     | '/_app/companies/'
     | '/_app/languages/'
     | '/_app/meta/'
+    | '/_app/products/'
     | '/_app/profile/'
     | '/_app/reviews/'
     | '/_app/settings/'
@@ -621,9 +710,12 @@ export interface FileRouteTypes {
     | '/_app/companies/$id/edit'
     | '/_app/admins/add/'
     | '/_app/companies/add/'
+    | '/_app/products/$productId/'
     | '/_app/categories/$id/subcategories/'
     | '/_app/companies/$id/admins/'
+    | '/_app/products/$productId/variants/'
     | '/_app/users/$userId/addresses/'
+    | '/_app/products/$productId/variants/$variantId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -662,6 +754,7 @@ export const routeTree = rootRoute
         "/_app/companies/",
         "/_app/languages/",
         "/_app/meta/",
+        "/_app/products/",
         "/_app/profile/",
         "/_app/reviews/",
         "/_app/settings/",
@@ -672,9 +765,12 @@ export const routeTree = rootRoute
         "/_app/companies/$id/edit",
         "/_app/admins/add/",
         "/_app/companies/add/",
+        "/_app/products/$productId/",
         "/_app/categories/$id/subcategories/",
         "/_app/companies/$id/admins/",
-        "/_app/users/$userId/addresses/"
+        "/_app/products/$productId/variants/",
+        "/_app/users/$userId/addresses/",
+        "/_app/products/$productId/variants/$variantId/"
       ]
     },
     "/auth": {
@@ -729,6 +825,10 @@ export const routeTree = rootRoute
       "filePath": "_app/meta/index.tsx",
       "parent": "/_app"
     },
+    "/_app/products/": {
+      "filePath": "_app/products/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/profile/": {
       "filePath": "_app/profile/index.tsx",
       "parent": "/_app"
@@ -769,6 +869,10 @@ export const routeTree = rootRoute
       "filePath": "_app/companies/add/index.tsx",
       "parent": "/_app"
     },
+    "/_app/products/$productId/": {
+      "filePath": "_app/products/$productId/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/categories/$id/subcategories/": {
       "filePath": "_app/categories/$id/subcategories/index.tsx",
       "parent": "/_app"
@@ -777,8 +881,16 @@ export const routeTree = rootRoute
       "filePath": "_app/companies/$id/admins/index.tsx",
       "parent": "/_app"
     },
+    "/_app/products/$productId/variants/": {
+      "filePath": "_app/products/$productId/variants/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/users/$userId/addresses/": {
       "filePath": "_app/users/$userId/addresses/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/products/$productId/variants/$variantId/": {
+      "filePath": "_app/products/$productId/variants/$variantId/index.tsx",
       "parent": "/_app"
     }
   }

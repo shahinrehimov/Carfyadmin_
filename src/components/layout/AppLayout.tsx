@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   List,
   MapPin,
+  Package,
   Settings as SettingsIcon,
   Share2,
   Tag,
@@ -38,6 +39,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     { icon: <Languages />, label: t("translations"), href: "/translations" },
     { icon: <Tag />, label: t("brands"), href: "/brands" },
     { icon: <List />, label: t("categories"), href: "/categories" },
+    { icon: <Package />, label: t("products"), href: "/products" },
 
     { icon: <MapPin />, label: t("address_types"), href: "/address-types" },
     { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
