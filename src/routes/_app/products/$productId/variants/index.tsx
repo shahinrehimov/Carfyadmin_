@@ -31,8 +31,11 @@ import {
   useAdminCPVHistory,
   useApproveCPV,
   useRejectCPV,
+  useVariantRevisions,
+  useApproveRevision,
+  useRejectRevision,
 } from "@/lib/queries/products";
-import type { AdminCPV, ApprovalHistoryItem } from "@/lib/queries/products";
+import type { AdminCPV, ApprovalHistoryItem, VariantRevision } from "@/lib/queries/products";
 import { useCompaniesList } from "@/lib/queries/companies";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
@@ -44,7 +47,8 @@ type ModalState =
   | { type: null }
   | { type: "history"; cpv: AdminCPV }
   | { type: "approve"; cpv: AdminCPV }
-  | { type: "reject"; cpv: AdminCPV };
+  | { type: "reject"; cpv: AdminCPV }
+  | { type: "revisions"; variantId: number };
 
 function ApprovalStatusBadge({ status, label }: { status: string; label: string }) {
   if (status === "approved")
@@ -83,6 +87,135 @@ function HistoryModal({ cpvId, onClose }: { cpvId: number; onClose: () => void }
                 <p className="mt-2 rounded bg-gray-50 p-2 text-sm text-gray-700 dark:bg-gray-800">
                   {item.approval_status_message}
                 </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex justify-end">
+        <Button variant="outline" onClick={onClose}>{t("close")}</Button>
+      </div>
+    </div>
+  );
+}
+
+function RevisionsModal({ variantId, onClose }: { variantId: number; onClose: () => void }) {
+  const { t } = useTranslation();
+  const { data: revisions, isLoading, refetch } = useVariantRevisions(variantId, true);
+  const approveMutation = useApproveRevision();
+  const rejectMutation = useRejectRevision();
+  const [rejectMessage, setRejectMessage] = useState("");
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
+
+  const handleApprove = async (revision: VariantRevision) => {
+    try {
+      await approveMutation.mutateAsync(revision.id);
+      toast.success(t("approved_successfully"));
+      refetch();
+    } catch {
+      toast.error(t("error_occurred"));
+    }
+  };
+
+  const handleReject = async (revisionId: number) => {
+    try {
+      await rejectMutation.mutateAsync({ id: revisionId, message: rejectMessage });
+      toast.success(t("rejected_successfully"));
+      setRejectingId(null);
+      setRejectMessage("");
+      refetch();
+    } catch {
+      toast.error(t("error_occurred"));
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {isLoading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
+      ) : !revisions?.length ? (
+        <p className="py-6 text-center text-gray-500">{t("no_data_found")}</p>
+      ) : (
+        <div className="space-y-4">
+          {revisions.map((revision) => (
+            <div key={revision.id} className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {revision.status === "pending" && <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pending</Badge>}
+                  {revision.status === "approved" && <Badge variant="default"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>}
+                  {revision.status === "rejected" && <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>}
+                  {revision.company && <span className="text-sm text-gray-500">{revision.company.title}</span>}
+                </div>
+                <span className="text-xs text-gray-400">{revision.created_date}</span>
+              </div>
+
+              {/* Before / After comparison */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded bg-gray-50 dark:bg-gray-800 p-3 space-y-1">
+                  <p className="font-semibold text-xs text-gray-500 mb-2">{t("current") || "Cari"}</p>
+                  <p><span className="text-gray-500">OEM:</span> {revision.current.oem_code || "—"}</p>
+                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.current.brand_model?.title || "—"}</p>
+                  <p><span className="text-gray-500">{t("year")}:</span> {revision.current.year || "—"}</p>
+                </div>
+                <div className="rounded bg-blue-50 dark:bg-blue-950 p-3 space-y-1">
+                  <p className="font-semibold text-xs text-blue-600 mb-2">{t("proposed") || "Təklif olunan"}</p>
+                  <p><span className="text-gray-500">OEM:</span> {revision.data.oem_code || "—"}</p>
+                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.data.brand_model_id || "—"}</p>
+                  <p><span className="text-gray-500">{t("year")}:</span> {revision.data.year || "—"}</p>
+                </div>
+              </div>
+
+              {/* Images */}
+              {(revision.images.main_image || revision.images.images.length > 0) && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-gray-500">{t("images")}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {revision.images.main_image && (
+                      <img src={revision.images.main_image} alt="main" className="h-16 w-16 rounded object-cover border" />
+                    )}
+                    {revision.images.hover_image && (
+                      <img src={revision.images.hover_image} alt="hover" className="h-16 w-16 rounded object-cover border" />
+                    )}
+                    {revision.images.images.map((img) => (
+                      <img key={img.id} src={img.url} alt="" className="h-16 w-16 rounded object-cover border" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {revision.rejection_message && (
+                <p className="rounded bg-red-50 dark:bg-red-950 p-2 text-sm text-red-700">{revision.rejection_message}</p>
+              )}
+
+              {revision.status === "pending" && (
+                <div className="space-y-2">
+                  {rejectingId === revision.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        className="w-full rounded-md border px-3 py-2 text-sm"
+                        rows={2}
+                        placeholder={t("rejection_message") || "Rədd etmə səbəbi..."}
+                        value={rejectMessage}
+                        onChange={(e) => setRejectMessage(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="destructive" onClick={() => handleReject(revision.id)} disabled={rejectMutation.isPending}>
+                          {rejectMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t("confirm_reject") || "Rədd et"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setRejectingId(null)}>{t("cancel")}</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => handleApprove(revision)} disabled={approveMutation.isPending}>
+                        {approveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <><CheckCircle className="h-4 w-4 mr-1" />{t("approve")}</>}
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => setRejectingId(revision.id)}>
+                        <XCircle className="h-4 w-4 mr-1" />{t("reject")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))}
@@ -354,6 +487,17 @@ function RouteComponent() {
                       >
                         <History className="h-4 w-4" />
                       </Button>
+                      {cpv.variant?.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={t("revisions") || "Redaktə təklifləri"}
+                          className="text-blue-600 hover:text-blue-700"
+                          onClick={() => setModalState({ type: "revisions", variantId: cpv.variant!.id })}
+                        >
+                          <Clock className="h-4 w-4" />
+                        </Button>
+                      )}
                       {cpv.approval_status === "pending" && (
                         <>
                           <Button
@@ -525,6 +669,18 @@ function RouteComponent() {
       >
         {modalState.type === "reject" && (
           <RejectModal cpv={modalState.cpv} onClose={closeModal} />
+        )}
+      </Modal>
+
+      {/* Revisions Modal */}
+      <Modal
+        isOpen={modalState.type === "revisions"}
+        onClose={closeModal}
+        title={t("revisions") || "Redaktə təklifləri"}
+        size="lg"
+      >
+        {modalState.type === "revisions" && (
+          <RevisionsModal variantId={modalState.variantId} onClose={closeModal} />
         )}
       </Modal>
     </div>

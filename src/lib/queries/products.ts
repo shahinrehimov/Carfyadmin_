@@ -228,6 +228,32 @@ export interface ApprovalHistoryItem {
   created_date: string;
 }
 
+export interface VariantRevision {
+  id: number;
+  status: "pending" | "approved" | "rejected";
+  rejection_message: string | null;
+  company: { id: number; title: string } | null;
+  data: {
+    oem_code: string | null;
+    brand_model_id: number | null;
+    year: number | null;
+    options: { option_id: number; value: any }[];
+  };
+  current: {
+    oem_code: string | null;
+    brand_model_id: number | null;
+    brand_model: { id: number; title: string } | null;
+    year: number | null;
+    options: { option_id: number; value: any }[];
+  };
+  images: {
+    main_image: string | null;
+    hover_image: string | null;
+    images: { id: number; url: string }[];
+  };
+  created_date: string;
+}
+
 // ─── Response Types ───────────────────────────────────────────────────────────
 
 interface PaginatedResponse<T> {
@@ -324,6 +350,23 @@ async function approveVariant(id: number) {
 
 async function rejectVariant(id: number, message?: string) {
   const response = await controlPrivateApi.post(`/product-variants/${id}/approval-status/reject`, {
+    message: message || null,
+  });
+  return response.data;
+}
+
+async function getVariantRevisions(variantId: number) {
+  const response = await controlPrivateApi.get(`/product-variants/${variantId}/revisions`);
+  return response.data.data as VariantRevision[];
+}
+
+async function approveRevision(revisionId: number) {
+  const response = await controlPrivateApi.post(`/product-variants/revisions/${revisionId}/approve`);
+  return response.data;
+}
+
+async function rejectRevision(revisionId: number, message?: string) {
+  const response = await controlPrivateApi.post(`/product-variants/revisions/${revisionId}/reject`, {
     message: message || null,
   });
   return response.data;
@@ -471,6 +514,36 @@ export function useRejectVariant() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+export function useVariantRevisions(variantId: number, enabled = false) {
+  return useQuery({
+    queryKey: ["variantRevisions", variantId],
+    queryFn: () => getVariantRevisions(variantId),
+    enabled,
+  });
+}
+
+export function useApproveRevision() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => approveRevision(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["variantRevisions"] });
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+    },
+  });
+}
+
+export function useRejectRevision() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: number; message?: string }) =>
+      rejectRevision(id, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["variantRevisions"] });
     },
   });
 }
