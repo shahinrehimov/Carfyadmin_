@@ -69,6 +69,7 @@ interface CreateCompanyRequest {
   longitude: number;
   website: string;
   is_active: boolean;
+  city_id: number;
   translations: Array<{
     language_id: number;
     title: string | null;

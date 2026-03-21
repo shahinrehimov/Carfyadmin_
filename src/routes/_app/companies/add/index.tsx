@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select } from "@/components/ui/select";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import { useCreateCompany } from "@/lib/queries/companies";
 import { useLangs } from "@/lib/queries/langs";
+import { useCountries, useCities } from "@/lib/queries/countries";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LocationPickerModal from "@/components/ui/location-picker-modal";
 
@@ -26,6 +28,10 @@ function AddCompanyComponent() {
   const { data: langs = [] } = useLangs();
   const [activeTab, setActiveTab] = useState("0");
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+
+  const { data: countries = [] } = useCountries();
+  const { data: cities = [] } = useCities(selectedCountryId);
 
   // Zod validation schema
   const schema = z.object({
@@ -36,6 +42,7 @@ function AddCompanyComponent() {
     longitude: z.number().min(-180).max(180),
     website: z.string().url(t("invalid_url")).min(1, t("required_field")),
     is_active: z.boolean(),
+    city_id: z.number({ required_error: t("required_field") }).min(1, t("required_field")),
     translations: z.array(
       z.object({
         language_id: z.number(),
@@ -71,6 +78,7 @@ function AddCompanyComponent() {
       longitude: 49.8671,
       website: "",
       is_active: true,
+      city_id: undefined as unknown as number,
       translations: [],
       root_admin_username: "",
       root_admin_email: "",
@@ -90,6 +98,7 @@ function AddCompanyComponent() {
         longitude: 49.8671,
         website: "",
         is_active: true,
+        city_id: undefined as unknown as number,
         translations: langs.map((lang: any) => ({
           language_id: lang.id,
           title: null,
@@ -224,6 +233,39 @@ function AddCompanyComponent() {
                   <p className="text-red-500 text-sm">
                     {errors.website.message}
                   </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("country")}</Label>
+                <Select
+                  value={selectedCountryId ? String(selectedCountryId) : ""}
+                  onValueChange={(val) => {
+                    setSelectedCountryId(Number(val));
+                    reset({ ...watch(), city_id: undefined as unknown as number });
+                  }}
+                  placeholder={t("select_country")}
+                  options={countries.map((c) => ({ value: String(c.id), label: c.title }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("city")} <span className="text-red-500">*</span></Label>
+                <Controller
+                  name="city_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ? String(field.value) : ""}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      placeholder={t("select_city")}
+                      options={cities.map((c) => ({ value: String(c.id), label: c.title }))}
+                      disabled={!selectedCountryId}
+                    />
+                  )}
+                />
+                {errors.city_id && (
+                  <p className="text-red-500 text-sm">{errors.city_id.message}</p>
                 )}
               </div>
 
