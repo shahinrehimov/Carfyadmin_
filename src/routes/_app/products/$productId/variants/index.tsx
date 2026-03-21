@@ -255,6 +255,7 @@ function RouteComponent() {
               <TableHead className="w-[50px]">#</TableHead>
               <TableHead className="w-[80px]">{t("image")}</TableHead>
               <TableHead>{t("slug")}</TableHead>
+              <TableHead>{t("title")}</TableHead>
               <TableHead>{t("price")}</TableHead>
               <TableHead>{t("stock")}</TableHead>
               <TableHead>{t("city")}</TableHead>
@@ -270,7 +271,7 @@ function RouteComponent() {
             {isLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(12)].map((_, j) => (
+                  {[...Array(13)].map((_, j) => (
                     <TableCell key={j}>
                       <div className="h-4 animate-pulse rounded bg-gray-200" />
                     </TableCell>
@@ -293,6 +294,9 @@ function RouteComponent() {
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{variant.slug}</TableCell>
+                  <TableCell className="max-w-[200px]">
+                    <span className="line-clamp-2 text-sm">{variant.title}</span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium">{variant.price_final} ₼</span>
@@ -373,7 +377,7 @@ function RouteComponent() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={12} className="py-12 text-center text-gray-500">
+                <TableCell colSpan={13} className="py-12 text-center text-gray-500">
                   {t("no_data_found")}
                 </TableCell>
               </TableRow>
@@ -405,6 +409,9 @@ function RouteComponent() {
                   <p className="font-medium">
                     {filters.page * perPage - perPage + index + 1}. {variant.slug}
                   </p>
+                  {variant.title && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{variant.title}</p>
+                  )}
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     <ApprovalStatusBadge
                       status={variant.approval_status}

@@ -87,6 +87,7 @@ export interface ProductVariant {
   id: number;
   uuid: string;
   slug: string;
+  title: string;
   main_image: string | null;
   hover_image: string | null;
   product: Pick<Product, "id" | "uuid" | "slug" | "title" | "main_image" | "hover_image" | "is_set" | "brand" | "main_category" | "categories" | "is_active" | "created_user" | "created_date">;
