@@ -318,11 +318,11 @@ function RouteComponent() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-gray-500">{t("city")}</p>
-                <p className="mt-0.5 font-medium">{variant.city.title}</p>
+                <p className="mt-0.5 font-medium">{variant.city?.title ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("brand_model")}</p>
-                <p className="mt-0.5 font-medium">{variant.brand_model.title}</p>
+                <p className="mt-0.5 font-medium">{variant.brand_model?.title ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("year")}</p>

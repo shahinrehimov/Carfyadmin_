@@ -559,7 +559,7 @@ function RouteComponent() {
                     {filters.page * perPage - perPage + index + 1}. {cpv.variant?.title || cpv.variant?.slug}
                   </p>
                   {cpv.company?.title && (
-                    <p className="text-xs text-gray-500">{cpv.company.name}</p>
+                    <p className="text-xs text-gray-500">{cpv.company.title}</p>
                   )}
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     <ApprovalStatusBadge
