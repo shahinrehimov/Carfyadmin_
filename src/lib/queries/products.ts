@@ -100,8 +100,8 @@ export interface ProductVariant {
   discount_type: string | null;
   discount_type_title: string | null;
   discount: number;
-  city: VariantCity;
-  brand_model: VariantBrandModel;
+  city: VariantCity | null;
+  brand_model: VariantBrandModel | null;
   year: number;
   is_default: boolean;
   is_active: boolean;
@@ -157,8 +157,8 @@ export interface ProductVariantDetail {
   discount: number;
   discount_start_at: string | null;
   discount_end_at: string | null;
-  city: VariantCity;
-  brand_model: VariantBrandModel;
+  city: VariantCity | null;
+  brand_model: VariantBrandModel | null;
   year: number;
   translations: unknown[] | null;
   is_default: boolean;

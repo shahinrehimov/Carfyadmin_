@@ -310,8 +310,8 @@ function RouteComponent() {
                       {variant.stock}
                     </Badge>
                   </TableCell>
-                  <TableCell>{variant.city.title}</TableCell>
-                  <TableCell>{variant.brand_model.title}</TableCell>
+                  <TableCell>{variant.city?.title}</TableCell>
+                  <TableCell>{variant.brand_model?.title}</TableCell>
                   <TableCell>{variant.year}</TableCell>
                   <TableCell>
                     <ApprovalStatusBadge
@@ -426,7 +426,7 @@ function RouteComponent() {
                   </div>
                   <p className="mt-1 text-sm font-medium">{variant.price_final} ₼</p>
                   <p className="text-xs text-gray-400">
-                    {variant.city.title} · {variant.brand_model.title} · {variant.year}
+                    {variant.city?.title} · {variant.brand_model?.title} · {variant.year}
                   </p>
                 </div>
               </div>
