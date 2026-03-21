@@ -322,7 +322,7 @@ function RouteComponent() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("brand_model")}</p>
-                <p className="mt-0.5 font-medium">{variant.brand_model?.title ?? "—"}</p>
+                <p className="mt-0.5 font-medium">{variant.brand_models?.map(m => m.title).join(", ") ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("year")}</p>

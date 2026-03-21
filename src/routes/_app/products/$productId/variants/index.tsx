@@ -154,13 +154,13 @@ function RevisionsModal({ variantId, onClose }: { variantId: number; onClose: ()
                 <div className="rounded bg-gray-50 dark:bg-gray-800 p-3 space-y-1">
                   <p className="font-semibold text-xs text-gray-500 mb-2">{t("current") || "Cari"}</p>
                   <p><span className="text-gray-500">OEM:</span> {revision.current.oem_code || "—"}</p>
-                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.current.brand_model?.title || "—"}</p>
+                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.current.brand_models?.map((m: any) => m.title).join(", ") || "—"}</p>
                   <p><span className="text-gray-500">{t("year")}:</span> {revision.current.year || "—"}</p>
                 </div>
                 <div className="rounded bg-blue-50 dark:bg-blue-950 p-3 space-y-1">
                   <p className="font-semibold text-xs text-blue-600 mb-2">{t("proposed") || "Təklif olunan"}</p>
                   <p><span className="text-gray-500">OEM:</span> {revision.data.oem_code || "—"}</p>
-                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.data.brand_model_id || "—"}</p>
+                  <p><span className="text-gray-500">{t("brand_model")}:</span> {revision.data.brand_model_ids?.join(", ") || "—"}</p>
                   <p><span className="text-gray-500">{t("year")}:</span> {revision.data.year || "—"}</p>
                 </div>
               </div>
@@ -456,7 +456,7 @@ function RouteComponent() {
                     </Badge>
                   </TableCell>
                   <TableCell>{cpv.city?.title || "—"}</TableCell>
-                  <TableCell>{cpv.variant?.brand_model?.title || "—"}</TableCell>
+                  <TableCell>{cpv.variant?.brand_models?.map((m: any) => m.title).join(", ") || "—"}</TableCell>
                   <TableCell>{cpv.variant?.year || "—"}</TableCell>
                   <TableCell>
                     <ApprovalStatusBadge
@@ -572,7 +572,7 @@ function RouteComponent() {
                   </div>
                   <p className="mt-1 text-sm font-medium">{cpv.price_final} ₼</p>
                   <p className="text-xs text-gray-400">
-                    {cpv.city?.title} · {cpv.variant?.brand_model?.title} · {cpv.variant?.year}
+                    {cpv.city?.title} · {cpv.variant?.brand_models?.map((m: any) => m.title).join(", ") || "—"} · {cpv.variant?.year}
                   </p>
                 </div>
               </div>

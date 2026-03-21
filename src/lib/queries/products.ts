@@ -103,7 +103,7 @@ export interface ProductVariant {
   discount_type_title: string | null;
   discount: number;
   city: VariantCity | null;
-  brand_model: VariantBrandModel | null;
+  brand_models: VariantBrandModel[];
   year: number;
   is_default: boolean;
   is_active: boolean;
@@ -160,7 +160,7 @@ export interface ProductVariantDetail {
   discount_start_at: string | null;
   discount_end_at: string | null;
   city: VariantCity | null;
-  brand_model: VariantBrandModel | null;
+  brand_models: VariantBrandModel[];
   year: number;
   translations: unknown[] | null;
   is_default: boolean;
@@ -196,7 +196,7 @@ export interface AdminCPV {
     is_set: boolean;
     is_creator: boolean;
     has_pending_revision: boolean;
-    brand_model: { id: number; title: string } | null;
+    brand_models: Array<{ id: number; title: string }>;
     year: number | null;
     product: {
       id: number;
@@ -238,14 +238,13 @@ export interface VariantRevision {
   company: { id: number; title: string } | null;
   data: {
     oem_code: string | null;
-    brand_model_id: number | null;
+    brand_model_ids: number[];
     year: number | null;
     options: { option_id: number; value: any }[];
   };
   current: {
     oem_code: string | null;
-    brand_model_id: number | null;
-    brand_model: { id: number; title: string } | null;
+    brand_models: Array<{ id: number; title: string }>;
     year: number | null;
     options: { option_id: number; value: any }[];
   };
