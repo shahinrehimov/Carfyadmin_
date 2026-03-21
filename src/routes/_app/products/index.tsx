@@ -159,7 +159,12 @@ function RouteComponent() {
                   )}
                   {product.pending_revisions_count > 0 && (
                     <Badge variant="secondary" className="gap-1 text-yellow-700 border-yellow-300 bg-yellow-50">
-                      {product.pending_revisions_count} {t("revisions") || "revizyon"}
+                      {product.pending_revisions_count} {t("variant_revisions") || "variant revizyon"}
+                    </Badge>
+                  )}
+                  {product.pending_product_revisions_count > 0 && (
+                    <Badge variant="secondary" className="gap-1 text-blue-700 border-blue-300 bg-blue-50">
+                      {product.pending_product_revisions_count} {t("product_revisions") || "məhsul revizyon"}
                     </Badge>
                   )}
                 </div>

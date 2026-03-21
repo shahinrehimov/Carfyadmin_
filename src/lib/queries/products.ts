@@ -38,6 +38,7 @@ export interface Product {
   variants_count: number;
   pending_variants_count: number;
   pending_revisions_count: number;
+  pending_product_revisions_count: number;
   is_active: boolean;
   created_user: string;
   created_date: string;
@@ -256,6 +257,30 @@ export interface VariantRevision {
   created_date: string;
 }
 
+export interface ProductRevision {
+  id: number;
+  status: "pending" | "approved" | "rejected";
+  rejection_message: string | null;
+  company: { id: number; title: string } | null;
+  data: {
+    brand_id: number | null;
+    main_category_id: number | null;
+    categories: number[];
+    sets: { product_variant_id: number; quantity: number }[];
+    translations: { language_id: number; title: string; description_short: string; description?: string; delivery?: string; note?: string }[];
+  };
+  current: {
+    brand_id: number | null;
+    main_category_id: number | null;
+  };
+  images: {
+    main_image: string | null;
+    hover_image: string | null;
+    images: { id: number; url: string }[];
+  };
+  created_date: string;
+}
+
 // ─── Response Types ───────────────────────────────────────────────────────────
 
 interface PaginatedResponse<T> {
@@ -369,6 +394,25 @@ async function approveRevision(revisionId: number) {
 
 async function rejectRevision(revisionId: number, message?: string) {
   const response = await controlPrivateApi.post(`/product-variants/revisions/${revisionId}/reject`, {
+    message: message || null,
+  });
+  return response.data;
+}
+
+// ─── API Functions – Product Revisions ───────────────────────────────────────
+
+async function getProductRevisions(productId: number) {
+  const response = await controlPrivateApi.get(`/products/${productId}/revisions`);
+  return response.data.data as ProductRevision[];
+}
+
+async function approveProductRevision(revisionId: number) {
+  const response = await controlPrivateApi.post(`/products/revisions/${revisionId}/approve`);
+  return response.data;
+}
+
+async function rejectProductRevision(revisionId: number, message?: string) {
+  const response = await controlPrivateApi.post(`/products/revisions/${revisionId}/reject`, {
     message: message || null,
   });
   return response.data;
@@ -546,6 +590,40 @@ export function useRejectRevision() {
       rejectRevision(id, message),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["variantRevisions"] });
+    },
+  });
+}
+
+// ─── Hooks – Product Revisions ────────────────────────────────────────────────
+
+export function useProductRevisions(productId: number, enabled = false) {
+  return useQuery({
+    queryKey: ["productRevisions", productId],
+    queryFn: () => getProductRevisions(productId),
+    enabled,
+  });
+}
+
+export function useApproveProductRevision() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => approveProductRevision(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["productRevisions"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
+    },
+  });
+}
+
+export function useRejectProductRevision() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: number; message?: string }) =>
+      rejectProductRevision(id, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["productRevisions"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
