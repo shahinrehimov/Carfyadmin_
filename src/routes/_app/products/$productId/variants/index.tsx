@@ -487,12 +487,12 @@ function RouteComponent() {
                       >
                         <History className="h-4 w-4" />
                       </Button>
-                      {cpv.variant?.id && (
+                      {cpv.variant?.id && cpv.variant?.has_pending_revision && (
                         <Button
                           variant="ghost"
                           size="icon"
                           title={t("revisions") || "Redaktə təklifləri"}
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-yellow-600 hover:text-yellow-700"
                           onClick={() => setModalState({ type: "revisions", variantId: cpv.variant!.id })}
                         >
                           <Clock className="h-4 w-4" />

@@ -37,6 +37,7 @@ export interface Product {
   groups: unknown[];
   variants_count: number;
   pending_variants_count: number;
+  pending_revisions_count: number;
   is_active: boolean;
   created_user: string;
   created_date: string;
@@ -193,6 +194,7 @@ export interface AdminCPV {
     main_image: string | null;
     is_set: boolean;
     is_creator: boolean;
+    has_pending_revision: boolean;
     brand_model: { id: number; title: string } | null;
     year: number | null;
     product: {

@@ -151,13 +151,18 @@ function RouteComponent() {
                 <Badge variant="default">{product.variants_count}</Badge>
               </TableCell>
               <TableCell>
-                {product.pending_variants_count > 0 ? (
-                  <Badge variant="destructive">
-                    {product.pending_variants_count}
-                  </Badge>
-                ) : (
-                  <Badge variant="outline">0</Badge>
-                )}
+                <div className="flex flex-col gap-1">
+                  {product.pending_variants_count > 0 ? (
+                    <Badge variant="destructive">{product.pending_variants_count}</Badge>
+                  ) : (
+                    <Badge variant="outline">0</Badge>
+                  )}
+                  {product.pending_revisions_count > 0 && (
+                    <Badge variant="secondary" className="gap-1 text-yellow-700 border-yellow-300 bg-yellow-50">
+                      {product.pending_revisions_count} {t("revisions") || "revizyon"}
+                    </Badge>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <Switch
@@ -259,6 +264,11 @@ function RouteComponent() {
                   {product.pending_variants_count > 0 && (
                     <Badge variant="destructive">
                       {t("pending")}: {product.pending_variants_count}
+                    </Badge>
+                  )}
+                  {product.pending_revisions_count > 0 && (
+                    <Badge className="gap-1 text-yellow-700 border-yellow-300 bg-yellow-50">
+                      {product.pending_revisions_count} {t("revisions") || "revizyon"}
                     </Badge>
                   )}
                 </div>
