@@ -179,6 +179,46 @@ export interface ProductVariantDetail {
   approval_status_message: string | null;
 }
 
+// ─── Company Product Variant Types ───────────────────────────────────────────
+
+export interface AdminCPV {
+  id: number;
+  uuid: string;
+  variant: {
+    id: number;
+    uuid: string;
+    slug: string;
+    title: string;
+    oem_code: string | null;
+    main_image: string | null;
+    is_set: boolean;
+    is_creator: boolean;
+    brand_model: { id: number; title: string } | null;
+    year: number | null;
+    product: {
+      id: number;
+      uuid: string;
+      slug: string;
+      title: string;
+      main_image: string | null;
+      is_active: boolean;
+    } | null;
+  } | null;
+  stock: number;
+  price: number;
+  price_final: number;
+  discount: number;
+  discount_type: string | null;
+  discount_type_title: string | null;
+  city: { id: number; title: string } | null;
+  is_active: boolean;
+  approval_status: "pending" | "approved" | "rejected";
+  approval_status_label: string;
+  approval_status_message: string | null;
+  company: { id: number; uuid: string; name: string } | null;
+  created_date: string;
+}
+
 export interface ApprovalHistoryItem {
   id: number;
   approval_status: string;
@@ -220,6 +260,14 @@ interface ProductsFilters {
 interface VariantsFilters {
   page: number;
   product_id: number;
+}
+
+interface CPVFilters {
+  page: number;
+  product_id?: number;
+  company_id?: number;
+  approval_status?: string;
+  search?: string;
 }
 
 // ─── API Functions – Products ─────────────────────────────────────────────────
@@ -281,6 +329,34 @@ async function rejectVariant(id: number, message?: string) {
   return response.data;
 }
 
+// ─── API Functions – Company Product Variants (Admin) ─────────────────────────
+
+async function getAdminCPVs(filters: CPVFilters) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([k, v]) => {
+    if (v !== null && v !== undefined && v !== "") params.append(k, String(v));
+  });
+  const response = await controlPrivateApi.get(`/company-product-variants/load?${params}`);
+  return response.data as PaginatedResponse<AdminCPV>;
+}
+
+async function getAdminCPVHistory(cpvId: number) {
+  const response = await controlPrivateApi.get(`/company-product-variants/${cpvId}/approval-status/history`);
+  return response.data as PaginatedResponse<ApprovalHistoryItem>;
+}
+
+async function approveCPV(id: number) {
+  const response = await controlPrivateApi.post(`/company-product-variants/${id}/approval-status/approve`);
+  return response.data;
+}
+
+async function rejectCPV(id: number, message?: string) {
+  const response = await controlPrivateApi.post(`/company-product-variants/${id}/approval-status/reject`, {
+    message: message || null,
+  });
+  return response.data;
+}
+
 // ─── Query Options ────────────────────────────────────────────────────────────
 
 export const productsQueryOptions = (filters: ProductsFilters) =>
@@ -315,6 +391,20 @@ export const variantApprovalHistoryQueryOptions = (variantId: number, enabled = 
   queryOptions({
     queryKey: ["variantApprovalHistory", variantId],
     queryFn: () => getVariantApprovalHistory(variantId),
+    enabled,
+  });
+
+export const adminCPVsQueryOptions = (filters: CPVFilters) =>
+  queryOptions({
+    queryKey: ["adminCPVs", filters],
+    queryFn: () => getAdminCPVs(filters),
+    staleTime: 2 * 60 * 1000,
+  });
+
+export const adminCPVHistoryQueryOptions = (cpvId: number, enabled = false) =>
+  queryOptions({
+    queryKey: ["adminCPVHistory", cpvId],
+    queryFn: () => getAdminCPVHistory(cpvId),
     enabled,
   });
 
@@ -380,6 +470,39 @@ export function useRejectVariant() {
       rejectVariant(id, message),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+// ─── Hooks – Company Product Variants (Admin) ─────────────────────────────────
+
+export function useAdminCPVs(filters: CPVFilters) {
+  return useQuery(adminCPVsQueryOptions(filters));
+}
+
+export function useAdminCPVHistory(cpvId: number, enabled = false) {
+  return useQuery(adminCPVHistoryQueryOptions(cpvId, enabled));
+}
+
+export function useApproveCPV() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => approveCPV(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+export function useRejectCPV() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: number; message?: string }) =>
+      rejectCPV(id, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });

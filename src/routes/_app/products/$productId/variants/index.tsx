@@ -27,13 +27,12 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useProductVariants,
-  useToggleVariantStatus,
-  useVariantApprovalHistory,
-  useApproveVariant,
-  useRejectVariant,
+  useAdminCPVs,
+  useAdminCPVHistory,
+  useApproveCPV,
+  useRejectCPV,
 } from "@/lib/queries/products";
-import type { ProductVariant, ApprovalHistoryItem } from "@/lib/queries/products";
+import type { AdminCPV, ApprovalHistoryItem } from "@/lib/queries/products";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute("/_app/products/$productId/variants/")({
@@ -42,9 +41,9 @@ export const Route = createFileRoute("/_app/products/$productId/variants/")({
 
 type ModalState =
   | { type: null }
-  | { type: "history"; variant: ProductVariant }
-  | { type: "approve"; variant: ProductVariant }
-  | { type: "reject"; variant: ProductVariant };
+  | { type: "history"; cpv: AdminCPV }
+  | { type: "approve"; cpv: AdminCPV }
+  | { type: "reject"; cpv: AdminCPV };
 
 function ApprovalStatusBadge({ status, label }: { status: string; label: string }) {
   if (status === "approved")
@@ -54,9 +53,9 @@ function ApprovalStatusBadge({ status, label }: { status: string; label: string 
   return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{label}</Badge>;
 }
 
-function HistoryModal({ variantId, onClose }: { variantId: number; onClose: () => void }) {
+function HistoryModal({ cpvId, onClose }: { cpvId: number; onClose: () => void }) {
   const { t } = useTranslation();
-  const { data, isLoading } = useVariantApprovalHistory(variantId, true);
+  const { data, isLoading } = useAdminCPVHistory(cpvId, true);
   const history = data?.data || [];
 
   return (
@@ -96,18 +95,18 @@ function HistoryModal({ variantId, onClose }: { variantId: number; onClose: () =
 }
 
 function ApproveModal({
-  variant,
+  cpv,
   onClose,
 }: {
-  variant: ProductVariant;
+  cpv: AdminCPV;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
-  const approveMutation = useApproveVariant();
+  const approveMutation = useApproveCPV();
 
   const handleApprove = async () => {
     try {
-      await approveMutation.mutateAsync(variant.id);
+      await approveMutation.mutateAsync(cpv.id);
       toast.success(t("approved_successfully"));
       onClose();
     } catch (err: unknown) {
@@ -119,7 +118,7 @@ function ApproveModal({
   return (
     <div className="space-y-4">
       <p className="text-gray-600">
-        {t("approve_variant_confirm")} <span className="font-medium">{variant.slug}</span>?
+        {t("approve_variant_confirm")} <span className="font-medium">{cpv.variant?.title || cpv.variant?.slug}</span>?
       </p>
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onClose} disabled={approveMutation.isPending}>
@@ -136,19 +135,19 @@ function ApproveModal({
 }
 
 function RejectModal({
-  variant,
+  cpv,
   onClose,
 }: {
-  variant: ProductVariant;
+  cpv: AdminCPV;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const [message, setMessage] = useState("");
-  const rejectMutation = useRejectVariant();
+  const rejectMutation = useRejectCPV();
 
   const handleReject = async () => {
     try {
-      await rejectMutation.mutateAsync({ id: variant.id, message: message || undefined });
+      await rejectMutation.mutateAsync({ id: cpv.id, message: message || undefined });
       toast.success(t("rejected_successfully"));
       onClose();
     } catch (err: unknown) {
@@ -160,7 +159,7 @@ function RejectModal({
   return (
     <div className="space-y-4">
       <p className="text-gray-600">
-        {t("reject_variant_confirm")} <span className="font-medium">{variant.slug}</span>
+        {t("reject_variant_confirm")} <span className="font-medium">{cpv.variant?.title || cpv.variant?.slug}</span>
       </p>
       <div>
         <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -199,24 +198,13 @@ function RouteComponent() {
   const [filters, setFilters] = useState({ page: 1, product_id: id });
   const [modalState, setModalState] = useState<ModalState>({ type: null });
 
-  const { data, isLoading, error } = useProductVariants(filters);
-  const toggleStatusMutation = useToggleVariantStatus();
+  const { data, isLoading, error } = useAdminCPVs(filters);
 
-  const variants = data?.data || [];
+  const cpvs = data?.data || [];
   const total = data?.meta.total || 0;
   const perPage = data?.meta.per_page || 10;
   const totalPages = Math.ceil(total / perPage);
-  const productTitle = variants[0]?.product?.title;
-
-  const handleToggleStatus = async (variant: ProductVariant) => {
-    try {
-      await toggleStatusMutation.mutateAsync(variant.id);
-      toast.success(t("status_updated_successfully"));
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      toast.error(error.response?.data?.message || t("failed_to_update_status"));
-    }
-  };
+  const productTitle = cpvs[0]?.variant?.product?.title;
 
   const closeModal = () => setModalState({ type: null });
 
@@ -254,15 +242,14 @@ function RouteComponent() {
             <TableRow>
               <TableHead className="w-[50px]">#</TableHead>
               <TableHead className="w-[80px]">{t("image")}</TableHead>
-              <TableHead>{t("slug")}</TableHead>
               <TableHead>{t("title")}</TableHead>
+              <TableHead>{t("seller")}</TableHead>
               <TableHead>{t("price")}</TableHead>
               <TableHead>{t("stock")}</TableHead>
               <TableHead>{t("city")}</TableHead>
               <TableHead>{t("brand_model")}</TableHead>
               <TableHead>{t("year")}</TableHead>
               <TableHead>{t("approval_status")}</TableHead>
-              <TableHead className="w-[80px]">{t("default")}</TableHead>
               <TableHead className="w-[80px]">{t("status")}</TableHead>
               <TableHead className="w-[160px]">{t("actions")}</TableHead>
             </TableRow>
@@ -271,92 +258,88 @@ function RouteComponent() {
             {isLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(13)].map((_, j) => (
+                  {[...Array(12)].map((_, j) => (
                     <TableCell key={j}>
                       <div className="h-4 animate-pulse rounded bg-gray-200" />
                     </TableCell>
                   ))}
                 </TableRow>
               ))
-            ) : variants.length > 0 ? (
-              variants.map((variant, index) => (
-                <TableRow key={variant.id}>
+            ) : cpvs.length > 0 ? (
+              cpvs.map((cpv, index) => (
+                <TableRow key={cpv.id}>
                   <TableCell>{filters.page * perPage - perPage + index + 1}</TableCell>
                   <TableCell>
-                    {variant.main_image ? (
+                    {cpv.variant?.main_image ? (
                       <img
-                        src={variant.main_image}
-                        alt={variant.slug}
+                        src={cpv.variant.main_image}
+                        alt={cpv.variant.slug}
                         className="h-12 w-12 rounded object-cover"
                       />
                     ) : (
                       <ImageIcon className="h-12 w-12 text-gray-400" />
                     )}
                   </TableCell>
-                  <TableCell className="font-medium">{variant.slug}</TableCell>
                   <TableCell className="max-w-[200px]">
-                    <span className="line-clamp-2 text-sm">{variant.title}</span>
+                    <span className="line-clamp-2 text-sm font-medium">{cpv.variant?.title || cpv.variant?.slug}</span>
+                    {cpv.variant?.oem_code && (
+                      <span className="text-xs text-gray-400">OEM: {cpv.variant.oem_code}</span>
+                    )}
                   </TableCell>
+                  <TableCell className="text-sm">{cpv.company?.name || "—"}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium">{variant.price_final} ₼</span>
-                      {variant.discount > 0 && (
-                        <span className="text-xs text-gray-400 line-through">{variant.price} ₼</span>
+                      <span className="font-medium">{cpv.price_final} ₼</span>
+                      {cpv.discount > 0 && (
+                        <span className="text-xs text-gray-400 line-through">{cpv.price} ₼</span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={variant.stock > 0 ? "default" : "destructive"}>
-                      {variant.stock}
+                    <Badge variant={cpv.stock > 0 ? "default" : "destructive"}>
+                      {cpv.stock}
                     </Badge>
                   </TableCell>
-                  <TableCell>{variant.city?.title}</TableCell>
-                  <TableCell>{variant.brand_model?.title}</TableCell>
-                  <TableCell>{variant.year}</TableCell>
+                  <TableCell>{cpv.city?.title || "—"}</TableCell>
+                  <TableCell>{cpv.variant?.brand_model?.title || "—"}</TableCell>
+                  <TableCell>{cpv.variant?.year || "—"}</TableCell>
                   <TableCell>
                     <ApprovalStatusBadge
-                      status={variant.approval_status}
-                      label={variant.approval_status_label}
+                      status={cpv.approval_status}
+                      label={cpv.approval_status_label}
                     />
                   </TableCell>
                   <TableCell>
-                    {variant.is_default && (
-                      <Badge variant="outline" className="text-xs">{t("default")}</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={variant.is_active}
-                      onCheckedChange={() => handleToggleStatus(variant)}
-                      disabled={toggleStatusMutation.isPending}
-                    />
+                    <Switch checked={cpv.is_active} disabled />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Link
-                        to="/products/$productId/variants/$variantId"
-                        params={{ productId, variantId: String(variant.id) }}
-                      >
-                        <Button variant="ghost" size="icon" title={t("view")}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      {cpv.variant?.id && (
+                        <Link
+                          to="/products/$productId/variants/$variantId"
+                          params={{ productId, variantId: String(cpv.variant.id) }}
+                        >
+                          <Button variant="ghost" size="icon" title={t("view")}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
                         title={t("history")}
-                        onClick={() => setModalState({ type: "history", variant })}
+                        onClick={() => setModalState({ type: "history", cpv })}
                       >
                         <History className="h-4 w-4" />
                       </Button>
-                      {variant.approval_status === "pending" && (
+                      {cpv.approval_status === "pending" && (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
                             title={t("approve")}
                             className="text-green-600 hover:text-green-700"
-                            onClick={() => setModalState({ type: "approve", variant })}
+                            onClick={() => setModalState({ type: "approve", cpv })}
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
@@ -365,7 +348,7 @@ function RouteComponent() {
                             size="icon"
                             title={t("reject")}
                             className="text-red-600 hover:text-red-700"
-                            onClick={() => setModalState({ type: "reject", variant })}
+                            onClick={() => setModalState({ type: "reject", cpv })}
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
@@ -377,7 +360,7 @@ function RouteComponent() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={13} className="py-12 text-center text-gray-500">
+                <TableCell colSpan={12} className="py-12 text-center text-gray-500">
                   {t("no_data_found")}
                 </TableCell>
               </TableRow>
@@ -392,14 +375,14 @@ function RouteComponent() {
           [...Array(3)].map((_, i) => (
             <div key={i} className="h-40 animate-pulse rounded-lg bg-gray-200" />
           ))
-        ) : variants.length > 0 ? (
-          variants.map((variant, index) => (
-            <Card key={variant.id} className="p-4">
+        ) : cpvs.length > 0 ? (
+          cpvs.map((cpv, index) => (
+            <Card key={cpv.id} className="p-4">
               <div className="flex items-start gap-3">
-                {variant.main_image ? (
+                {cpv.variant?.main_image ? (
                   <img
-                    src={variant.main_image}
-                    alt={variant.slug}
+                    src={cpv.variant.main_image}
+                    alt={cpv.variant.slug}
                     className="h-16 w-16 rounded object-cover"
                   />
                 ) : (
@@ -407,58 +390,53 @@ function RouteComponent() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">
-                    {filters.page * perPage - perPage + index + 1}. {variant.slug}
+                    {filters.page * perPage - perPage + index + 1}. {cpv.variant?.title || cpv.variant?.slug}
                   </p>
-                  {variant.title && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{variant.title}</p>
+                  {cpv.company?.name && (
+                    <p className="text-xs text-gray-500">{cpv.company.name}</p>
                   )}
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     <ApprovalStatusBadge
-                      status={variant.approval_status}
-                      label={variant.approval_status_label}
+                      status={cpv.approval_status}
+                      label={cpv.approval_status_label}
                     />
-                    <Badge variant={variant.stock > 0 ? "default" : "destructive"}>
-                      {t("stock")}: {variant.stock}
+                    <Badge variant={cpv.stock > 0 ? "default" : "destructive"}>
+                      {t("stock")}: {cpv.stock}
                     </Badge>
-                    {variant.is_default && (
-                      <Badge variant="outline">{t("default")}</Badge>
-                    )}
                   </div>
-                  <p className="mt-1 text-sm font-medium">{variant.price_final} ₼</p>
+                  <p className="mt-1 text-sm font-medium">{cpv.price_final} ₼</p>
                   <p className="text-xs text-gray-400">
-                    {variant.city?.title} · {variant.brand_model?.title} · {variant.year}
+                    {cpv.city?.title} · {cpv.variant?.brand_model?.title} · {cpv.variant?.year}
                   </p>
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between border-t pt-3">
-                <Switch
-                  checked={variant.is_active}
-                  onCheckedChange={() => handleToggleStatus(variant)}
-                  disabled={toggleStatusMutation.isPending}
-                />
+                <Switch checked={cpv.is_active} disabled />
                 <div className="flex items-center gap-1">
-                  <Link
-                    to="/products/$productId/variants/$variantId"
-                    params={{ productId, variantId: String(variant.id) }}
-                  >
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                  {cpv.variant?.id && (
+                    <Link
+                      to="/products/$productId/variants/$variantId"
+                      params={{ productId, variantId: String(cpv.variant.id) }}
+                    >
+                      <Button variant="ghost" size="icon">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setModalState({ type: "history", variant })}
+                    onClick={() => setModalState({ type: "history", cpv })}
                   >
                     <History className="h-4 w-4" />
                   </Button>
-                  {variant.approval_status === "pending" && (
+                  {cpv.approval_status === "pending" && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-green-600"
-                        onClick={() => setModalState({ type: "approve", variant })}
+                        onClick={() => setModalState({ type: "approve", cpv })}
                       >
                         <CheckCircle className="h-4 w-4" />
                       </Button>
@@ -466,7 +444,7 @@ function RouteComponent() {
                         variant="ghost"
                         size="icon"
                         className="text-red-600"
-                        onClick={() => setModalState({ type: "reject", variant })}
+                        onClick={() => setModalState({ type: "reject", cpv })}
                       >
                         <XCircle className="h-4 w-4" />
                       </Button>
@@ -500,7 +478,7 @@ function RouteComponent() {
         size="md"
       >
         {modalState.type === "history" && (
-          <HistoryModal variantId={modalState.variant.id} onClose={closeModal} />
+          <HistoryModal cpvId={modalState.cpv.id} onClose={closeModal} />
         )}
       </Modal>
 
@@ -512,7 +490,7 @@ function RouteComponent() {
         size="sm"
       >
         {modalState.type === "approve" && (
-          <ApproveModal variant={modalState.variant} onClose={closeModal} />
+          <ApproveModal cpv={modalState.cpv} onClose={closeModal} />
         )}
       </Modal>
 
@@ -524,7 +502,7 @@ function RouteComponent() {
         size="md"
       >
         {modalState.type === "reject" && (
-          <RejectModal variant={modalState.variant} onClose={closeModal} />
+          <RejectModal cpv={modalState.cpv} onClose={closeModal} />
         )}
       </Modal>
     </div>
