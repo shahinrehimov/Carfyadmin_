@@ -157,6 +157,11 @@ async function verifyCompany(id: number) {
   return response.data;
 }
 
+async function getCompaniesList() {
+  const response = await controlPrivateApi.get(`/companies/list`);
+  return response.data.data as Array<{ id: number; uuid: string; title: string }>;
+}
+
 // Query options
 export const companiesQueryOptions = (filters: CompaniesFilters) =>
   queryOptions({
@@ -172,9 +177,20 @@ export const companyQueryOptions = (id: number) =>
     enabled: !!id,
   });
 
+export const companiesListQueryOptions = () =>
+  queryOptions({
+    queryKey: ["companiesList"],
+    queryFn: () => getCompaniesList(),
+    staleTime: 5 * 60 * 1000,
+  });
+
 // Hooks
 export function useCompanies(filters: CompaniesFilters) {
   return useQuery(companiesQueryOptions(filters));
+}
+
+export function useCompaniesList() {
+  return useQuery(companiesListQueryOptions());
 }
 
 export function useCompany(id: number) {

@@ -33,6 +33,7 @@ import {
   useRejectCPV,
 } from "@/lib/queries/products";
 import type { AdminCPV, ApprovalHistoryItem } from "@/lib/queries/products";
+import { useCompaniesList } from "@/lib/queries/companies";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute("/_app/products/$productId/variants/")({
@@ -195,10 +196,11 @@ function RouteComponent() {
   const { productId } = Route.useParams();
   const id = Number(productId);
 
-  const [filters, setFilters] = useState({ page: 1, product_id: id });
+  const [filters, setFilters] = useState<{ page: number; product_id: number; company_id?: number }>({ page: 1, product_id: id });
   const [modalState, setModalState] = useState<ModalState>({ type: null });
 
   const { data, isLoading, error } = useAdminCPVs(filters);
+  const { data: companiesData } = useCompaniesList();
 
   const cpvs = data?.data || [];
   const total = data?.meta.total || 0;
@@ -233,6 +235,26 @@ function RouteComponent() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Seller Filter */}
+      <div className="flex items-center gap-3">
+        <select
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          value={filters.company_id?.toString() || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              page: 1,
+              company_id: e.target.value ? Number(e.target.value) : undefined,
+            }))
+          }
+        >
+          <option value="">{t("all_sellers") || "Bütün sellerlər"}</option>
+          {(companiesData || []).map((c) => (
+            <option key={c.id} value={c.id}>{c.title}</option>
+          ))}
+        </select>
       </div>
 
       {/* Desktop table */}
@@ -286,7 +308,7 @@ function RouteComponent() {
                       <span className="text-xs text-gray-400">OEM: {cpv.variant.oem_code}</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm">{cpv.company?.name || "—"}</TableCell>
+                  <TableCell className="text-sm">{cpv.company?.title || "—"}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium">{cpv.price_final} ₼</span>
@@ -392,7 +414,7 @@ function RouteComponent() {
                   <p className="font-medium">
                     {filters.page * perPage - perPage + index + 1}. {cpv.variant?.title || cpv.variant?.slug}
                   </p>
-                  {cpv.company?.name && (
+                  {cpv.company?.title && (
                     <p className="text-xs text-gray-500">{cpv.company.name}</p>
                   )}
                   <div className="mt-1 flex flex-wrap gap-1.5">

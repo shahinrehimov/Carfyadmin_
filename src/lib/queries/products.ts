@@ -215,7 +215,7 @@ export interface AdminCPV {
   approval_status: "pending" | "approved" | "rejected";
   approval_status_label: string;
   approval_status_message: string | null;
-  company: { id: number; uuid: string; name: string } | null;
+  company: { id: number; uuid: string; title: string } | null;
   created_date: string;
 }
 
