@@ -55,7 +55,7 @@ const Modal: React.FC<ModalProps> = ({
       {/* Modal */}
       <div
         className={cn(
-          "bg-background relative mx-4 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border shadow-lg",
+          "bg-background relative mx-4 flex min-w-0 max-h-[90vh] w-full max-w-full flex-col overflow-hidden rounded-lg border shadow-lg",
           sizeClasses[size],
           className
         )}
@@ -71,7 +71,9 @@ const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6">
+          {children}
+        </div>
       </div>
     </div>
   );

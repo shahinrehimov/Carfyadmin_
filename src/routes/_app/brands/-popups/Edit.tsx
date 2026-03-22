@@ -99,7 +99,7 @@ const Edit: React.FC<EditProps> = ({ brandId, onClose }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-2xl min-w-[300px] py-12 md:min-w-[650px]">
+      <div className="flex w-full min-w-0 max-w-full justify-center py-12">
         <div className="flex justify-center">
           <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
         </div>
@@ -108,7 +108,7 @@ const Edit: React.FC<EditProps> = ({ brandId, onClose }) => {
   }
 
   return (
-    <div className="w-full max-w-2xl min-w-[300px] md:min-w-[650px]">
+    <div className="w-full min-w-0 max-w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Titles Section */}
@@ -187,7 +187,7 @@ const Edit: React.FC<EditProps> = ({ brandId, onClose }) => {
             <Button
               type="submit"
               variant="destructive"
-              className="min-w-[300px]"
+              className="w-full max-w-md"
               disabled={updateBrandMutation.isPending}
             >
               {updateBrandMutation.isPending ? t("saving") : t("save")}

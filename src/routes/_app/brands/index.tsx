@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Edit as EditIcon,
   Plus,
@@ -7,6 +7,7 @@ import {
   ArrowUp,
   ArrowDown,
   Image as ImageIcon,
+  List,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMediaQuery } from "@uidotdev/usehooks";
@@ -279,6 +280,19 @@ function RouteComponent() {
               <TableCell>{brand.created_date}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
+                  <Link
+                    to="/brands/$brandId/models"
+                    params={{ brandId: brand.id.toString() }}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      aria-label={t("brand_models")}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                  </Link>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -347,6 +361,19 @@ function RouteComponent() {
                 disabled={toggleStatusMutation.isPending}
               />
               <div className="flex gap-2">
+                <Link
+                  to="/brands/$brandId/models"
+                  params={{ brandId: brand.id.toString() }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    aria-label={t("brand_models")}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"

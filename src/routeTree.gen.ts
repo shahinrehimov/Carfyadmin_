@@ -40,6 +40,7 @@ import { Route as AppUsersUserIdAddressesIndexImport } from './routes/_app/users
 import { Route as AppProductsProductIdVariantsIndexImport } from './routes/_app/products/$productId/variants/index'
 import { Route as AppCompaniesIdAdminsIndexImport } from './routes/_app/companies/$id/admins/index'
 import { Route as AppCategoriesIdSubcategoriesIndexImport } from './routes/_app/categories/$id/subcategories/index'
+import { Route as AppBrandsBrandIdModelsIndexImport } from './routes/_app/brands/$brandId/models/index'
 import { Route as AppProductsProductIdVariantsVariantIdIndexImport } from './routes/_app/products/$productId/variants/$variantId/index'
 
 // Create/Update Routes
@@ -217,6 +218,13 @@ const AppCategoriesIdSubcategoriesIndexRoute =
   AppCategoriesIdSubcategoriesIndexImport.update({
     id: '/categories/$id/subcategories/',
     path: '/categories/$id/subcategories/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppBrandsBrandIdModelsIndexRoute =
+  AppBrandsBrandIdModelsIndexImport.update({
+    id: '/brands/$brandId/models/',
+    path: '/brands/$brandId/models/',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -406,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProductsProductIdIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/brands/$brandId/models/': {
+      id: '/_app/brands/$brandId/models/'
+      path: '/brands/$brandId/models'
+      fullPath: '/brands/$brandId/models'
+      preLoaderRoute: typeof AppBrandsBrandIdModelsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/categories/$id/subcategories/': {
       id: '/_app/categories/$id/subcategories/'
       path: '/categories/$id/subcategories'
@@ -467,6 +482,7 @@ interface AppRouteChildren {
   AppAdminsAddIndexRoute: typeof AppAdminsAddIndexRoute
   AppCompaniesAddIndexRoute: typeof AppCompaniesAddIndexRoute
   AppProductsProductIdIndexRoute: typeof AppProductsProductIdIndexRoute
+  AppBrandsBrandIdModelsIndexRoute: typeof AppBrandsBrandIdModelsIndexRoute
   AppCategoriesIdSubcategoriesIndexRoute: typeof AppCategoriesIdSubcategoriesIndexRoute
   AppCompaniesIdAdminsIndexRoute: typeof AppCompaniesIdAdminsIndexRoute
   AppProductsProductIdVariantsIndexRoute: typeof AppProductsProductIdVariantsIndexRoute
@@ -495,6 +511,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminsAddIndexRoute: AppAdminsAddIndexRoute,
   AppCompaniesAddIndexRoute: AppCompaniesAddIndexRoute,
   AppProductsProductIdIndexRoute: AppProductsProductIdIndexRoute,
+  AppBrandsBrandIdModelsIndexRoute: AppBrandsBrandIdModelsIndexRoute,
   AppCategoriesIdSubcategoriesIndexRoute:
     AppCategoriesIdSubcategoriesIndexRoute,
   AppCompaniesIdAdminsIndexRoute: AppCompaniesIdAdminsIndexRoute,
@@ -547,6 +564,7 @@ export interface FileRoutesByFullPath {
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
@@ -579,6 +597,7 @@ export interface FileRoutesByTo {
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
@@ -613,6 +632,7 @@ export interface FileRoutesById {
   '/_app/admins/add/': typeof AppAdminsAddIndexRoute
   '/_app/companies/add/': typeof AppCompaniesAddIndexRoute
   '/_app/products/$productId/': typeof AppProductsProductIdIndexRoute
+  '/_app/brands/$brandId/models/': typeof AppBrandsBrandIdModelsIndexRoute
   '/_app/categories/$id/subcategories/': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/_app/companies/$id/admins/': typeof AppCompaniesIdAdminsIndexRoute
   '/_app/products/$productId/variants/': typeof AppProductsProductIdVariantsIndexRoute
@@ -648,6 +668,7 @@ export interface FileRouteTypes {
     | '/admins/add'
     | '/companies/add'
     | '/products/$productId'
+    | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
     | '/products/$productId/variants'
@@ -679,6 +700,7 @@ export interface FileRouteTypes {
     | '/admins/add'
     | '/companies/add'
     | '/products/$productId'
+    | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
     | '/products/$productId/variants'
@@ -711,6 +733,7 @@ export interface FileRouteTypes {
     | '/_app/admins/add/'
     | '/_app/companies/add/'
     | '/_app/products/$productId/'
+    | '/_app/brands/$brandId/models/'
     | '/_app/categories/$id/subcategories/'
     | '/_app/companies/$id/admins/'
     | '/_app/products/$productId/variants/'
@@ -766,6 +789,7 @@ export const routeTree = rootRoute
         "/_app/admins/add/",
         "/_app/companies/add/",
         "/_app/products/$productId/",
+        "/_app/brands/$brandId/models/",
         "/_app/categories/$id/subcategories/",
         "/_app/companies/$id/admins/",
         "/_app/products/$productId/variants/",
@@ -871,6 +895,10 @@ export const routeTree = rootRoute
     },
     "/_app/products/$productId/": {
       "filePath": "_app/products/$productId/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/brands/$brandId/models/": {
+      "filePath": "_app/brands/$brandId/models/index.tsx",
       "parent": "/_app"
     },
     "/_app/categories/$id/subcategories/": {

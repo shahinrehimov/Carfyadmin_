@@ -89,7 +89,7 @@ const Add: React.FC<AddProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl min-w-[300px] md:min-w-[650px]">
+    <div className="w-full min-w-0 max-w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Titles Section */}
@@ -168,7 +168,7 @@ const Add: React.FC<AddProps> = ({ onClose }) => {
             <Button
               type="submit"
               variant="destructive"
-              className="min-w-[300px]"
+              className="w-full max-w-md"
               disabled={createBrandMutation.isPending}
             >
               {createBrandMutation.isPending ? t("saving") : t("save")}
