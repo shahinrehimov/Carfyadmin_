@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { useCreateTranslation } from "@/lib/queries/translations";
+import { useCreateTranslation, useTranslationFilters } from "@/lib/queries/translations";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -40,6 +40,7 @@ interface AddProps {
 const Add: React.FC<AddProps> = ({ languages, onClose }) => {
   const { t } = useTranslation();
   const createTranslationMutation = useCreateTranslation();
+  const { data: filtersData } = useTranslationFilters();
 
   const {
     control,
@@ -70,10 +71,10 @@ const Add: React.FC<AddProps> = ({ languages, onClose }) => {
     }
   };
 
-  const groupOptions = [
-    { value: "admin", label: "Admin" },
-    { value: "app", label: "App" },
-  ];
+  const groupOptions = (filtersData?.data.groups ?? []).map((g) => ({
+    value: g.id,
+    label: g.title,
+  }));
 
   return (
     <div className="space-y-6 ">
