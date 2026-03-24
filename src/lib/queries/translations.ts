@@ -51,7 +51,23 @@ interface TranslationsFilters {
   text?: string;
 }
 
+interface TranslationGroup {
+  id: string;
+  title: string;
+}
+
+interface TranslationFiltersResponse {
+  data: {
+    groups: Array<TranslationGroup>;
+  };
+}
+
 // API functions
+async function getTranslationFilters() {
+  const response = await controlPrivateApi.get("/translations/filters");
+  return response.data as TranslationFiltersResponse;
+}
+
 async function getTranslations(filters: TranslationsFilters) {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
@@ -99,6 +115,14 @@ export const translationsQueryOptions = (filters: TranslationsFilters) =>
   });
 
 // Hooks
+export function useTranslationFilters() {
+  return useQuery({
+    queryKey: ["translation-filters"],
+    queryFn: getTranslationFilters,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function useTranslations(filters: TranslationsFilters) {
   return useQuery(translationsQueryOptions(filters));
 }

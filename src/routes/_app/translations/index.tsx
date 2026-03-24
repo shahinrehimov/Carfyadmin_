@@ -20,6 +20,7 @@ import {
 import { Select } from "@/components/ui/select";
 import {
   useDeleteTranslation,
+  useTranslationFilters,
   useTranslations,
 } from "@/lib/queries/translations";
 import { useTranslation } from "@/lib/utils/translationLoader";
@@ -54,6 +55,7 @@ function RouteComponent() {
 
   // Queries and mutations
   const { data, isLoading, error } = useTranslations(filters);
+  const { data: filtersData } = useTranslationFilters();
   const deleteTranslationMutation = useDeleteTranslation();
 
   const translations = data?.data.translations || [];
@@ -353,11 +355,10 @@ function RouteComponent() {
           <Select
             value={filters.group}
             onValueChange={(value) => handleSearch("group", value)}
-            options={[
-              { value: "", label: "All Groups" },
-              { value: "admin", label: "Admin" },
-              { value: "app", label: "App" },
-            ]}
+            options={(filtersData?.data.groups ?? []).map((g) => ({
+              value: g.id,
+              label: g.title,
+            }))}
             placeholder={t("group")}
           />
           <Button
