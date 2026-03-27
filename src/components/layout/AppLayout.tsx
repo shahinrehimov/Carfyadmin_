@@ -11,6 +11,7 @@ import {
   Package,
   Settings as SettingsIcon,
   Share2,
+  Star,
   Tag,
   UserCheck,
   Users,
@@ -40,6 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     { icon: <Tag />, label: t("brands"), href: "/brands" },
     { icon: <List />, label: t("categories"), href: "/categories" },
     { icon: <Package />, label: t("products"), href: "/products" },
+    { icon: <Star />, label: t("reviews"), href: "/reviews" },
 
     { icon: <MapPin />, label: t("address_types"), href: "/address-types" },
     { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
