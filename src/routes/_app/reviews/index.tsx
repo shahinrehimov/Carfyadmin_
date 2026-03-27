@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import Modal from "@/components/ui/modal";
 import Pagination from "@/components/ui/pagination";
 import { Switch } from "@/components/ui/switch";
@@ -17,10 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Select } from "@/components/ui/select";
 import {
   useReviews,
   useDeleteReview,
-  useToggleReviewStatus,
+  useApproveToggle,
+  type Review,
 } from "@/lib/queries/reviews";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import DeleteModal from "@/components/ui/delete-modal";
@@ -29,24 +30,18 @@ export const Route = createFileRoute("/_app/reviews/")({
   component: RouteComponent,
 });
 
-interface Review {
-  id: number;
-  user_name: string;
-  user_email: string;
-  product_title: string;
-  rating: number;
-  comment: string;
-  is_active: boolean;
-  created_date: string;
-}
-
 function RouteComponent() {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    page: number;
+    rating: string;
+    approved: string;
+  }>({
     page: 1,
-    search: "",
+    rating: "",
+    approved: "",
   });
 
   const [modalState, setModalState] = useState<{
@@ -56,27 +51,20 @@ function RouteComponent() {
 
   const { data, isLoading, error } = useReviews(filters);
   const deleteReviewMutation = useDeleteReview();
-  const toggleStatusMutation = useToggleReviewStatus();
+  const approveToggleMutation = useApproveToggle();
 
   const reviews = data?.data || [];
   const total = data?.meta.total || 0;
   const perPage = data?.meta.per_page || 10;
   const totalPages = Math.ceil(total / perPage);
 
-  const handleSearch = (value: string) => {
-    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
-  };
-
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
   };
 
-  const handleToggleStatus = async (review: Review) => {
+  const handleApproveToggle = async (review: Review) => {
     try {
-      await toggleStatusMutation.mutateAsync({
-        id: review.id,
-        isActive: review.is_active,
-      });
+      await approveToggleMutation.mutateAsync(review.id);
       toast.success(t("status_updated_successfully"));
     } catch (error: any) {
       toast.error(
@@ -129,9 +117,10 @@ function RouteComponent() {
           <TableHead className="w-[50px]">#</TableHead>
           <TableHead>{t("user")}</TableHead>
           <TableHead>{t("product")}</TableHead>
+          <TableHead>{t("seller")}</TableHead>
           <TableHead className="w-[150px]">{t("rating")}</TableHead>
-          <TableHead>{t("comment")}</TableHead>
-          <TableHead className="w-[100px]">{t("status")}</TableHead>
+          <TableHead>{t("review")}</TableHead>
+          <TableHead className="w-[100px]">{t("approved")}</TableHead>
           <TableHead>{t("date")}</TableHead>
           <TableHead className="w-[100px]">{t("actions")}</TableHead>
         </TableRow>
@@ -140,7 +129,7 @@ function RouteComponent() {
         {isLoading ? (
           [...Array(5)].map((_, index) => (
             <TableRow key={index}>
-              {[...Array(8)].map((_, cellIndex) => (
+              {[...Array(9)].map((_, cellIndex) => (
                 <TableCell key={cellIndex}>
                   <div className="h-4 animate-pulse rounded bg-gray-200"></div>
                 </TableCell>
@@ -154,30 +143,30 @@ function RouteComponent() {
                 {filters.page * perPage - perPage + index + 1}
               </TableCell>
               <TableCell>
-                <div>
-                  <div className="font-medium">{review.user_name}</div>
-                  <div className="text-sm text-gray-600">
-                    {review.user_email}
-                  </div>
+                <div className="font-medium">
+                  {review.name} {review.surname}
                 </div>
               </TableCell>
               <TableCell className="font-medium">
-                {review.product_title}
+                {review.product_variant?.product?.title ?? "—"}
+              </TableCell>
+              <TableCell className="text-sm text-gray-600">
+                {review.seller?.label ?? "—"}
               </TableCell>
               <TableCell>
                 <RatingStars rating={review.rating} />
               </TableCell>
               <TableCell className="max-w-xs">
-                <p className="truncate">{review.comment}</p>
+                <p className="truncate">{review.review}</p>
               </TableCell>
               <TableCell>
                 <Switch
-                  checked={review.is_active}
-                  onCheckedChange={() => handleToggleStatus(review)}
-                  disabled={toggleStatusMutation.isPending}
+                  checked={review.is_approved}
+                  onCheckedChange={() => handleApproveToggle(review)}
+                  disabled={approveToggleMutation.isPending}
                 />
               </TableCell>
-              <TableCell>{review.created_date}</TableCell>
+              <TableCell>{review.created_at}</TableCell>
               <TableCell>
                 <Button
                   variant="ghost"
@@ -193,7 +182,7 @@ function RouteComponent() {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={8}>
+            <TableCell colSpan={9}>
               <NoData />
             </TableCell>
           </TableRow>
@@ -217,10 +206,15 @@ function RouteComponent() {
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-medium">{review.user_name}</h3>
+                  <h3 className="font-medium">
+                    {review.name} {review.surname}
+                  </h3>
                   <p className="text-sm text-gray-600">
-                    {review.product_title}
+                    {review.product_variant?.product?.title ?? "—"}
                   </p>
+                  {review.seller && (
+                    <p className="text-xs text-gray-500">{review.seller.label}</p>
+                  )}
                 </div>
                 <Button
                   variant="ghost"
@@ -233,15 +227,15 @@ function RouteComponent() {
                 </Button>
               </div>
               <RatingStars rating={review.rating} />
-              <p className="text-sm">{review.comment}</p>
+              <p className="text-sm">{review.review}</p>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  {review.created_date}
+                  {review.created_at}
                 </span>
                 <Switch
-                  checked={review.is_active}
-                  onCheckedChange={() => handleToggleStatus(review)}
-                  disabled={toggleStatusMutation.isPending}
+                  checked={review.is_approved}
+                  onCheckedChange={() => handleApproveToggle(review)}
+                  disabled={approveToggleMutation.isPending}
                 />
               </div>
             </div>
@@ -270,14 +264,32 @@ function RouteComponent() {
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex-1">
-          <Input
-            placeholder={t("search")}
-            value={filters.search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full"
-          />
-        </div>
+        <Select
+          value={filters.approved}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, approved: value === "all" ? "" : value, page: 1 }))
+          }
+          placeholder={t("all")}
+          options={[
+            { value: "all", label: t("all") },
+            { value: "yes", label: t("approved") },
+            { value: "no", label: t("not_approved") },
+          ]}
+          className="w-[160px]"
+        />
+
+        <Select
+          value={filters.rating}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, rating: value === "all" ? "" : value, page: 1 }))
+          }
+          placeholder={t("rating")}
+          options={[
+            { value: "all", label: t("all") },
+            ...([1, 2, 3, 4, 5].map((r) => ({ value: String(r), label: `${r} ★` }))),
+          ]}
+          className="w-[140px]"
+        />
       </div>
 
       <div className="overflow-hidden p-0">
