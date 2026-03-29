@@ -6,6 +6,9 @@ export interface ProductOption {
   id: number;
   title: string;
   is_required: boolean;
+  has_items: boolean;
+  is_translatable: boolean;
+  can_multiple: boolean;
   sort: number;
   is_active: boolean;
   items_count: number;
@@ -41,39 +44,40 @@ interface ProductOptionItemsResponse {
   };
 }
 
-interface CreateProductOptionRequest {
+export interface CreateProductOptionRequest {
   translations: Array<{
     language_id: number;
     title: string;
   }>;
   is_required: boolean;
-  sort: number;
+  has_items: boolean;
+  is_translatable: boolean;
+  can_multiple: boolean;
 }
 
-interface UpdateProductOptionRequest {
+export interface UpdateProductOptionRequest {
   translations: Array<{
     language_id: number;
     title: string;
   }>;
   is_required: boolean;
-  sort: number;
+  has_items: boolean;
+  is_translatable: boolean;
+  can_multiple: boolean;
 }
 
-interface CreateProductOptionItemRequest {
-  product_option_id: number;
+export interface CreateProductOptionItemRequest {
   translations: Array<{
     language_id: number;
     title: string;
   }>;
-  sort: number;
 }
 
-interface UpdateProductOptionItemRequest {
+export interface UpdateProductOptionItemRequest {
   translations: Array<{
     language_id: number;
     title: string;
   }>;
-  sort: number;
 }
 
 interface ProductOptionsFilters {
@@ -83,7 +87,24 @@ interface ProductOptionsFilters {
 
 interface ProductOptionItemsFilters {
   page: number;
-  product_option_id: number;
+  search?: string;
+}
+
+function buildTranslationsFormData(
+  translations: Array<{ language_id: number; title: string }>,
+  extra?: Record<string, boolean | number | string>
+) {
+  const formData = new FormData();
+  translations.forEach((tr, i) => {
+    formData.append(`translations[${i}][language_id]`, String(tr.language_id));
+    formData.append(`translations[${i}][title]`, tr.title);
+  });
+  if (extra) {
+    Object.entries(extra).forEach(([key, value]) => {
+      formData.append(key, typeof value === "boolean" ? (value ? "1" : "0") : String(value));
+    });
+  }
+  return formData;
 }
 
 // API functions - Product Options
@@ -94,7 +115,6 @@ async function getProductOptions(filters: ProductOptionsFilters) {
       queryParams.append(key, String(value));
     }
   });
-
   const response = await controlPrivateApi.get(`/product-options/load?${queryParams}`);
   return response.data as ProductOptionsResponse;
 }
@@ -105,12 +125,24 @@ async function getProductOption(id: number) {
 }
 
 async function createProductOption(data: CreateProductOptionRequest) {
-  const response = await controlPrivateApi.post("/product-options/add", data);
+  const formData = buildTranslationsFormData(data.translations, {
+    is_required: data.is_required,
+    has_items: data.has_items,
+    is_translatable: data.is_translatable,
+    can_multiple: data.can_multiple,
+  });
+  const response = await controlPrivateApi.post("/product-options/add", formData);
   return response.data;
 }
 
 async function updateProductOption(id: number, data: UpdateProductOptionRequest) {
-  const response = await controlPrivateApi.post(`/product-options/update/${id}`, data);
+  const formData = buildTranslationsFormData(data.translations, {
+    is_required: data.is_required,
+    has_items: data.has_items,
+    is_translatable: data.is_translatable,
+    can_multiple: data.can_multiple,
+  });
+  const response = await controlPrivateApi.post(`/product-options/update/${id}`, formData);
   return response.data;
 }
 
@@ -119,67 +151,81 @@ async function deleteProductOption(id: number) {
   return response.data;
 }
 
-async function toggleProductOptionStatus(id: number, isActive: boolean) {
-  const response = await controlPrivateApi.post(`/product-options/change-active-status/${id}`, {
-    is_active: !isActive,
-  });
+async function toggleProductOptionStatus(id: number) {
+  const response = await controlPrivateApi.post(`/product-options/change-active-status/${id}`);
   return response.data;
 }
 
 async function changeProductOptionSorting(id: number, sort: number) {
-  const response = await controlPrivateApi.post(`/product-options/change-sorting/${id}`, {
-    sort,
-  });
+  const response = await controlPrivateApi.post(`/product-options/change-sorting/${id}`, { sort });
   return response.data;
 }
 
 // API functions - Product Option Items
-async function getProductOptionItems(filters: ProductOptionItemsFilters) {
+async function getProductOptionItems(productOptionId: number, filters: ProductOptionItemsFilters) {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== "") {
       queryParams.append(key, String(value));
     }
   });
-
-  const response = await controlPrivateApi.get(`/product-option-items/load?${queryParams}`);
+  const response = await controlPrivateApi.get(
+    `/product-options/${productOptionId}/items/load?${queryParams}`
+  );
   return response.data as ProductOptionItemsResponse;
 }
 
-async function getProductOptionItem(id: number) {
-  const response = await controlPrivateApi.get(`/product-option-items/show/${id}`);
+async function getProductOptionItem(productOptionId: number, id: number) {
+  const response = await controlPrivateApi.get(
+    `/product-options/${productOptionId}/items/show/${id}`
+  );
   return response.data.data as ProductOptionItem;
 }
 
-async function createProductOptionItem(data: CreateProductOptionItemRequest) {
-  const response = await controlPrivateApi.post("/product-option-items/add", data);
-  return response.data;
-}
-
-async function updateProductOptionItem(id: number, data: UpdateProductOptionItemRequest) {
-  const response = await controlPrivateApi.post(`/product-option-items/update/${id}`, data);
-  return response.data;
-}
-
-async function deleteProductOptionItem(id: number) {
-  const response = await controlPrivateApi.delete(`/product-option-items/delete/${id}`);
-  return response.data;
-}
-
-async function toggleProductOptionItemStatus(id: number, isActive: boolean) {
+async function createProductOptionItem(
+  productOptionId: number,
+  data: CreateProductOptionItemRequest
+) {
+  const formData = buildTranslationsFormData(data.translations);
   const response = await controlPrivateApi.post(
-    `/product-option-items/change-active-status/${id}`,
-    {
-      is_active: !isActive,
-    }
+    `/product-options/${productOptionId}/items/add`,
+    formData
   );
   return response.data;
 }
 
-async function changeProductOptionItemSorting(id: number, sort: number) {
-  const response = await controlPrivateApi.post(`/product-option-items/change-sorting/${id}`, {
-    sort,
-  });
+async function updateProductOptionItem(
+  productOptionId: number,
+  id: number,
+  data: UpdateProductOptionItemRequest
+) {
+  const formData = buildTranslationsFormData(data.translations);
+  const response = await controlPrivateApi.post(
+    `/product-options/${productOptionId}/items/update/${id}`,
+    formData
+  );
+  return response.data;
+}
+
+async function deleteProductOptionItem(productOptionId: number, id: number) {
+  const response = await controlPrivateApi.delete(
+    `/product-options/${productOptionId}/items/delete/${id}`
+  );
+  return response.data;
+}
+
+async function toggleProductOptionItemStatus(productOptionId: number, id: number) {
+  const response = await controlPrivateApi.post(
+    `/product-options/${productOptionId}/items/change-active-status/${id}`
+  );
+  return response.data;
+}
+
+async function changeProductOptionItemSorting(productOptionId: number, id: number, sort: number) {
+  const response = await controlPrivateApi.post(
+    `/product-options/${productOptionId}/items/change-sorting/${id}`,
+    { sort }
+  );
   return response.data;
 }
 
@@ -199,18 +245,22 @@ export const productOptionQueryOptions = (id: number) =>
   });
 
 // Query options - Product Option Items
-export const productOptionItemsQueryOptions = (filters: ProductOptionItemsFilters) =>
+export const productOptionItemsQueryOptions = (
+  productOptionId: number,
+  filters: ProductOptionItemsFilters
+) =>
   queryOptions({
-    queryKey: ["productOptionItems", filters],
-    queryFn: () => getProductOptionItems(filters),
+    queryKey: ["productOptionItems", productOptionId, filters],
+    queryFn: () => getProductOptionItems(productOptionId, filters),
+    enabled: !!productOptionId,
     staleTime: 5 * 60 * 1000,
   });
 
-export const productOptionItemQueryOptions = (id: number) =>
+export const productOptionItemQueryOptions = (productOptionId: number, id: number) =>
   queryOptions({
-    queryKey: ["productOptionItem", id],
-    queryFn: () => getProductOptionItem(id),
-    enabled: !!id,
+    queryKey: ["productOptionItem", productOptionId, id],
+    queryFn: () => getProductOptionItem(productOptionId, id),
+    enabled: !!(productOptionId && id),
   });
 
 // Hooks - Product Options
@@ -224,7 +274,6 @@ export function useProductOption(id: number) {
 
 export function useCreateProductOption() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createProductOption,
     onSuccess: () => {
@@ -235,7 +284,6 @@ export function useCreateProductOption() {
 
 export function useUpdateProductOption() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateProductOptionRequest }) =>
       updateProductOption(id, data),
@@ -247,7 +295,6 @@ export function useUpdateProductOption() {
 
 export function useDeleteProductOption() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteProductOption,
     onSuccess: () => {
@@ -258,10 +305,8 @@ export function useDeleteProductOption() {
 
 export function useToggleProductOptionStatus() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      toggleProductOptionStatus(id, isActive),
+    mutationFn: ({ id }: { id: number }) => toggleProductOptionStatus(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptions"] });
     },
@@ -270,7 +315,6 @@ export function useToggleProductOptionStatus() {
 
 export function useChangeProductOptionSorting() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, sort }: { id: number; sort: number }) =>
       changeProductOptionSorting(id, sort),
@@ -281,19 +325,24 @@ export function useChangeProductOptionSorting() {
 }
 
 // Hooks - Product Option Items
-export function useProductOptionItems(filters: ProductOptionItemsFilters) {
-  return useQuery(productOptionItemsQueryOptions(filters));
+export function useProductOptionItems(productOptionId: number, filters: ProductOptionItemsFilters) {
+  return useQuery(productOptionItemsQueryOptions(productOptionId, filters));
 }
 
-export function useProductOptionItem(id: number) {
-  return useQuery(productOptionItemQueryOptions(id));
+export function useProductOptionItem(productOptionId: number, id: number) {
+  return useQuery(productOptionItemQueryOptions(productOptionId, id));
 }
 
 export function useCreateProductOptionItem() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: createProductOptionItem,
+    mutationFn: ({
+      productOptionId,
+      data,
+    }: {
+      productOptionId: number;
+      data: CreateProductOptionItemRequest;
+    }) => createProductOptionItem(productOptionId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptionItems"] });
       queryClient.invalidateQueries({ queryKey: ["productOptions"] });
@@ -303,10 +352,16 @@ export function useCreateProductOptionItem() {
 
 export function useUpdateProductOptionItem() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateProductOptionItemRequest }) =>
-      updateProductOptionItem(id, data),
+    mutationFn: ({
+      productOptionId,
+      id,
+      data,
+    }: {
+      productOptionId: number;
+      id: number;
+      data: UpdateProductOptionItemRequest;
+    }) => updateProductOptionItem(productOptionId, id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptionItems"] });
     },
@@ -315,9 +370,9 @@ export function useUpdateProductOptionItem() {
 
 export function useDeleteProductOptionItem() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: deleteProductOptionItem,
+    mutationFn: ({ productOptionId, id }: { productOptionId: number; id: number }) =>
+      deleteProductOptionItem(productOptionId, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptionItems"] });
       queryClient.invalidateQueries({ queryKey: ["productOptions"] });
@@ -327,10 +382,9 @@ export function useDeleteProductOptionItem() {
 
 export function useToggleProductOptionItemStatus() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      toggleProductOptionItemStatus(id, isActive),
+    mutationFn: ({ productOptionId, id }: { productOptionId: number; id: number }) =>
+      toggleProductOptionItemStatus(productOptionId, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptionItems"] });
     },
@@ -339,10 +393,16 @@ export function useToggleProductOptionItemStatus() {
 
 export function useChangeProductOptionItemSorting() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, sort }: { id: number; sort: number }) =>
-      changeProductOptionItemSorting(id, sort),
+    mutationFn: ({
+      productOptionId,
+      id,
+      sort,
+    }: {
+      productOptionId: number;
+      id: number;
+      sort: number;
+    }) => changeProductOptionItemSorting(productOptionId, id, sort),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productOptionItems"] });
     },

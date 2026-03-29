@@ -13,49 +13,48 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useCreateAddressType } from "@/lib/queries/address-types";
+import { useCreateProductOptionItem } from "@/lib/queries/product-options";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { useLangs } from "@/lib/queries/langs";
+
+interface AddProps {
+  productOptionId: number;
+  onClose: () => void;
+}
 
 const AddFormSchema = z.object({
   translations: z.array(
     z.object({
       language_id: z.number(),
       title: z.string().min(1, "Title is required"),
-    }),
+    })
   ),
 });
 
 type AddFormData = z.infer<typeof AddFormSchema>;
 
-const Add: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const Add: React.FC<AddProps> = ({ productOptionId, onClose }) => {
   const { t } = useTranslation();
   const { data: langs = [] } = useLangs();
+  const createMutation = useCreateProductOptionItem();
+
   const form = useForm<AddFormData>({
     resolver: zodResolver(AddFormSchema),
-    defaultValues: {
-      translations: [],
-    },
+    defaultValues: { translations: [] },
   });
 
-  // Update translations when langs data is loaded
   useEffect(() => {
     if (langs.length > 0) {
       form.reset({
-        translations: langs.map((lang: any) => ({
-          language_id: lang.id,
-          title: "",
-        })),
+        translations: langs.map((lang: any) => ({ language_id: lang.id, title: "" })),
       });
     }
   }, [langs, form]);
 
-  const createAddressTypeMutation = useCreateAddressType();
-
   const onSubmit = async (data: AddFormData) => {
     try {
-      const response = await createAddressTypeMutation.mutateAsync(data);
-      toast.success(response.message || t("address_type_created_successfully"));
+      const response = await createMutation.mutateAsync({ productOptionId, data });
+      toast.success(response.message || t("created_successfully"));
       onClose();
     } catch (error: any) {
       toast.error(error.response?.data?.message || t("an_error_occurred"));
@@ -63,7 +62,7 @@ const Add: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl min-w-[300px] md:min-w-[650px]">
+    <div className="w-full min-w-0 max-w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
@@ -79,7 +78,7 @@ const Add: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       {t("title")} {langs.length > 1 ? `- ${lang.key}` : ""}
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder={t("title")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,14 +86,15 @@ const Add: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             ))}
           </div>
+
           <div className="flex justify-center">
             <Button
               type="submit"
               variant="destructive"
-              className="min-w-[300px]"
-              disabled={createAddressTypeMutation.isPending}
+              className="w-full max-w-md"
+              disabled={createMutation.isPending}
             >
-              {createAddressTypeMutation.isPending ? t("saving") : t("save")}
+              {createMutation.isPending ? t("saving") : t("save")}
             </Button>
           </div>
         </form>
