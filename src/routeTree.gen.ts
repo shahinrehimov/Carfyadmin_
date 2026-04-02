@@ -30,6 +30,7 @@ import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
 import { Route as AppCategoriesIndexImport } from './routes/_app/categories/index'
 import { Route as AppCatalogsIndexImport } from './routes/_app/catalogs/index'
+import { Route as AppCarColorsIndexImport } from './routes/_app/car-colors/index'
 import { Route as AppBrandsIndexImport } from './routes/_app/brands/index'
 import { Route as AppAdminsIndexImport } from './routes/_app/admins/index'
 import { Route as AppProductsProductIdIndexImport } from './routes/_app/products/$productId/index'
@@ -157,6 +158,12 @@ const AppCategoriesIndexRoute = AppCategoriesIndexImport.update({
 const AppCatalogsIndexRoute = AppCatalogsIndexImport.update({
   id: '/catalogs/',
   path: '/catalogs/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppCarColorsIndexRoute = AppCarColorsIndexImport.update({
+  id: '/car-colors/',
+  path: '/car-colors/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -307,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/brands'
       fullPath: '/brands'
       preLoaderRoute: typeof AppBrandsIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/car-colors/': {
+      id: '/_app/car-colors/'
+      path: '/car-colors'
+      fullPath: '/car-colors'
+      preLoaderRoute: typeof AppCarColorsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/catalogs/': {
@@ -493,6 +507,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminsIndexRoute: typeof AppAdminsIndexRoute
   AppBrandsIndexRoute: typeof AppBrandsIndexRoute
+  AppCarColorsIndexRoute: typeof AppCarColorsIndexRoute
   AppCatalogsIndexRoute: typeof AppCatalogsIndexRoute
   AppCategoriesIndexRoute: typeof AppCategoriesIndexRoute
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
@@ -524,6 +539,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminsIndexRoute: AppAdminsIndexRoute,
   AppBrandsIndexRoute: AppBrandsIndexRoute,
+  AppCarColorsIndexRoute: AppCarColorsIndexRoute,
   AppCatalogsIndexRoute: AppCatalogsIndexRoute,
   AppCategoriesIndexRoute: AppCategoriesIndexRoute,
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
@@ -579,6 +595,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/admins': typeof AppAdminsIndexRoute
   '/brands': typeof AppBrandsIndexRoute
+  '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
@@ -614,6 +631,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/admins': typeof AppAdminsIndexRoute
   '/brands': typeof AppBrandsIndexRoute
+  '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
@@ -651,6 +669,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/admins/': typeof AppAdminsIndexRoute
   '/_app/brands/': typeof AppBrandsIndexRoute
+  '/_app/car-colors/': typeof AppCarColorsIndexRoute
   '/_app/catalogs/': typeof AppCatalogsIndexRoute
   '/_app/categories/': typeof AppCategoriesIndexRoute
   '/_app/companies/': typeof AppCompaniesIndexRoute
@@ -689,6 +708,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admins'
     | '/brands'
+    | '/car-colors'
     | '/catalogs'
     | '/categories'
     | '/companies'
@@ -723,6 +743,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admins'
     | '/brands'
+    | '/car-colors'
     | '/catalogs'
     | '/categories'
     | '/companies'
@@ -758,6 +779,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/admins/'
     | '/_app/brands/'
+    | '/_app/car-colors/'
     | '/_app/catalogs/'
     | '/_app/categories/'
     | '/_app/companies/'
@@ -816,6 +838,7 @@ export const routeTree = rootRoute
         "/_app/",
         "/_app/admins/",
         "/_app/brands/",
+        "/_app/car-colors/",
         "/_app/catalogs/",
         "/_app/categories/",
         "/_app/companies/",
@@ -873,6 +896,10 @@ export const routeTree = rootRoute
     },
     "/_app/brands/": {
       "filePath": "_app/brands/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/car-colors/": {
+      "filePath": "_app/car-colors/index.tsx",
       "parent": "/_app"
     },
     "/_app/catalogs/": {
