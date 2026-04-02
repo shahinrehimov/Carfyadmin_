@@ -27,6 +27,7 @@ import { Route as AppProductsIndexImport } from './routes/_app/products/index'
 import { Route as AppProductOptionsIndexImport } from './routes/_app/product-options/index'
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
+import { Route as AppContactMessagesIndexImport } from './routes/_app/contact-messages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
 import { Route as AppCategoriesIndexImport } from './routes/_app/categories/index'
 import { Route as AppCatalogsIndexImport } from './routes/_app/catalogs/index'
@@ -140,6 +141,12 @@ const AppMetaIndexRoute = AppMetaIndexImport.update({
 const AppLanguagesIndexRoute = AppLanguagesIndexImport.update({
   id: '/languages/',
   path: '/languages/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppContactMessagesIndexRoute = AppContactMessagesIndexImport.update({
+  id: '/contact-messages/',
+  path: '/contact-messages/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -344,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/contact-messages/': {
+      id: '/_app/contact-messages/'
+      path: '/contact-messages'
+      fullPath: '/contact-messages'
+      preLoaderRoute: typeof AppContactMessagesIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/languages/': {
       id: '/_app/languages/'
       path: '/languages'
@@ -511,6 +525,7 @@ interface AppRouteChildren {
   AppCatalogsIndexRoute: typeof AppCatalogsIndexRoute
   AppCategoriesIndexRoute: typeof AppCategoriesIndexRoute
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
+  AppContactMessagesIndexRoute: typeof AppContactMessagesIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
   AppProductOptionsIndexRoute: typeof AppProductOptionsIndexRoute
@@ -543,6 +558,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCatalogsIndexRoute: AppCatalogsIndexRoute,
   AppCategoriesIndexRoute: AppCategoriesIndexRoute,
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
+  AppContactMessagesIndexRoute: AppContactMessagesIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
   AppProductOptionsIndexRoute: AppProductOptionsIndexRoute,
@@ -599,6 +615,7 @@ export interface FileRoutesByFullPath {
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
+  '/contact-messages': typeof AppContactMessagesIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
@@ -635,6 +652,7 @@ export interface FileRoutesByTo {
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
+  '/contact-messages': typeof AppContactMessagesIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
@@ -673,6 +691,7 @@ export interface FileRoutesById {
   '/_app/catalogs/': typeof AppCatalogsIndexRoute
   '/_app/categories/': typeof AppCategoriesIndexRoute
   '/_app/companies/': typeof AppCompaniesIndexRoute
+  '/_app/contact-messages/': typeof AppContactMessagesIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
   '/_app/product-options/': typeof AppProductOptionsIndexRoute
@@ -712,6 +731,7 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/categories'
     | '/companies'
+    | '/contact-messages'
     | '/languages'
     | '/meta'
     | '/product-options'
@@ -747,6 +767,7 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/categories'
     | '/companies'
+    | '/contact-messages'
     | '/languages'
     | '/meta'
     | '/product-options'
@@ -783,6 +804,7 @@ export interface FileRouteTypes {
     | '/_app/catalogs/'
     | '/_app/categories/'
     | '/_app/companies/'
+    | '/_app/contact-messages/'
     | '/_app/languages/'
     | '/_app/meta/'
     | '/_app/product-options/'
@@ -842,6 +864,7 @@ export const routeTree = rootRoute
         "/_app/catalogs/",
         "/_app/categories/",
         "/_app/companies/",
+        "/_app/contact-messages/",
         "/_app/languages/",
         "/_app/meta/",
         "/_app/product-options/",
@@ -912,6 +935,10 @@ export const routeTree = rootRoute
     },
     "/_app/companies/": {
       "filePath": "_app/companies/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/contact-messages/": {
+      "filePath": "_app/contact-messages/index.tsx",
       "parent": "/_app"
     },
     "/_app/languages/": {
