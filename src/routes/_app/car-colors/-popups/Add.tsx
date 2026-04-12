@@ -97,7 +97,6 @@ const Add: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             ))}
           </div>
 
-          {/* Color & Sort */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">{t("settings")}</h3>
             <div className="grid grid-cols-2 gap-4">
