@@ -134,35 +134,35 @@ async function getOrdersStatistics(filters: OrdersStatisticsFilters) {
   const res = await controlPrivateApi.get(
     `/statistics/orders?${buildParams(filters)}`,
   );
-  return res.data.data as OrdersStatistics;
+  return res.data as OrdersStatistics;
 }
 
 async function getTopStores(filters: TopStoresFilters) {
   const res = await controlPrivateApi.get(
     `/statistics/top-stores?${buildParams(filters)}`,
   );
-  return res.data.data.data as TopStoreItem[];
+  return res.data.data as TopStoreItem[];
 }
 
 async function getTopProducts(filters: TopProductsFilters) {
   const res = await controlPrivateApi.get(
     `/statistics/top-products?${buildParams(filters)}`,
   );
-  return res.data.data as TopProductsStatistics;
+  return res.data as TopProductsStatistics;
 }
 
 async function getUsersStatistics(filters: UsersStatisticsFilters) {
   const res = await controlPrivateApi.get(
     `/statistics/users?${buildParams(filters)}`,
   );
-  return res.data.data as UsersStatistics;
+  return res.data as UsersStatistics;
 }
 
 async function getCancellationsStatistics(filters: CancellationsFilters) {
   const res = await controlPrivateApi.get(
     `/statistics/cancellations?${buildParams(filters)}`,
   );
-  return res.data.data as CancellationsStatistics;
+  return res.data as CancellationsStatistics;
 }
 
 // ─── Query options ────────────────────────────────────────────────────────────

@@ -196,6 +196,12 @@ function DashboardPage() {
     date: formatDate(p.date, period),
   }));
 
+  // Flatten nested company object so recharts dataKey works (company.name is nested + can be null)
+  const storesChart = (topStores ?? []).map((s) => ({
+    ...s,
+    companyName: s.company.name ?? `#${s.company.id}`,
+  }));
+
   // Labels used inside recharts `name` props and tooltip comparisons
   const labelOrderCount = t("order_count");
   const labelRevenue = t("revenue_azn");
@@ -431,7 +437,7 @@ function DashboardPage() {
             ) : (
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart
-                  data={topStores ?? []}
+                  data={storesChart}
                   layout="vertical"
                   margin={{ top: 0, right: 16, left: 8, bottom: 0 }}
                 >
@@ -448,7 +454,7 @@ function DashboardPage() {
                   />
                   <YAxis
                     type="category"
-                    dataKey="company.name"
+                    dataKey="companyName"
                     tick={{ fontSize: 11 }}
                     tickLine={false}
                     width={110}
