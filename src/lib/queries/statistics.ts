@@ -118,7 +118,7 @@ export interface CancellationsStatistics {
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-function buildParams(filters: Record<string, unknown>) {
+function buildParams(filters: object) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== "") {
