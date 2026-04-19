@@ -137,6 +137,13 @@ async function deleteCompanyAdmin(companyId: number, adminId: number) {
   return response.data;
 }
 
+async function getCompanyAdminsList(companyId: number) {
+  const response = await controlPrivateApi.get(
+    `/companies/${companyId}/admins/list`,
+  );
+  return response.data.data as Array<{ id: number; full_name: string; username: string }>;
+}
+
 async function toggleCompanyAdminStatus(
   companyId: number,
   adminId: number,
@@ -170,6 +177,14 @@ export const companyAdminQueryOptions = (companyId: number, adminId: number) =>
     enabled: !!companyId && !!adminId,
   });
 
+export const companyAdminsListQueryOptions = (companyId: number) =>
+  queryOptions({
+    queryKey: ["company-admins-list", companyId],
+    queryFn: () => getCompanyAdminsList(companyId),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!companyId,
+  });
+
 // Hooks
 export function useCompanyAdmins(
   companyId: number,
@@ -180,6 +195,10 @@ export function useCompanyAdmins(
 
 export function useCompanyAdmin(companyId: number, adminId: number) {
   return useQuery(companyAdminQueryOptions(companyId, adminId));
+}
+
+export function useCompanyAdminsList(companyId: number) {
+  return useQuery(companyAdminsListQueryOptions(companyId));
 }
 
 export function useCreateCompanyAdmin(companyId: number) {

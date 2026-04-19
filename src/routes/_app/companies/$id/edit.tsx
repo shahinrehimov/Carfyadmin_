@@ -10,8 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, MapPin } from "lucide-react";
-import { useCompany, useUpdateCompany } from "@/lib/queries/companies";
+import { ArrowLeft, Loader2, MapPin, Trash2, Clock } from "lucide-react";
+import {
+  useCompany,
+  useUpdateCompany,
+  useDeleteCompanyLogo,
+  useDeleteCompanyBanner,
+  useUpdateWorkingHours,
+  type WorkingHour,
+} from "@/lib/queries/companies";
 import { useLangs } from "@/lib/queries/langs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LocationPickerModal from "@/components/ui/location-picker-modal";
@@ -76,8 +83,20 @@ function EditCompanyComponent() {
     error: companyError,
   } = useCompany(Number(id));
 
-  // Update company mutation
+  // Mutations
   const updateCompanyMutation = useUpdateCompany();
+  const deleteLogoMutation = useDeleteCompanyLogo();
+  const deleteBannerMutation = useDeleteCompanyBanner();
+  const updateWorkingHoursMutation = useUpdateWorkingHours();
+
+  const defaultWorkingHours: WorkingHour[] = [1, 2, 3, 4, 5, 6, 7].map((day) => ({
+    day_of_week: day,
+    is_closed: false,
+    open_time: "09:00",
+    close_time: "18:00",
+  }));
+
+  const [workingHours, setWorkingHours] = useState<WorkingHour[]>(defaultWorkingHours);
 
   // Reset form when company data is loaded
   useEffect(() => {
@@ -105,6 +124,10 @@ function EditCompanyComponent() {
         is_active: company.is_active,
         translations,
       });
+
+      if (company.working_hours && company.working_hours.length > 0) {
+        setWorkingHours(company.working_hours);
+      }
     }
   }, [company, langs, reset]);
 
@@ -114,6 +137,52 @@ function EditCompanyComponent() {
       router.navigate({ to: "/companies" });
     }
   }, [companyError, router, t]);
+
+  const handleDeleteLogo = async () => {
+    try {
+      await deleteLogoMutation.mutateAsync(Number(id));
+      toast.success(t("logo_deleted_successfully"));
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t("failed_to_delete_logo"));
+    }
+  };
+
+  const handleDeleteBanner = async () => {
+    try {
+      await deleteBannerMutation.mutateAsync(Number(id));
+      toast.success(t("banner_deleted_successfully"));
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t("failed_to_delete_banner"));
+    }
+  };
+
+  const handleSaveWorkingHours = async () => {
+    try {
+      await updateWorkingHoursMutation.mutateAsync({
+        id: Number(id),
+        hours: workingHours,
+      });
+      toast.success(t("working_hours_saved_successfully"));
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t("failed_to_save_working_hours"));
+    }
+  };
+
+  const updateWorkingHour = (dayIndex: number, field: keyof WorkingHour, value: any) => {
+    setWorkingHours((prev) =>
+      prev.map((wh, i) => {
+        if (i !== dayIndex) return wh;
+        const updated = { ...wh, [field]: value };
+        if (field === "is_closed" && value === true) {
+          updated.open_time = null;
+          updated.close_time = null;
+        }
+        return updated;
+      }),
+    );
+  };
+
+  const DAY_NAMES = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
   const onSubmit = async (data: FormData) => {
     // Validate that at least the first translation has a title
@@ -224,12 +293,25 @@ function EditCompanyComponent() {
                   name="phone"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      id="phone"
-                      {...field}
-                      placeholder="+994501234567"
-                      className={errors.phone ? "border-red-500" : ""}
-                    />
+                    <div
+                      className={`flex h-9 w-full rounded-md border bg-transparent shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 ${errors.phone ? "border-destructive ring-destructive/20" : "border-input"}`}
+                    >
+                      <span className="flex items-center pl-3 pr-2 text-sm text-muted-foreground select-none border-r border-input">
+                        +994
+                      </span>
+                      <input
+                        id="phone"
+                        type="text"
+                        inputMode="numeric"
+                        value={field.value.replace(/^\+994/, "")}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "");
+                          field.onChange(digits ? `+994${digits}` : "");
+                        }}
+                        placeholder="501234567"
+                        className="flex-1 bg-transparent px-3 py-1 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
                   )}
                 />
                 {errors.phone && (
@@ -407,6 +489,148 @@ function EditCompanyComponent() {
                 </TabsContent>
               ))}
             </Tabs>
+          </div>
+
+          {/* Media (Logo & Banner) */}
+          {(company?.logo || company?.banner) && (
+            <div className="space-y-4 border rounded-lg p-6">
+              <h2 className="text-xl font-semibold">{t("media")}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {company?.logo && (
+                  <div className="space-y-3">
+                    <Label>{t("logo")}</Label>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={company.logo}
+                        alt="logo"
+                        className="w-20 h-20 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteLogoMutation.isPending}
+                        onClick={handleDeleteLogo}
+                        className="flex items-center gap-2"
+                      >
+                        {deleteLogoMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        {t("delete_logo")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {company?.banner && (
+                  <div className="space-y-3">
+                    <Label>{t("banner")}</Label>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={company.banner}
+                        alt="banner"
+                        className="w-32 h-20 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteBannerMutation.isPending}
+                        onClick={handleDeleteBanner}
+                        className="flex items-center gap-2"
+                      >
+                        {deleteBannerMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        {t("delete_banner")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Working Hours */}
+          <div className="space-y-4 border rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                {t("working_hours")}
+              </h2>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={updateWorkingHoursMutation.isPending}
+                onClick={handleSaveWorkingHours}
+                className="flex items-center gap-2"
+              >
+                {updateWorkingHoursMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : null}
+                {t("save_working_hours")}
+              </Button>
+            </div>
+
+            <div className="space-y-1">
+              {workingHours.map((wh, index) => (
+                <div
+                  key={wh.day_of_week}
+                  className="grid grid-cols-[130px_100px_1fr_1fr] items-center gap-3 py-2.5 border-b last:border-b-0"
+                >
+                  <span className="font-medium text-sm">
+                    {t(DAY_NAMES[index] ?? `day_${wh.day_of_week}`)}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={!wh.is_closed}
+                      onCheckedChange={(open) =>
+                        updateWorkingHour(index, "is_closed", !open)
+                      }
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {wh.is_closed ? t("closed") : t("open")}
+                    </span>
+                  </div>
+                  {!wh.is_closed ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {t("open_time")}
+                        </span>
+                        <Input
+                          type="time"
+                          value={wh.open_time ?? ""}
+                          onChange={(e) =>
+                            updateWorkingHour(index, "open_time", e.target.value)
+                          }
+                          className="w-32"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {t("close_time")}
+                        </span>
+                        <Input
+                          type="time"
+                          value={wh.close_time ?? ""}
+                          onChange={(e) =>
+                            updateWorkingHour(index, "close_time", e.target.value)
+                          }
+                          className="w-32"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="col-span-2" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Submit Button */}

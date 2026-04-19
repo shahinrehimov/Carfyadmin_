@@ -21,12 +21,21 @@ export interface Company {
   created_date: string;
 }
 
+export interface WorkingHour {
+  day_of_week: number;
+  is_closed: boolean;
+  open_time: string | null;
+  close_time: string | null;
+}
+
 export interface CompanyDetails {
   id: number;
   uuid: string;
   voen: string;
   phone: string;
   email: string;
+  city_id: number;
+  city: { id: number; title: string; country_id: number } | null;
   latitude: string;
   longitude: string;
   website: string;
@@ -41,6 +50,9 @@ export interface CompanyDetails {
     info: string;
     address: string;
   }>;
+  working_hours: WorkingHour[];
+  avg_rating: number | null;
+  review_count: number;
 }
 
 interface CompaniesResponse {
@@ -157,6 +169,21 @@ async function verifyCompany(id: number) {
   return response.data;
 }
 
+async function deleteCompanyLogo(id: number) {
+  const response = await controlPrivateApi.delete(`/companies/delete-logo/${id}`);
+  return response.data;
+}
+
+async function deleteCompanyBanner(id: number) {
+  const response = await controlPrivateApi.delete(`/companies/delete-banner/${id}`);
+  return response.data;
+}
+
+async function updateWorkingHours(id: number, hours: WorkingHour[]) {
+  const response = await controlPrivateApi.post(`/companies/working-hours/${id}`, { hours });
+  return response.data;
+}
+
 async function getCompaniesList() {
   const response = await controlPrivateApi.get(`/companies/list`);
   return response.data.data as Array<{ id: number; uuid: string; title: string }>;
@@ -250,6 +277,40 @@ export function useVerifyCompany() {
     mutationFn: verifyCompany,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+    },
+  });
+}
+
+export function useDeleteCompanyLogo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteCompanyLogo,
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["company", id] });
+    },
+  });
+}
+
+export function useDeleteCompanyBanner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteCompanyBanner,
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["company", id] });
+    },
+  });
+}
+
+export function useUpdateWorkingHours() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, hours }: { id: number; hours: WorkingHour[] }) =>
+      updateWorkingHours(id, hours),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["company", id] });
     },
   });
 }

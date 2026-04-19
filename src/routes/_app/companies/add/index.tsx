@@ -201,12 +201,25 @@ function AddCompanyComponent() {
                   name="phone"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      id="phone"
-                      {...field}
-                      placeholder="+994501234567"
-                      className={errors.phone ? "border-red-500" : ""}
-                    />
+                    <div
+                      className={`flex h-9 w-full rounded-md border bg-transparent shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 ${errors.phone ? "border-destructive ring-destructive/20" : "border-input"}`}
+                    >
+                      <span className="flex items-center pl-3 pr-2 text-sm text-muted-foreground select-none border-r border-input">
+                        +994
+                      </span>
+                      <input
+                        id="phone"
+                        type="text"
+                        inputMode="numeric"
+                        value={field.value.replace(/^\+994/, "")}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "");
+                          field.onChange(digits ? `+994${digits}` : "");
+                        }}
+                        placeholder="501234567"
+                        className="flex-1 bg-transparent px-3 py-1 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
                   )}
                 />
                 {errors.phone && (
