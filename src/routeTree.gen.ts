@@ -23,9 +23,11 @@ import { Route as AppSupportIndexImport } from './routes/_app/support/index'
 import { Route as AppSocialsIndexImport } from './routes/_app/socials/index'
 import { Route as AppSettingsIndexImport } from './routes/_app/settings/index'
 import { Route as AppReviewsIndexImport } from './routes/_app/reviews/index'
+import { Route as AppPushNotificationsIndexImport } from './routes/_app/push-notifications/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppProductsIndexImport } from './routes/_app/products/index'
 import { Route as AppProductOptionsIndexImport } from './routes/_app/product-options/index'
+import { Route as AppNotificationSettingsIndexImport } from './routes/_app/notification-settings/index'
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
 import { Route as AppGroupsIndexImport } from './routes/_app/groups/index'
@@ -126,6 +128,12 @@ const AppReviewsIndexRoute = AppReviewsIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppPushNotificationsIndexRoute = AppPushNotificationsIndexImport.update({
+  id: '/push-notifications/',
+  path: '/push-notifications/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppProfileIndexRoute = AppProfileIndexImport.update({
   id: '/profile/',
   path: '/profile/',
@@ -143,6 +151,13 @@ const AppProductOptionsIndexRoute = AppProductOptionsIndexImport.update({
   path: '/product-options/',
   getParentRoute: () => AppRoute,
 } as any)
+
+const AppNotificationSettingsIndexRoute =
+  AppNotificationSettingsIndexImport.update({
+    id: '/notification-settings/',
+    path: '/notification-settings/',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppMetaIndexRoute = AppMetaIndexImport.update({
   id: '/meta/',
@@ -429,6 +444,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetaIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/notification-settings/': {
+      id: '/_app/notification-settings/'
+      path: '/notification-settings'
+      fullPath: '/notification-settings'
+      preLoaderRoute: typeof AppNotificationSettingsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/product-options/': {
       id: '/_app/product-options/'
       path: '/product-options'
@@ -448,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AppProfileIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/push-notifications/': {
+      id: '/_app/push-notifications/'
+      path: '/push-notifications'
+      fullPath: '/push-notifications'
+      preLoaderRoute: typeof AppPushNotificationsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/reviews/': {
@@ -615,9 +644,11 @@ interface AppRouteChildren {
   AppGroupsIndexRoute: typeof AppGroupsIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
+  AppNotificationSettingsIndexRoute: typeof AppNotificationSettingsIndexRoute
   AppProductOptionsIndexRoute: typeof AppProductOptionsIndexRoute
   AppProductsIndexRoute: typeof AppProductsIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
+  AppPushNotificationsIndexRoute: typeof AppPushNotificationsIndexRoute
   AppReviewsIndexRoute: typeof AppReviewsIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSocialsIndexRoute: typeof AppSocialsIndexRoute
@@ -654,9 +685,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppGroupsIndexRoute: AppGroupsIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
+  AppNotificationSettingsIndexRoute: AppNotificationSettingsIndexRoute,
   AppProductOptionsIndexRoute: AppProductOptionsIndexRoute,
   AppProductsIndexRoute: AppProductsIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
+  AppPushNotificationsIndexRoute: AppPushNotificationsIndexRoute,
   AppReviewsIndexRoute: AppReviewsIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSocialsIndexRoute: AppSocialsIndexRoute,
@@ -717,9 +750,11 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
+  '/notification-settings': typeof AppNotificationSettingsIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
+  '/push-notifications': typeof AppPushNotificationsIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
@@ -760,9 +795,11 @@ export interface FileRoutesByTo {
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
+  '/notification-settings': typeof AppNotificationSettingsIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
+  '/push-notifications': typeof AppPushNotificationsIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
@@ -805,9 +842,11 @@ export interface FileRoutesById {
   '/_app/groups/': typeof AppGroupsIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
+  '/_app/notification-settings/': typeof AppNotificationSettingsIndexRoute
   '/_app/product-options/': typeof AppProductOptionsIndexRoute
   '/_app/products/': typeof AppProductsIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
+  '/_app/push-notifications/': typeof AppPushNotificationsIndexRoute
   '/_app/reviews/': typeof AppReviewsIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/socials/': typeof AppSocialsIndexRoute
@@ -851,9 +890,11 @@ export interface FileRouteTypes {
     | '/groups'
     | '/languages'
     | '/meta'
+    | '/notification-settings'
     | '/product-options'
     | '/products'
     | '/profile'
+    | '/push-notifications'
     | '/reviews'
     | '/settings'
     | '/socials'
@@ -893,9 +934,11 @@ export interface FileRouteTypes {
     | '/groups'
     | '/languages'
     | '/meta'
+    | '/notification-settings'
     | '/product-options'
     | '/products'
     | '/profile'
+    | '/push-notifications'
     | '/reviews'
     | '/settings'
     | '/socials'
@@ -936,9 +979,11 @@ export interface FileRouteTypes {
     | '/_app/groups/'
     | '/_app/languages/'
     | '/_app/meta/'
+    | '/_app/notification-settings/'
     | '/_app/product-options/'
     | '/_app/products/'
     | '/_app/profile/'
+    | '/_app/push-notifications/'
     | '/_app/reviews/'
     | '/_app/settings/'
     | '/_app/socials/'
@@ -1002,9 +1047,11 @@ export const routeTree = rootRoute
         "/_app/groups/",
         "/_app/languages/",
         "/_app/meta/",
+        "/_app/notification-settings/",
         "/_app/product-options/",
         "/_app/products/",
         "/_app/profile/",
+        "/_app/push-notifications/",
         "/_app/reviews/",
         "/_app/settings/",
         "/_app/socials/",
@@ -1096,6 +1143,10 @@ export const routeTree = rootRoute
       "filePath": "_app/meta/index.tsx",
       "parent": "/_app"
     },
+    "/_app/notification-settings/": {
+      "filePath": "_app/notification-settings/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/product-options/": {
       "filePath": "_app/product-options/index.tsx",
       "parent": "/_app"
@@ -1106,6 +1157,10 @@ export const routeTree = rootRoute
     },
     "/_app/profile/": {
       "filePath": "_app/profile/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/push-notifications/": {
+      "filePath": "_app/push-notifications/index.tsx",
       "parent": "/_app"
     },
     "/_app/reviews/": {

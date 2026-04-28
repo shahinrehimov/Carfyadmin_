@@ -1,6 +1,8 @@
 import { Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import {
+  Bell,
+  BellDot,
   Building2,
   FileText,
   Globe,
@@ -59,6 +61,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     },
     { icon: <Mail />, label: t("contact_messages"), href: "/contact-messages" },
     { icon: <HeadphonesIcon />, label: t("support"), href: "/support" },
+    { icon: <Bell />, label: t("push_notifications", "Push Bildirişlər"), href: "/push-notifications" },
+    { icon: <BellDot />, label: t("notification_settings", "Bildiriş Ayarları"), href: "/notification-settings" },
     { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
     { icon: <Share2 />, label: t("socials"), href: "/socials" },
     { icon: <SettingsIcon />, label: t("settings"), href: "/settings" },
