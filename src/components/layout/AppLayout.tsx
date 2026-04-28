@@ -10,6 +10,7 @@ import {
   LayoutList,
   List,
   Mail,
+  Megaphone,
   Package,
   Palette,
   Settings as SettingsIcon,
@@ -19,6 +20,7 @@ import {
   Tag,
   UserCheck,
   Users,
+  Layers,
 } from "lucide-react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Sidebar, SidebarItem } from "../ui/sidebar";
@@ -44,10 +46,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     { icon: <Languages />, label: t("translations"), href: "/translations" },
     { icon: <Tag />, label: t("brands"), href: "/brands" },
     { icon: <Palette />, label: t("car_colors"), href: "/car-colors" },
+    { icon: <Layers />, label: t("groups"), href: "/groups" },
     { icon: <List />, label: t("categories"), href: "/categories" },
     { icon: <Package />, label: t("products"), href: "/products" },
     { icon: <Star />, label: t("reviews"), href: "/reviews" },
     { icon: <LayoutList />, label: t("catalogs"), href: "/catalogs" },
+    { icon: <Megaphone />, label: t("advertisements"), href: "/advertisements" },
     {
       icon: <Settings2 />,
       label: t("product_options"),

@@ -28,12 +28,14 @@ import { Route as AppProductsIndexImport } from './routes/_app/products/index'
 import { Route as AppProductOptionsIndexImport } from './routes/_app/product-options/index'
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
+import { Route as AppGroupsIndexImport } from './routes/_app/groups/index'
 import { Route as AppContactMessagesIndexImport } from './routes/_app/contact-messages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
 import { Route as AppCategoriesIndexImport } from './routes/_app/categories/index'
 import { Route as AppCatalogsIndexImport } from './routes/_app/catalogs/index'
 import { Route as AppCarColorsIndexImport } from './routes/_app/car-colors/index'
 import { Route as AppBrandsIndexImport } from './routes/_app/brands/index'
+import { Route as AppAdvertisementsIndexImport } from './routes/_app/advertisements/index'
 import { Route as AppAdminsIndexImport } from './routes/_app/admins/index'
 import { Route as AppSupportAddIndexImport } from './routes/_app/support/add/index'
 import { Route as AppSupportIdIndexImport } from './routes/_app/support/$id/index'
@@ -45,6 +47,7 @@ import { Route as AppCompaniesIdEditImport } from './routes/_app/companies/$id/e
 import { Route as AppAdminsIdEditImport } from './routes/_app/admins/$id/edit'
 import { Route as AppUsersUserIdAddressesIndexImport } from './routes/_app/users/$userId/addresses/index'
 import { Route as AppProductsProductIdVariantsIndexImport } from './routes/_app/products/$productId/variants/index'
+import { Route as AppGroupsGroupIdProductsIndexImport } from './routes/_app/groups/$groupId/products/index'
 import { Route as AppCompaniesIdAdminsIndexImport } from './routes/_app/companies/$id/admins/index'
 import { Route as AppCategoriesIdSubcategoriesIndexImport } from './routes/_app/categories/$id/subcategories/index'
 import { Route as AppBrandsBrandIdModelsIndexImport } from './routes/_app/brands/$brandId/models/index'
@@ -153,6 +156,12 @@ const AppLanguagesIndexRoute = AppLanguagesIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppGroupsIndexRoute = AppGroupsIndexImport.update({
+  id: '/groups/',
+  path: '/groups/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppContactMessagesIndexRoute = AppContactMessagesIndexImport.update({
   id: '/contact-messages/',
   path: '/contact-messages/',
@@ -186,6 +195,12 @@ const AppCarColorsIndexRoute = AppCarColorsIndexImport.update({
 const AppBrandsIndexRoute = AppBrandsIndexImport.update({
   id: '/brands/',
   path: '/brands/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppAdvertisementsIndexRoute = AppAdvertisementsIndexImport.update({
+  id: '/advertisements/',
+  path: '/advertisements/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -254,6 +269,13 @@ const AppProductsProductIdVariantsIndexRoute =
   AppProductsProductIdVariantsIndexImport.update({
     id: '/products/$productId/variants/',
     path: '/products/$productId/variants/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppGroupsGroupIdProductsIndexRoute =
+  AppGroupsGroupIdProductsIndexImport.update({
+    id: '/groups/$groupId/products/',
+    path: '/groups/$groupId/products/',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -337,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/advertisements/': {
+      id: '/_app/advertisements/'
+      path: '/advertisements'
+      fullPath: '/advertisements'
+      preLoaderRoute: typeof AppAdvertisementsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/brands/': {
       id: '/_app/brands/'
       path: '/brands'
@@ -377,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/contact-messages'
       fullPath: '/contact-messages'
       preLoaderRoute: typeof AppContactMessagesIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/groups/': {
+      id: '/_app/groups/'
+      path: '/groups'
+      fullPath: '/groups'
+      preLoaderRoute: typeof AppGroupsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/languages/': {
@@ -533,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesIdAdminsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/groups/$groupId/products/': {
+      id: '/_app/groups/$groupId/products/'
+      path: '/groups/$groupId/products'
+      fullPath: '/groups/$groupId/products'
+      preLoaderRoute: typeof AppGroupsGroupIdProductsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/products/$productId/variants/': {
       id: '/_app/products/$productId/variants/'
       path: '/products/$productId/variants'
@@ -562,12 +605,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminsIndexRoute: typeof AppAdminsIndexRoute
+  AppAdvertisementsIndexRoute: typeof AppAdvertisementsIndexRoute
   AppBrandsIndexRoute: typeof AppBrandsIndexRoute
   AppCarColorsIndexRoute: typeof AppCarColorsIndexRoute
   AppCatalogsIndexRoute: typeof AppCatalogsIndexRoute
   AppCategoriesIndexRoute: typeof AppCategoriesIndexRoute
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
   AppContactMessagesIndexRoute: typeof AppContactMessagesIndexRoute
+  AppGroupsIndexRoute: typeof AppGroupsIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
   AppProductOptionsIndexRoute: typeof AppProductOptionsIndexRoute
@@ -590,6 +635,7 @@ interface AppRouteChildren {
   AppBrandsBrandIdModelsIndexRoute: typeof AppBrandsBrandIdModelsIndexRoute
   AppCategoriesIdSubcategoriesIndexRoute: typeof AppCategoriesIdSubcategoriesIndexRoute
   AppCompaniesIdAdminsIndexRoute: typeof AppCompaniesIdAdminsIndexRoute
+  AppGroupsGroupIdProductsIndexRoute: typeof AppGroupsGroupIdProductsIndexRoute
   AppProductsProductIdVariantsIndexRoute: typeof AppProductsProductIdVariantsIndexRoute
   AppUsersUserIdAddressesIndexRoute: typeof AppUsersUserIdAddressesIndexRoute
   AppProductsProductIdVariantsVariantIdIndexRoute: typeof AppProductsProductIdVariantsVariantIdIndexRoute
@@ -598,12 +644,14 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminsIndexRoute: AppAdminsIndexRoute,
+  AppAdvertisementsIndexRoute: AppAdvertisementsIndexRoute,
   AppBrandsIndexRoute: AppBrandsIndexRoute,
   AppCarColorsIndexRoute: AppCarColorsIndexRoute,
   AppCatalogsIndexRoute: AppCatalogsIndexRoute,
   AppCategoriesIndexRoute: AppCategoriesIndexRoute,
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
   AppContactMessagesIndexRoute: AppContactMessagesIndexRoute,
+  AppGroupsIndexRoute: AppGroupsIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
   AppProductOptionsIndexRoute: AppProductOptionsIndexRoute,
@@ -627,6 +675,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCategoriesIdSubcategoriesIndexRoute:
     AppCategoriesIdSubcategoriesIndexRoute,
   AppCompaniesIdAdminsIndexRoute: AppCompaniesIdAdminsIndexRoute,
+  AppGroupsGroupIdProductsIndexRoute: AppGroupsGroupIdProductsIndexRoute,
   AppProductsProductIdVariantsIndexRoute:
     AppProductsProductIdVariantsIndexRoute,
   AppUsersUserIdAddressesIndexRoute: AppUsersUserIdAddressesIndexRoute,
@@ -658,12 +707,14 @@ export interface FileRoutesByFullPath {
   '/auth/signin': typeof AuthSigninRoute
   '/': typeof AppIndexRoute
   '/admins': typeof AppAdminsIndexRoute
+  '/advertisements': typeof AppAdvertisementsIndexRoute
   '/brands': typeof AppBrandsIndexRoute
   '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
+  '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
@@ -686,6 +737,7 @@ export interface FileRoutesByFullPath {
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/groups/$groupId/products': typeof AppGroupsGroupIdProductsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
   '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
@@ -698,12 +750,14 @@ export interface FileRoutesByTo {
   '/auth/signin': typeof AuthSigninRoute
   '/': typeof AppIndexRoute
   '/admins': typeof AppAdminsIndexRoute
+  '/advertisements': typeof AppAdvertisementsIndexRoute
   '/brands': typeof AppBrandsIndexRoute
   '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
+  '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
@@ -726,6 +780,7 @@ export interface FileRoutesByTo {
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/groups/$groupId/products': typeof AppGroupsGroupIdProductsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
   '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
@@ -740,12 +795,14 @@ export interface FileRoutesById {
   '/auth/signin': typeof AuthSigninRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admins/': typeof AppAdminsIndexRoute
+  '/_app/advertisements/': typeof AppAdvertisementsIndexRoute
   '/_app/brands/': typeof AppBrandsIndexRoute
   '/_app/car-colors/': typeof AppCarColorsIndexRoute
   '/_app/catalogs/': typeof AppCatalogsIndexRoute
   '/_app/categories/': typeof AppCategoriesIndexRoute
   '/_app/companies/': typeof AppCompaniesIndexRoute
   '/_app/contact-messages/': typeof AppContactMessagesIndexRoute
+  '/_app/groups/': typeof AppGroupsIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
   '/_app/product-options/': typeof AppProductOptionsIndexRoute
@@ -768,6 +825,7 @@ export interface FileRoutesById {
   '/_app/brands/$brandId/models/': typeof AppBrandsBrandIdModelsIndexRoute
   '/_app/categories/$id/subcategories/': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/_app/companies/$id/admins/': typeof AppCompaniesIdAdminsIndexRoute
+  '/_app/groups/$groupId/products/': typeof AppGroupsGroupIdProductsIndexRoute
   '/_app/products/$productId/variants/': typeof AppProductsProductIdVariantsIndexRoute
   '/_app/users/$userId/addresses/': typeof AppUsersUserIdAddressesIndexRoute
   '/_app/products/$productId/variants/$variantId/': typeof AppProductsProductIdVariantsVariantIdIndexRoute
@@ -783,12 +841,14 @@ export interface FileRouteTypes {
     | '/auth/signin'
     | '/'
     | '/admins'
+    | '/advertisements'
     | '/brands'
     | '/car-colors'
     | '/catalogs'
     | '/categories'
     | '/companies'
     | '/contact-messages'
+    | '/groups'
     | '/languages'
     | '/meta'
     | '/product-options'
@@ -811,6 +871,7 @@ export interface FileRouteTypes {
     | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/groups/$groupId/products'
     | '/products/$productId/variants'
     | '/users/$userId/addresses'
     | '/products/$productId/variants/$variantId'
@@ -822,12 +883,14 @@ export interface FileRouteTypes {
     | '/auth/signin'
     | '/'
     | '/admins'
+    | '/advertisements'
     | '/brands'
     | '/car-colors'
     | '/catalogs'
     | '/categories'
     | '/companies'
     | '/contact-messages'
+    | '/groups'
     | '/languages'
     | '/meta'
     | '/product-options'
@@ -850,6 +913,7 @@ export interface FileRouteTypes {
     | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/groups/$groupId/products'
     | '/products/$productId/variants'
     | '/users/$userId/addresses'
     | '/products/$productId/variants/$variantId'
@@ -862,12 +926,14 @@ export interface FileRouteTypes {
     | '/auth/signin'
     | '/_app/'
     | '/_app/admins/'
+    | '/_app/advertisements/'
     | '/_app/brands/'
     | '/_app/car-colors/'
     | '/_app/catalogs/'
     | '/_app/categories/'
     | '/_app/companies/'
     | '/_app/contact-messages/'
+    | '/_app/groups/'
     | '/_app/languages/'
     | '/_app/meta/'
     | '/_app/product-options/'
@@ -890,6 +956,7 @@ export interface FileRouteTypes {
     | '/_app/brands/$brandId/models/'
     | '/_app/categories/$id/subcategories/'
     | '/_app/companies/$id/admins/'
+    | '/_app/groups/$groupId/products/'
     | '/_app/products/$productId/variants/'
     | '/_app/users/$userId/addresses/'
     | '/_app/products/$productId/variants/$variantId/'
@@ -925,12 +992,14 @@ export const routeTree = rootRoute
       "children": [
         "/_app/",
         "/_app/admins/",
+        "/_app/advertisements/",
         "/_app/brands/",
         "/_app/car-colors/",
         "/_app/catalogs/",
         "/_app/categories/",
         "/_app/companies/",
         "/_app/contact-messages/",
+        "/_app/groups/",
         "/_app/languages/",
         "/_app/meta/",
         "/_app/product-options/",
@@ -953,6 +1022,7 @@ export const routeTree = rootRoute
         "/_app/brands/$brandId/models/",
         "/_app/categories/$id/subcategories/",
         "/_app/companies/$id/admins/",
+        "/_app/groups/$groupId/products/",
         "/_app/products/$productId/variants/",
         "/_app/users/$userId/addresses/",
         "/_app/products/$productId/variants/$variantId/"
@@ -986,6 +1056,10 @@ export const routeTree = rootRoute
       "filePath": "_app/admins/index.tsx",
       "parent": "/_app"
     },
+    "/_app/advertisements/": {
+      "filePath": "_app/advertisements/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/brands/": {
       "filePath": "_app/brands/index.tsx",
       "parent": "/_app"
@@ -1008,6 +1082,10 @@ export const routeTree = rootRoute
     },
     "/_app/contact-messages/": {
       "filePath": "_app/contact-messages/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/groups/": {
+      "filePath": "_app/groups/index.tsx",
       "parent": "/_app"
     },
     "/_app/languages/": {
@@ -1096,6 +1174,10 @@ export const routeTree = rootRoute
     },
     "/_app/companies/$id/admins/": {
       "filePath": "_app/companies/$id/admins/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/groups/$groupId/products/": {
+      "filePath": "_app/groups/$groupId/products/index.tsx",
       "parent": "/_app"
     },
     "/_app/products/$productId/variants/": {
