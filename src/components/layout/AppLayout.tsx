@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   Bell,
   BellDot,
+  BookOpen,
   Building2,
   FileText,
   Globe,
@@ -63,6 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     { icon: <HeadphonesIcon />, label: t("support"), href: "/support" },
     { icon: <Bell />, label: t("push_notifications", "Push Bildirişlər"), href: "/push-notifications" },
     { icon: <BellDot />, label: t("notification_settings", "Bildiriş Ayarları"), href: "/notification-settings" },
+    { icon: <BookOpen />, label: t("pages"), href: "/static-pages" },
     { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
     { icon: <Share2 />, label: t("socials"), href: "/socials" },
     { icon: <SettingsIcon />, label: t("settings"), href: "/settings" },

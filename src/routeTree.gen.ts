@@ -20,6 +20,7 @@ import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password
 import { Route as AppUsersIndexImport } from './routes/_app/users/index'
 import { Route as AppTranslationsIndexImport } from './routes/_app/translations/index'
 import { Route as AppSupportIndexImport } from './routes/_app/support/index'
+import { Route as AppStaticPagesIndexImport } from './routes/_app/static-pages/index'
 import { Route as AppSocialsIndexImport } from './routes/_app/socials/index'
 import { Route as AppSettingsIndexImport } from './routes/_app/settings/index'
 import { Route as AppReviewsIndexImport } from './routes/_app/reviews/index'
@@ -41,10 +42,13 @@ import { Route as AppAdvertisementsIndexImport } from './routes/_app/advertiseme
 import { Route as AppAdminsIndexImport } from './routes/_app/admins/index'
 import { Route as AppSupportAddIndexImport } from './routes/_app/support/add/index'
 import { Route as AppSupportIdIndexImport } from './routes/_app/support/$id/index'
+import { Route as AppStaticPagesAddIndexImport } from './routes/_app/static-pages/add/index'
+import { Route as AppStaticPagesIdIndexImport } from './routes/_app/static-pages/$id/index'
 import { Route as AppProductsProductIdIndexImport } from './routes/_app/products/$productId/index'
 import { Route as AppProductOptionsIdIndexImport } from './routes/_app/product-options/$id/index'
 import { Route as AppCompaniesAddIndexImport } from './routes/_app/companies/add/index'
 import { Route as AppAdminsAddIndexImport } from './routes/_app/admins/add/index'
+import { Route as AppStaticPagesIdEditImport } from './routes/_app/static-pages/$id/edit'
 import { Route as AppCompaniesIdEditImport } from './routes/_app/companies/$id/edit'
 import { Route as AppAdminsIdEditImport } from './routes/_app/admins/$id/edit'
 import { Route as AppUsersUserIdAddressesIndexImport } from './routes/_app/users/$userId/addresses/index'
@@ -107,6 +111,12 @@ const AppTranslationsIndexRoute = AppTranslationsIndexImport.update({
 const AppSupportIndexRoute = AppSupportIndexImport.update({
   id: '/support/',
   path: '/support/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppStaticPagesIndexRoute = AppStaticPagesIndexImport.update({
+  id: '/static-pages/',
+  path: '/static-pages/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -237,6 +247,18 @@ const AppSupportIdIndexRoute = AppSupportIdIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppStaticPagesAddIndexRoute = AppStaticPagesAddIndexImport.update({
+  id: '/static-pages/add/',
+  path: '/static-pages/add/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppStaticPagesIdIndexRoute = AppStaticPagesIdIndexImport.update({
+  id: '/static-pages/$id/',
+  path: '/static-pages/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppProductsProductIdIndexRoute = AppProductsProductIdIndexImport.update({
   id: '/products/$productId/',
   path: '/products/$productId/',
@@ -258,6 +280,12 @@ const AppCompaniesAddIndexRoute = AppCompaniesAddIndexImport.update({
 const AppAdminsAddIndexRoute = AppAdminsAddIndexImport.update({
   id: '/admins/add/',
   path: '/admins/add/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppStaticPagesIdEditRoute = AppStaticPagesIdEditImport.update({
+  id: '/static-pages/$id/edit',
+  path: '/static-pages/$id/edit',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -500,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSocialsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/static-pages/': {
+      id: '/_app/static-pages/'
+      path: '/static-pages'
+      fullPath: '/static-pages'
+      preLoaderRoute: typeof AppStaticPagesIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/support/': {
       id: '/_app/support/'
       path: '/support'
@@ -535,6 +570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesIdEditImport
       parentRoute: typeof AppImport
     }
+    '/_app/static-pages/$id/edit': {
+      id: '/_app/static-pages/$id/edit'
+      path: '/static-pages/$id/edit'
+      fullPath: '/static-pages/$id/edit'
+      preLoaderRoute: typeof AppStaticPagesIdEditImport
+      parentRoute: typeof AppImport
+    }
     '/_app/admins/add/': {
       id: '/_app/admins/add/'
       path: '/admins/add'
@@ -561,6 +603,20 @@ declare module '@tanstack/react-router' {
       path: '/products/$productId'
       fullPath: '/products/$productId'
       preLoaderRoute: typeof AppProductsProductIdIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/static-pages/$id/': {
+      id: '/_app/static-pages/$id/'
+      path: '/static-pages/$id'
+      fullPath: '/static-pages/$id'
+      preLoaderRoute: typeof AppStaticPagesIdIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/static-pages/add/': {
+      id: '/_app/static-pages/add/'
+      path: '/static-pages/add'
+      fullPath: '/static-pages/add'
+      preLoaderRoute: typeof AppStaticPagesAddIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/support/$id/': {
@@ -652,15 +708,19 @@ interface AppRouteChildren {
   AppReviewsIndexRoute: typeof AppReviewsIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSocialsIndexRoute: typeof AppSocialsIndexRoute
+  AppStaticPagesIndexRoute: typeof AppStaticPagesIndexRoute
   AppSupportIndexRoute: typeof AppSupportIndexRoute
   AppTranslationsIndexRoute: typeof AppTranslationsIndexRoute
   AppUsersIndexRoute: typeof AppUsersIndexRoute
   AppAdminsIdEditRoute: typeof AppAdminsIdEditRoute
   AppCompaniesIdEditRoute: typeof AppCompaniesIdEditRoute
+  AppStaticPagesIdEditRoute: typeof AppStaticPagesIdEditRoute
   AppAdminsAddIndexRoute: typeof AppAdminsAddIndexRoute
   AppCompaniesAddIndexRoute: typeof AppCompaniesAddIndexRoute
   AppProductOptionsIdIndexRoute: typeof AppProductOptionsIdIndexRoute
   AppProductsProductIdIndexRoute: typeof AppProductsProductIdIndexRoute
+  AppStaticPagesIdIndexRoute: typeof AppStaticPagesIdIndexRoute
+  AppStaticPagesAddIndexRoute: typeof AppStaticPagesAddIndexRoute
   AppSupportIdIndexRoute: typeof AppSupportIdIndexRoute
   AppSupportAddIndexRoute: typeof AppSupportAddIndexRoute
   AppBrandsBrandIdModelsIndexRoute: typeof AppBrandsBrandIdModelsIndexRoute
@@ -693,15 +753,19 @@ const AppRouteChildren: AppRouteChildren = {
   AppReviewsIndexRoute: AppReviewsIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSocialsIndexRoute: AppSocialsIndexRoute,
+  AppStaticPagesIndexRoute: AppStaticPagesIndexRoute,
   AppSupportIndexRoute: AppSupportIndexRoute,
   AppTranslationsIndexRoute: AppTranslationsIndexRoute,
   AppUsersIndexRoute: AppUsersIndexRoute,
   AppAdminsIdEditRoute: AppAdminsIdEditRoute,
   AppCompaniesIdEditRoute: AppCompaniesIdEditRoute,
+  AppStaticPagesIdEditRoute: AppStaticPagesIdEditRoute,
   AppAdminsAddIndexRoute: AppAdminsAddIndexRoute,
   AppCompaniesAddIndexRoute: AppCompaniesAddIndexRoute,
   AppProductOptionsIdIndexRoute: AppProductOptionsIdIndexRoute,
   AppProductsProductIdIndexRoute: AppProductsProductIdIndexRoute,
+  AppStaticPagesIdIndexRoute: AppStaticPagesIdIndexRoute,
+  AppStaticPagesAddIndexRoute: AppStaticPagesAddIndexRoute,
   AppSupportIdIndexRoute: AppSupportIdIndexRoute,
   AppSupportAddIndexRoute: AppSupportAddIndexRoute,
   AppBrandsBrandIdModelsIndexRoute: AppBrandsBrandIdModelsIndexRoute,
@@ -758,15 +822,19 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
+  '/static-pages': typeof AppStaticPagesIndexRoute
   '/support': typeof AppSupportIndexRoute
   '/translations': typeof AppTranslationsIndexRoute
   '/users': typeof AppUsersIndexRoute
   '/admins/$id/edit': typeof AppAdminsIdEditRoute
   '/companies/$id/edit': typeof AppCompaniesIdEditRoute
+  '/static-pages/$id/edit': typeof AppStaticPagesIdEditRoute
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/product-options/$id': typeof AppProductOptionsIdIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/static-pages/$id': typeof AppStaticPagesIdIndexRoute
+  '/static-pages/add': typeof AppStaticPagesAddIndexRoute
   '/support/$id': typeof AppSupportIdIndexRoute
   '/support/add': typeof AppSupportAddIndexRoute
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
@@ -803,15 +871,19 @@ export interface FileRoutesByTo {
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
+  '/static-pages': typeof AppStaticPagesIndexRoute
   '/support': typeof AppSupportIndexRoute
   '/translations': typeof AppTranslationsIndexRoute
   '/users': typeof AppUsersIndexRoute
   '/admins/$id/edit': typeof AppAdminsIdEditRoute
   '/companies/$id/edit': typeof AppCompaniesIdEditRoute
+  '/static-pages/$id/edit': typeof AppStaticPagesIdEditRoute
   '/admins/add': typeof AppAdminsAddIndexRoute
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/product-options/$id': typeof AppProductOptionsIdIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/static-pages/$id': typeof AppStaticPagesIdIndexRoute
+  '/static-pages/add': typeof AppStaticPagesAddIndexRoute
   '/support/$id': typeof AppSupportIdIndexRoute
   '/support/add': typeof AppSupportAddIndexRoute
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
@@ -850,15 +922,19 @@ export interface FileRoutesById {
   '/_app/reviews/': typeof AppReviewsIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/socials/': typeof AppSocialsIndexRoute
+  '/_app/static-pages/': typeof AppStaticPagesIndexRoute
   '/_app/support/': typeof AppSupportIndexRoute
   '/_app/translations/': typeof AppTranslationsIndexRoute
   '/_app/users/': typeof AppUsersIndexRoute
   '/_app/admins/$id/edit': typeof AppAdminsIdEditRoute
   '/_app/companies/$id/edit': typeof AppCompaniesIdEditRoute
+  '/_app/static-pages/$id/edit': typeof AppStaticPagesIdEditRoute
   '/_app/admins/add/': typeof AppAdminsAddIndexRoute
   '/_app/companies/add/': typeof AppCompaniesAddIndexRoute
   '/_app/product-options/$id/': typeof AppProductOptionsIdIndexRoute
   '/_app/products/$productId/': typeof AppProductsProductIdIndexRoute
+  '/_app/static-pages/$id/': typeof AppStaticPagesIdIndexRoute
+  '/_app/static-pages/add/': typeof AppStaticPagesAddIndexRoute
   '/_app/support/$id/': typeof AppSupportIdIndexRoute
   '/_app/support/add/': typeof AppSupportAddIndexRoute
   '/_app/brands/$brandId/models/': typeof AppBrandsBrandIdModelsIndexRoute
@@ -898,15 +974,19 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/socials'
+    | '/static-pages'
     | '/support'
     | '/translations'
     | '/users'
     | '/admins/$id/edit'
     | '/companies/$id/edit'
+    | '/static-pages/$id/edit'
     | '/admins/add'
     | '/companies/add'
     | '/product-options/$id'
     | '/products/$productId'
+    | '/static-pages/$id'
+    | '/static-pages/add'
     | '/support/$id'
     | '/support/add'
     | '/brands/$brandId/models'
@@ -942,15 +1022,19 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/socials'
+    | '/static-pages'
     | '/support'
     | '/translations'
     | '/users'
     | '/admins/$id/edit'
     | '/companies/$id/edit'
+    | '/static-pages/$id/edit'
     | '/admins/add'
     | '/companies/add'
     | '/product-options/$id'
     | '/products/$productId'
+    | '/static-pages/$id'
+    | '/static-pages/add'
     | '/support/$id'
     | '/support/add'
     | '/brands/$brandId/models'
@@ -987,15 +1071,19 @@ export interface FileRouteTypes {
     | '/_app/reviews/'
     | '/_app/settings/'
     | '/_app/socials/'
+    | '/_app/static-pages/'
     | '/_app/support/'
     | '/_app/translations/'
     | '/_app/users/'
     | '/_app/admins/$id/edit'
     | '/_app/companies/$id/edit'
+    | '/_app/static-pages/$id/edit'
     | '/_app/admins/add/'
     | '/_app/companies/add/'
     | '/_app/product-options/$id/'
     | '/_app/products/$productId/'
+    | '/_app/static-pages/$id/'
+    | '/_app/static-pages/add/'
     | '/_app/support/$id/'
     | '/_app/support/add/'
     | '/_app/brands/$brandId/models/'
@@ -1055,15 +1143,19 @@ export const routeTree = rootRoute
         "/_app/reviews/",
         "/_app/settings/",
         "/_app/socials/",
+        "/_app/static-pages/",
         "/_app/support/",
         "/_app/translations/",
         "/_app/users/",
         "/_app/admins/$id/edit",
         "/_app/companies/$id/edit",
+        "/_app/static-pages/$id/edit",
         "/_app/admins/add/",
         "/_app/companies/add/",
         "/_app/product-options/$id/",
         "/_app/products/$productId/",
+        "/_app/static-pages/$id/",
+        "/_app/static-pages/add/",
         "/_app/support/$id/",
         "/_app/support/add/",
         "/_app/brands/$brandId/models/",
@@ -1175,6 +1267,10 @@ export const routeTree = rootRoute
       "filePath": "_app/socials/index.tsx",
       "parent": "/_app"
     },
+    "/_app/static-pages/": {
+      "filePath": "_app/static-pages/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/support/": {
       "filePath": "_app/support/index.tsx",
       "parent": "/_app"
@@ -1195,6 +1291,10 @@ export const routeTree = rootRoute
       "filePath": "_app/companies/$id/edit.tsx",
       "parent": "/_app"
     },
+    "/_app/static-pages/$id/edit": {
+      "filePath": "_app/static-pages/$id/edit.tsx",
+      "parent": "/_app"
+    },
     "/_app/admins/add/": {
       "filePath": "_app/admins/add/index.tsx",
       "parent": "/_app"
@@ -1209,6 +1309,14 @@ export const routeTree = rootRoute
     },
     "/_app/products/$productId/": {
       "filePath": "_app/products/$productId/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/static-pages/$id/": {
+      "filePath": "_app/static-pages/$id/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/static-pages/add/": {
+      "filePath": "_app/static-pages/add/index.tsx",
       "parent": "/_app"
     },
     "/_app/support/$id/": {
