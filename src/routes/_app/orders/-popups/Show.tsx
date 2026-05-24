@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import Modal from "@/components/ui/modal";
 import {
   Table,
   TableBody,
@@ -145,7 +144,7 @@ export default function Show({ orderId, onClose }: ShowProps) {
   const [courierPhone, setCourierPhone] = useState("");
   const [courierEta, setCourierEta] = useState("");
   const [courierNotes, setCourierNotes] = useState("");
-  const [woltCompanyId, setWoltCompanyId] = useState("");
+  const [pendingWoltCompanyId, setPendingWoltCompanyId] = useState<number | null>(null);
 
   const changeStatusMutation = useChangeOrderStatus();
   const updatePaymentMutation = useUpdatePaymentStatus();
@@ -229,17 +228,18 @@ export default function Show({ orderId, onClose }: ShowProps) {
     }
   };
 
-  const handleWoltDelivery = async () => {
-    if (!woltCompanyId) return;
+  const handleWoltDelivery = async (companyId: number) => {
+    setPendingWoltCompanyId(companyId);
     try {
       const res = await requestWoltMutation.mutateAsync({
         id: orderId,
-        data: { company_id: Number(woltCompanyId) },
+        data: { company_id: companyId },
       });
       toast.success(res.message || t("wolt_delivery_requested_successfully"));
-      setWoltCompanyId("");
     } catch (error: any) {
       toast.error(error.response?.data?.message || t("an_error_occurred"));
+    } finally {
+      setPendingWoltCompanyId(null);
     }
   };
 
@@ -535,18 +535,31 @@ export default function Show({ orderId, onClose }: ShowProps) {
 
         <AccordionSection icon={<Truck className="h-4 w-4 text-blue-500" />} title={t("request_wolt_delivery")}>
           <div className="space-y-2">
-            <Select
-              value={woltCompanyId}
-              onValueChange={setWoltCompanyId}
-              options={(order.companies ?? []).map((c: OrderCompany) => ({
-                value: String(c.id),
-                label: c.title ? `${c.title} (${c.store_code})` : c.store_code,
-              }))}
-              placeholder={t("select_company")}
-            />
-            <Button size="sm" onClick={handleWoltDelivery} disabled={!woltCompanyId || requestWoltMutation.isPending}>
-              {t("save")}
-            </Button>
+            {(order.companies ?? []).map((c: OrderCompany) => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between rounded-md border px-3 py-2"
+              >
+                <div>
+                  <p className="text-sm font-medium">
+                    {c.title ? `${c.title} · ${c.store_code}` : c.store_code}
+                  </p>
+                  {c.wolt_status && (
+                    <span className={`mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColorMap[c.wolt_status] ?? "bg-gray-100 text-gray-700"}`}>
+                      {c.wolt_status}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={pendingWoltCompanyId === c.id}
+                  onClick={() => handleWoltDelivery(c.id)}
+                >
+                  {t("request")}
+                </Button>
+              </div>
+            ))}
           </div>
         </AccordionSection>
 

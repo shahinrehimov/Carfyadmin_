@@ -85,6 +85,13 @@ export interface SellerGroup {
   items: OrderItemBySeller[];
 }
 
+export interface WoltDelivery {
+  wolt_order_reference_id: string;
+  tracking_url: string;
+  status: string;
+  part: number;
+}
+
 export interface ShippingPerSeller {
   company_id: number;
   company_name: string | null;
@@ -92,7 +99,7 @@ export interface ShippingPerSeller {
   amount: number;
   refunded_at: string | null;
   wolt_status: string | null;
-  wolt_deliveries: unknown | null;
+  wolt_deliveries: WoltDelivery[] | null;
 }
 
 export interface OrderCompany {
