@@ -380,15 +380,41 @@ export default function Show({ orderId, onClose }: ShowProps) {
           <div className="space-y-3">
             {order.items_by_seller.map((group: SellerGroup) => (
               <div key={group.company_id} className="rounded-lg border">
-                <div className="flex items-center justify-between bg-gray-50 px-3 py-2 dark:bg-gray-800">
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    {group.company_name ?? group.store_code}
-                  </span>
-                  {order.shipping_per_seller?.find((s) => s.company_id === group.company_id) && (
-                    <span className="text-xs text-gray-500">
-                      {t("shipping")}: {order.shipping_per_seller.find((s) => s.company_id === group.company_id)?.amount} ₼
+                <div className="bg-gray-50 px-3 py-2 dark:bg-gray-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      {group.company_name ?? group.store_code}
                     </span>
-                  )}
+                    {(() => {
+                      const shipping = order.shipping_per_seller?.find((s) => s.company_id === group.company_id);
+                      return shipping ? (
+                        <span className="text-xs text-gray-500">
+                          {t("shipping")}: {shipping.amount} ₼
+                        </span>
+                      ) : null;
+                    })()}
+                  </div>
+                  {(() => {
+                    const shipping = order.shipping_per_seller?.find((s) => s.company_id === group.company_id);
+                    if (!shipping?.wolt_deliveries?.length) return null;
+                    return (
+                      <div className="mt-1.5 flex flex-wrap gap-2">
+                        {shipping.wolt_deliveries.map((d, i) => (
+                          <a
+                            key={i}
+                            href={d.tracking_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300"
+                          >
+                            <Truck className="h-3 w-3" />
+                            Wolt #{i + 1}
+                            {shipping.wolt_deliveries!.length > 1 && ` · ${d.status}`}
+                          </a>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <Table>
                   <TableHeader>
