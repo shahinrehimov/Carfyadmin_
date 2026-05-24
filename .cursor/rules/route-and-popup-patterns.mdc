@@ -1,0 +1,107 @@
+---
+description: carfy_admin route səhifələri və popup komponentlər üçün standart pattern
+globs: carfy_admin/src/routes/**/*.tsx
+alwaysApply: false
+---
+
+# Route Səhifələri və Popup Komponentlər
+
+## Qovluq Strukturu
+
+```
+routes/_app/{modul}/
+  index.tsx          # cədvəl siyahısı + popup state
+  -popups/
+    Add.tsx           # əlavə etmə forması
+    Edit.tsx          # redaktə forması
+    Show.tsx          # detallar (yalnız oxu)
+```
+
+## Popup Komponenti Şablonu (Add.tsx / Edit.tsx)
+
+```tsx
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useCreateItem } from "@/lib/queries/items";
+import { useTranslation } from "@/lib/utils/translationLoader";
+import { useLangs } from "@/lib/queries/langs";
+
+interface AddProps { onClose: () => void; }
+
+const schema = z.object({
+  translations: z.array(z.object({
+    language_id: z.number(),
+    title: z.string().min(1, "Title is required"),
+  })),
+});
+type FormData = z.infer<typeof schema>;
+
+const Add: React.FC<AddProps> = ({ onClose }) => {
+  const { t } = useTranslation();
+  const { data: langs = [] } = useLangs();
+  const mutation = useCreateItem();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { translations: [] },
+  });
+
+  useEffect(() => {
+    if (langs.length > 0) {
+      form.reset({ translations: langs.map((l: any) => ({ language_id: l.id, title: "" })) });
+    }
+  }, [langs, form]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const res = await mutation.mutateAsync(data);
+      toast.success(res.message || t("created_successfully"));
+      onClose();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t("an_error_occurred"));
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* ... form sahələri ... */}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? t("saving") : t("save")}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+export default Add;
+```
+
+## Route Siyahı Səhifəsi (index.tsx)
+
+```tsx
+// Popup state-i route search params ilə idarə et
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Modal } from "@/components/ui/modal";
+import Add from "./-popups/Add";
+
+// Popup açmaq üçün:
+const navigate = useNavigate();
+const openAdd = () => navigate({ search: (prev) => ({ ...prev, modal: "add" }) });
+const closeModal = () => navigate({ search: (prev) => ({ ...prev, modal: undefined }) });
+```
+
+## Qaydalar
+
+- Popup-lar `Modal` komponenti içinə sarılır — `onClose` callback alır
+- Mətn həmişə `t("açar")` formatında
+- Dil sectionları: `langs.map()` ilə dinamik render
+- Fayl yükləmə varsa `useState<{ file?: File | null | string; preview?: string }>({})` pattern-i işlət
+- `isPending` vəziyyətini button-da göstər, disabled et
+- `onSuccess`: toast + `onClose()`
+- `onError`: `error.response?.data?.message` yoxla, fallback `t("an_error_occurred")`

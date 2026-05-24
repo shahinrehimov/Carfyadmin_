@@ -53,6 +53,42 @@ interface UserAddressesFilters {
   user_id: number;
 }
 
+export interface UserCarRelation {
+  id: number;
+  title: string;
+}
+
+export interface UserCar {
+  id: number;
+  brand: UserCarRelation | null;
+  brand_model: UserCarRelation | null;
+  year: number | null;
+  car_color: UserCarRelation | null;
+  fuel_type: UserCarRelation | null;
+  engine_volume: UserCarRelation | null;
+  transmission_type: UserCarRelation | null;
+  car_type: UserCarRelation | null;
+  engine_number: string | null;
+  vin_number: string | null;
+  seat_count: number | null;
+  photo: string | null;
+  created_date: string;
+}
+
+interface UserCarsResponse {
+  data: Array<UserCar>;
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+interface UserCarsFilters {
+  page: number;
+  user_id: number;
+}
+
 // API functions - Users
 async function getUsers(filters: UsersFilters) {
   const queryParams = new URLSearchParams();
@@ -93,6 +129,23 @@ async function deleteUserAddress(userId: number, addressId: number) {
   return response.data;
 }
 
+// API functions - User Cars
+async function getUserCars(filters: UserCarsFilters) {
+  const { user_id, page } = filters;
+  const response = await controlPrivateApi.get(`/users/${user_id}/cars/load?page=${page}`);
+  return response.data as UserCarsResponse;
+}
+
+async function getUserCar(userId: number, carId: number) {
+  const response = await controlPrivateApi.get(`/users/${userId}/cars/show/${carId}`);
+  return response.data.data as UserCar;
+}
+
+async function deleteUserCar(userId: number, carId: number) {
+  const response = await controlPrivateApi.delete(`/users/${userId}/cars/delete/${carId}`);
+  return response.data;
+}
+
 // Query options - Users
 export const usersQueryOptions = (filters: UsersFilters) =>
   queryOptions({
@@ -114,6 +167,20 @@ export const userAddressesQueryOptions = (filters: UserAddressesFilters) =>
     queryKey: ["userAddresses", filters],
     queryFn: () => getUserAddresses(filters),
     staleTime: 5 * 60 * 1000,
+  });
+
+export const userCarsQueryOptions = (filters: UserCarsFilters) =>
+  queryOptions({
+    queryKey: ["userCars", filters],
+    queryFn: () => getUserCars(filters),
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const userCarQueryOptions = (userId: number, carId: number) =>
+  queryOptions({
+    queryKey: ["userCar", userId, carId],
+    queryFn: () => getUserCar(userId, carId),
+    enabled: !!userId && !!carId,
   });
 
 // Hooks - Users
@@ -160,6 +227,26 @@ export function useDeleteUserAddress() {
       deleteUserAddress(userId, addressId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userAddresses"] });
+    },
+  });
+}
+
+export function useUserCars(filters: UserCarsFilters) {
+  return useQuery(userCarsQueryOptions(filters));
+}
+
+export function useUserCar(userId: number, carId: number) {
+  return useQuery(userCarQueryOptions(userId, carId));
+}
+
+export function useDeleteUserCar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, carId }: { userId: number; carId: number }) =>
+      deleteUserCar(userId, carId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userCars"] });
     },
   });
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Trash2, MapPin } from "lucide-react";
+import { Trash2, MapPin, Car } from "lucide-react";
 import { toast } from "sonner";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Button } from "@/components/ui/button";
@@ -112,8 +112,13 @@ function RouteComponent() {
               <TableCell>
                 <div className="flex gap-2">
                   <Link to="/users/$userId/addresses" params={{ userId: user.id.toString() }}>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" aria-label={t("user_addresses")}>
                       <MapPin className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/users/$userId/cars" params={{ userId: user.id.toString() }}>
+                    <Button variant="ghost" size="icon" aria-label={t("user_cars")}>
+                      <Car className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
@@ -167,8 +172,13 @@ function RouteComponent() {
               </div>
               <div className="flex justify-end gap-2">
                 <Link to="/users/$userId/addresses" params={{ userId: user.id.toString() }}>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" aria-label={t("user_addresses")}>
                     <MapPin className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/users/$userId/cars" params={{ userId: user.id.toString() }}>
+                  <Button variant="ghost" size="icon" aria-label={t("user_cars")}>
+                    <Car className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Button

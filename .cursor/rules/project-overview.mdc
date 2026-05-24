@@ -1,0 +1,65 @@
+---
+description: carfy_admin Control Panel — layihə strukturu, texnologiya yığımı və ümumi konvensiyalar
+alwaysApply: true
+---
+
+# carfy_admin — Control Panel
+
+## Texnologiya Yığımı
+- **Framework**: React 19 + TypeScript + Vite 6
+- **Routing**: TanStack Router (`@tanstack/react-router`) — fayl əsaslı routing
+- **Server state**: TanStack Query v5 (`@tanstack/react-query`)
+- **Client state**: Zustand v5 (`src/store/`)
+- **Forma**: React Hook Form + Zod (`@hookform/resolvers/zod`)
+- **UI**: Tailwind CSS v4 + Radix UI + shadcn/ui komponentləri (`src/components/ui/`)
+- **Notifikasiya**: Sonner (`toast.success`, `toast.error`)
+- **HTTP**: Axios — `controlPrivateApi` (`src/lib/axios/controlPrivateApi.ts`)
+- **Dil**: i18n `useTranslation()` hook-u ilə (`src/lib/utils/translationLoader.ts`)
+- **Drag & drop**: dnd-kit (sıralama üçün)
+
+## API Konfiqurasiyası
+- Base URL: `https://api.carfy.az/api/control` (`VITE_CONTROL_API_URL`)
+- `controlPrivateApi` — auth token + `Accept-Language` + `Token` header-ları avtomatik əlavə edir
+- Query faylları: `src/lib/queries/*.ts` — hər modul üçün ayrı fayl
+
+## Qovluq Strukturu
+```
+src/
+  lib/
+    axios/         # controlApi.ts (public), controlPrivateApi.ts (auth tələb edir)
+    queries/       # API modülləri — HER MODÜl ÜÇÜN AYRI FAYL
+  routes/
+    auth/          # signin, forgot-password, reset-password
+    _app/          # qorunan route-lar
+      {modul}/
+        index.tsx         # siyahı səhifəsi
+        -popups/          # Add.tsx, Edit.tsx, Show.tsx kimi popup komponentlər
+  components/
+    ui/            # shadcn/ui komponentləri
+  store/           # auth.ts, translations.ts (Zustand)
+```
+
+## Ümumi Konvensiyalar
+- Bütün mətn `useTranslation()` vasitəsilə — hardcoded string olmaz
+- **Fallback istifadə etmə** — `t("key")` yalnız bir argumentlə; ikinci argument (fallback mətn) heç yerdə yazılmamalıdır
+- Forma validasiyası Zod schema ilə
+- API xətaları `toast.error(error.response?.data?.message || t("an_error_occurred"))` ilə göstərilir
+- Uğurlu əməliyyat `toast.success(response.message || t("..."))` ilə göstərilir
+- `isPending` vəziyyətini həmişə button-da göstər
+- `any` tipi işlətmə — düzgün TypeScript tipləri yaz
+
+## Tərcümə — Fallback Qadağası
+
+Heç yerdə fallback mətn yazma. Yalnız translation key istifadə et.
+
+```tsx
+// ❌ YANLIŞ
+t("user_management", "İdarəetmə")
+t("push_notifications", "Push Bildirişlər")
+
+// ✅ DÜZGÜN
+t("user_management")
+t("push_notifications")
+```
+
+Key backend translations-da yoxdursa, admin panelin Translations bölməsində əlavə et — kodda fallback yazma.

@@ -1,0 +1,95 @@
+---
+description: carfy_admin API query faylları — yeni modul əlavə etmək üçün standart pattern
+globs: carfy_admin/src/lib/queries/**/*.ts
+alwaysApply: false
+---
+
+# API Query Faylları — `src/lib/queries/`
+
+Hər modul üçün ayrı `.ts` faylı. Fayl adı: `{modul-adi}.ts` (məs. `brands.ts`, `orders.ts`).
+
+## Fayl Strukturu
+
+```ts
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { controlPrivateApi } from "../axios/controlPrivateApi";
+
+// 1. TİPLƏR — export et
+export interface Item { id: number; title: string; is_active: boolean; /* ... */ }
+interface ListResponse { data: Item[]; meta: { current_page: number; total: number; /* ... */ }; }
+interface Filters { page?: number; per_page?: number; search?: string; }
+
+// 2. API FUNKSİYALARI — export etmə
+async function getItems(filters: Filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([k, v]) => {
+    if (v !== null && v !== undefined && v !== "") params.append(k, String(v));
+  });
+  return (await controlPrivateApi.get<ListResponse>(`/items/load?${params}`)).data;
+}
+
+async function getItem(id: number) {
+  return (await controlPrivateApi.get<{ data: Item }>(`/items/show/${id}`)).data.data;
+}
+
+async function createItem(data: CreateRequest) {
+  return (await controlPrivateApi.post(`/items/add`, data)).data;
+}
+
+async function updateItem(id: number, data: UpdateRequest) {
+  return (await controlPrivateApi.post(`/items/update/${id}`, data)).data;
+}
+
+async function deleteItem(id: number) {
+  return (await controlPrivateApi.delete(`/items/delete/${id}`)).data;
+}
+
+async function toggleActiveStatus(id: number) {
+  return (await controlPrivateApi.post(`/items/change-active-status/${id}`)).data;
+}
+
+// 3. QUERY OPTIONS — export et (lazy loading üçün)
+export const itemsQueryOptions = (filters: Filters = {}) =>
+  queryOptions({ queryKey: ["items", filters], queryFn: () => getItems(filters) });
+
+export const itemQueryOptions = (id: number) =>
+  queryOptions({ queryKey: ["items", id], queryFn: () => getItem(id), enabled: !!id });
+
+// 4. CUSTOM HOOKS — export et
+export function useItems(filters: Filters = {}) {
+  return useQuery(itemsQueryOptions(filters));
+}
+
+export function useCreateItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateRequest) => createItem(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["items"] }),
+  });
+}
+
+export function useUpdateItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateRequest }) => updateItem(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["items"] }),
+  });
+}
+
+export function useDeleteItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteItem(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["items"] }),
+  });
+}
+```
+
+## Qaydalar
+
+- `controlPrivateApi` — həmişə bu instance-ı işlət (token + header-lar avtomatikdir)
+- QueryKey: `["modul-adı", filters]` formatında — invalidation-u dəqiqləşdirir
+- `onSuccess` içərisində `invalidateQueries` ilə siyahını yenilə
+- Forma üçün `FormData` lazım olduqda `controlPrivateApi.post(url, formData, { headers: { "Content-Type": "multipart/form-data" } })` işlət
+- `/load` — paginated siyahı, `/list` — tam siyahı (dropdown üçün), `/show/{id}` — tək element
+- Fayl yükləmə varsa `FormData`-ya `file.file as File` əlavə et

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import React from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ChevronDown, X } from "lucide-react";
 import { cn } from "../../lib/utils/index";
 import {
   Tooltip,
@@ -8,17 +8,33 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import type { ReactNode } from "react";
 
-interface SidebarItemProps {
+export interface SidebarNavItem {
+  icon: ReactNode;
+  label: string;
+  href: string;
+}
+
+interface SidebarSharedProps {
+  isCollapsed?: boolean;
+  isMobile?: boolean;
+  onItemClick?: () => void;
+}
+
+function isPathActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+interface SidebarItemProps extends SidebarSharedProps {
   icon: ReactNode;
   label: string;
   href: string;
   isActive?: boolean;
   isPrimary?: boolean;
-  isCollapsed?: boolean;
-  isMobile?: boolean;
-  onItemClick?: () => void;
+  nested?: boolean;
 }
 
 export function SidebarItem({
@@ -29,9 +45,10 @@ export function SidebarItem({
   isCollapsed = false,
   isMobile = false,
   onItemClick,
+  nested = false,
 }: SidebarItemProps) {
   const { pathname } = useLocation();
-  const isActive = pathname === href;
+  const isActive = isPathActive(pathname, href);
 
   const handleClick = () => {
     if (isMobile && onItemClick) {
@@ -39,51 +56,155 @@ export function SidebarItem({
     }
   };
 
-  return (
-    <div className="relative">
-      {isCollapsed && !isMobile ? (
+  const linkClassName = cn(
+    "flex items-center gap-3 py-3 text-sm rounded-lg transition-colors my-1 relative",
+    isMobile ? "text-primary px-4" : "text-white px-6",
+    nested && !isMobile && "pl-10 py-2.5",
+    nested && isMobile && "pl-8 py-2.5",
+    !isActive && "hover:bg-white/10 hover:z-10",
+    isPrimary && "text-white",
+    isActive &&
+      !isPrimary &&
+      "bg-white text-primary font-medium dark:bg-[#242428] dark:text-[#50B5FF]",
+    isMobile &&
+      isActive &&
+      "bg-[#3371EB33] text-primary font-medium dark:bg-[#1A1B23] dark:text-[#50B5FF]",
+  );
+
+  if (isCollapsed && !isMobile && !nested) {
+    return (
+      <div className="relative">
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <Link
-                to={href}
-                onClick={handleClick}
-                className={cn(
-                  "flex items-center gap-3 px-6 py-3 text-sm rounded-lg transition-colors my-1 relative ",
-                  "text-white ",
-                  !isActive && "hover:bg-white/10 hover:z-10",
-                  isPrimary && "text-white",
-                  isActive &&
-                    !isPrimary &&
-                    "bg-white text-primary font-medium dark:bg-[#242428] dark:text-[#50B5FF]",
-                )}
-              >
+              <Link to={href} onClick={handleClick} className={linkClassName}>
                 <span className="text-lg">{icon}</span>
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">{label}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      ) : (
-        <Link
-          to={href}
-          onClick={handleClick}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <Link to={href} onClick={handleClick} className={linkClassName}>
+        {!nested && <span className="text-lg">{icon}</span>}
+        <span>{label}</span>
+      </Link>
+    </div>
+  );
+}
+
+interface SidebarGroupProps extends SidebarSharedProps {
+  icon: ReactNode;
+  label: string;
+  items: SidebarNavItem[];
+}
+
+export function SidebarGroup({
+  icon,
+  label,
+  items,
+  isCollapsed = false,
+  isMobile = false,
+  onItemClick,
+}: SidebarGroupProps) {
+  const { pathname } = useLocation();
+  const hasActiveChild = items.some((item) => isPathActive(pathname, item.href));
+  const [isOpen, setIsOpen] = useState(hasActiveChild);
+
+  useEffect(() => {
+    if (hasActiveChild) {
+      setIsOpen(true);
+    }
+  }, [hasActiveChild]);
+
+  const handleChildClick = () => {
+    if (isMobile && onItemClick) {
+      onItemClick();
+    }
+  };
+
+  const groupButtonClassName = cn(
+    "flex w-full items-center gap-3 rounded-lg py-3 text-sm transition-colors my-1",
+    isMobile ? "text-primary px-4" : "text-white px-6",
+    hasActiveChild && "bg-white/10",
+    !hasActiveChild && "hover:bg-white/10",
+  );
+
+  if (isCollapsed && !isMobile) {
+    return (
+      <Popover>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <button type="button" className={groupButtonClassName}>
+                  <span className="text-lg">{icon}</span>
+                </button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="right">{label}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <PopoverContent side="right" align="start" className="w-56 p-2">
+          <p className="mb-2 px-2 text-xs font-semibold text-gray-500">{label}</p>
+          <div className="space-y-1">
+            {items.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors",
+                  isPathActive(pathname, item.href)
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800",
+                )}
+              >
+                <span className="text-base">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={groupButtonClassName}
+      >
+        <span className="text-lg">{icon}</span>
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronDown
           className={cn(
-            "flex items-center gap-3  py-3 text-sm rounded-lg transition-colors my-1 relative ",
-            isMobile ? "text-primary  px-4" : "text-white px-6",
-            !isActive && "hover:bg-white/10 hover:z-10",
-            isPrimary && "text-white",
-            isActive &&
-              !isPrimary &&
-              "bg-white text-primary font-medium dark:bg-[#242428] dark:text-[#50B5FF]",
-            isMobile &&
-              isActive &&
-              "bg-[#3371EB33] text-primary font-medium dark:bg-[#1A1B23] dark:text-[#50B5FF]",
+            "h-4 w-4 shrink-0 transition-transform duration-200",
+            isOpen && "rotate-180",
           )}
-        >
-          <span className="text-lg">{icon}</span>
-          <span>{label}</span>
-        </Link>
+        />
+      </button>
+
+      {isOpen && (
+        <div className="space-y-0.5">
+          {items.map((item) => (
+            <SidebarItem
+              key={item.href}
+              icon={item.icon}
+              label={item.label}
+              href={item.href}
+              nested
+              isMobile={isMobile}
+              onItemClick={handleChildClick}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -111,7 +232,7 @@ export function Sidebar({
         isCollapsed,
         isMobile,
         onItemClick: isMobile ? onToggle : undefined,
-      } as any);
+      } as SidebarSharedProps);
     }
     return child;
   });

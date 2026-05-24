@@ -28,10 +28,12 @@ import { Route as AppPushNotificationsIndexImport } from './routes/_app/push-not
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppProductsIndexImport } from './routes/_app/products/index'
 import { Route as AppProductOptionsIndexImport } from './routes/_app/product-options/index'
+import { Route as AppOrdersIndexImport } from './routes/_app/orders/index'
 import { Route as AppNotificationSettingsIndexImport } from './routes/_app/notification-settings/index'
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
 import { Route as AppGroupsIndexImport } from './routes/_app/groups/index'
+import { Route as AppCountriesIndexImport } from './routes/_app/countries/index'
 import { Route as AppContactMessagesIndexImport } from './routes/_app/contact-messages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
 import { Route as AppCategoriesIndexImport } from './routes/_app/categories/index'
@@ -51,9 +53,11 @@ import { Route as AppAdminsAddIndexImport } from './routes/_app/admins/add/index
 import { Route as AppStaticPagesIdEditImport } from './routes/_app/static-pages/$id/edit'
 import { Route as AppCompaniesIdEditImport } from './routes/_app/companies/$id/edit'
 import { Route as AppAdminsIdEditImport } from './routes/_app/admins/$id/edit'
+import { Route as AppUsersUserIdCarsIndexImport } from './routes/_app/users/$userId/cars/index'
 import { Route as AppUsersUserIdAddressesIndexImport } from './routes/_app/users/$userId/addresses/index'
 import { Route as AppProductsProductIdVariantsIndexImport } from './routes/_app/products/$productId/variants/index'
 import { Route as AppGroupsGroupIdProductsIndexImport } from './routes/_app/groups/$groupId/products/index'
+import { Route as AppCountriesCountryIdCitiesIndexImport } from './routes/_app/countries/$countryId/cities/index'
 import { Route as AppCompaniesIdAdminsIndexImport } from './routes/_app/companies/$id/admins/index'
 import { Route as AppCategoriesIdSubcategoriesIndexImport } from './routes/_app/categories/$id/subcategories/index'
 import { Route as AppBrandsBrandIdModelsIndexImport } from './routes/_app/brands/$brandId/models/index'
@@ -162,6 +166,12 @@ const AppProductOptionsIndexRoute = AppProductOptionsIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppOrdersIndexRoute = AppOrdersIndexImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppNotificationSettingsIndexRoute =
   AppNotificationSettingsIndexImport.update({
     id: '/notification-settings/',
@@ -184,6 +194,12 @@ const AppLanguagesIndexRoute = AppLanguagesIndexImport.update({
 const AppGroupsIndexRoute = AppGroupsIndexImport.update({
   id: '/groups/',
   path: '/groups/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppCountriesIndexRoute = AppCountriesIndexImport.update({
+  id: '/countries/',
+  path: '/countries/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -301,6 +317,12 @@ const AppAdminsIdEditRoute = AppAdminsIdEditImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppUsersUserIdCarsIndexRoute = AppUsersUserIdCarsIndexImport.update({
+  id: '/users/$userId/cars/',
+  path: '/users/$userId/cars/',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppUsersUserIdAddressesIndexRoute =
   AppUsersUserIdAddressesIndexImport.update({
     id: '/users/$userId/addresses/',
@@ -319,6 +341,13 @@ const AppGroupsGroupIdProductsIndexRoute =
   AppGroupsGroupIdProductsIndexImport.update({
     id: '/groups/$groupId/products/',
     path: '/groups/$groupId/products/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCountriesCountryIdCitiesIndexRoute =
+  AppCountriesCountryIdCitiesIndexImport.update({
+    id: '/countries/$countryId/cities/',
+    path: '/countries/$countryId/cities/',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -451,6 +480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppContactMessagesIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/countries/': {
+      id: '/_app/countries/'
+      path: '/countries'
+      fullPath: '/countries'
+      preLoaderRoute: typeof AppCountriesIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/groups/': {
       id: '/_app/groups/'
       path: '/groups'
@@ -477,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/notification-settings'
       fullPath: '/notification-settings'
       preLoaderRoute: typeof AppNotificationSettingsIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/orders/': {
+      id: '/_app/orders/'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AppOrdersIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/product-options/': {
@@ -654,6 +697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesIdAdminsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/countries/$countryId/cities/': {
+      id: '/_app/countries/$countryId/cities/'
+      path: '/countries/$countryId/cities'
+      fullPath: '/countries/$countryId/cities'
+      preLoaderRoute: typeof AppCountriesCountryIdCitiesIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/groups/$groupId/products/': {
       id: '/_app/groups/$groupId/products/'
       path: '/groups/$groupId/products'
@@ -673,6 +723,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId/addresses'
       fullPath: '/users/$userId/addresses'
       preLoaderRoute: typeof AppUsersUserIdAddressesIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/users/$userId/cars/': {
+      id: '/_app/users/$userId/cars/'
+      path: '/users/$userId/cars'
+      fullPath: '/users/$userId/cars'
+      preLoaderRoute: typeof AppUsersUserIdCarsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/products/$productId/variants/$variantId/': {
@@ -697,10 +754,12 @@ interface AppRouteChildren {
   AppCategoriesIndexRoute: typeof AppCategoriesIndexRoute
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
   AppContactMessagesIndexRoute: typeof AppContactMessagesIndexRoute
+  AppCountriesIndexRoute: typeof AppCountriesIndexRoute
   AppGroupsIndexRoute: typeof AppGroupsIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
   AppNotificationSettingsIndexRoute: typeof AppNotificationSettingsIndexRoute
+  AppOrdersIndexRoute: typeof AppOrdersIndexRoute
   AppProductOptionsIndexRoute: typeof AppProductOptionsIndexRoute
   AppProductsIndexRoute: typeof AppProductsIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
@@ -726,9 +785,11 @@ interface AppRouteChildren {
   AppBrandsBrandIdModelsIndexRoute: typeof AppBrandsBrandIdModelsIndexRoute
   AppCategoriesIdSubcategoriesIndexRoute: typeof AppCategoriesIdSubcategoriesIndexRoute
   AppCompaniesIdAdminsIndexRoute: typeof AppCompaniesIdAdminsIndexRoute
+  AppCountriesCountryIdCitiesIndexRoute: typeof AppCountriesCountryIdCitiesIndexRoute
   AppGroupsGroupIdProductsIndexRoute: typeof AppGroupsGroupIdProductsIndexRoute
   AppProductsProductIdVariantsIndexRoute: typeof AppProductsProductIdVariantsIndexRoute
   AppUsersUserIdAddressesIndexRoute: typeof AppUsersUserIdAddressesIndexRoute
+  AppUsersUserIdCarsIndexRoute: typeof AppUsersUserIdCarsIndexRoute
   AppProductsProductIdVariantsVariantIdIndexRoute: typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
@@ -742,10 +803,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppCategoriesIndexRoute: AppCategoriesIndexRoute,
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
   AppContactMessagesIndexRoute: AppContactMessagesIndexRoute,
+  AppCountriesIndexRoute: AppCountriesIndexRoute,
   AppGroupsIndexRoute: AppGroupsIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
   AppNotificationSettingsIndexRoute: AppNotificationSettingsIndexRoute,
+  AppOrdersIndexRoute: AppOrdersIndexRoute,
   AppProductOptionsIndexRoute: AppProductOptionsIndexRoute,
   AppProductsIndexRoute: AppProductsIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
@@ -772,10 +835,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppCategoriesIdSubcategoriesIndexRoute:
     AppCategoriesIdSubcategoriesIndexRoute,
   AppCompaniesIdAdminsIndexRoute: AppCompaniesIdAdminsIndexRoute,
+  AppCountriesCountryIdCitiesIndexRoute: AppCountriesCountryIdCitiesIndexRoute,
   AppGroupsGroupIdProductsIndexRoute: AppGroupsGroupIdProductsIndexRoute,
   AppProductsProductIdVariantsIndexRoute:
     AppProductsProductIdVariantsIndexRoute,
   AppUsersUserIdAddressesIndexRoute: AppUsersUserIdAddressesIndexRoute,
+  AppUsersUserIdCarsIndexRoute: AppUsersUserIdCarsIndexRoute,
   AppProductsProductIdVariantsVariantIdIndexRoute:
     AppProductsProductIdVariantsVariantIdIndexRoute,
 }
@@ -811,10 +876,12 @@ export interface FileRoutesByFullPath {
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
+  '/countries': typeof AppCountriesIndexRoute
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/notification-settings': typeof AppNotificationSettingsIndexRoute
+  '/orders': typeof AppOrdersIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
@@ -840,9 +907,11 @@ export interface FileRoutesByFullPath {
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/countries/$countryId/cities': typeof AppCountriesCountryIdCitiesIndexRoute
   '/groups/$groupId/products': typeof AppGroupsGroupIdProductsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
+  '/users/$userId/cars': typeof AppUsersUserIdCarsIndexRoute
   '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
@@ -860,10 +929,12 @@ export interface FileRoutesByTo {
   '/categories': typeof AppCategoriesIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
+  '/countries': typeof AppCountriesIndexRoute
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
   '/notification-settings': typeof AppNotificationSettingsIndexRoute
+  '/orders': typeof AppOrdersIndexRoute
   '/product-options': typeof AppProductOptionsIndexRoute
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
@@ -889,9 +960,11 @@ export interface FileRoutesByTo {
   '/brands/$brandId/models': typeof AppBrandsBrandIdModelsIndexRoute
   '/categories/$id/subcategories': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/companies/$id/admins': typeof AppCompaniesIdAdminsIndexRoute
+  '/countries/$countryId/cities': typeof AppCountriesCountryIdCitiesIndexRoute
   '/groups/$groupId/products': typeof AppGroupsGroupIdProductsIndexRoute
   '/products/$productId/variants': typeof AppProductsProductIdVariantsIndexRoute
   '/users/$userId/addresses': typeof AppUsersUserIdAddressesIndexRoute
+  '/users/$userId/cars': typeof AppUsersUserIdCarsIndexRoute
   '/products/$productId/variants/$variantId': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
@@ -911,10 +984,12 @@ export interface FileRoutesById {
   '/_app/categories/': typeof AppCategoriesIndexRoute
   '/_app/companies/': typeof AppCompaniesIndexRoute
   '/_app/contact-messages/': typeof AppContactMessagesIndexRoute
+  '/_app/countries/': typeof AppCountriesIndexRoute
   '/_app/groups/': typeof AppGroupsIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
   '/_app/notification-settings/': typeof AppNotificationSettingsIndexRoute
+  '/_app/orders/': typeof AppOrdersIndexRoute
   '/_app/product-options/': typeof AppProductOptionsIndexRoute
   '/_app/products/': typeof AppProductsIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
@@ -940,9 +1015,11 @@ export interface FileRoutesById {
   '/_app/brands/$brandId/models/': typeof AppBrandsBrandIdModelsIndexRoute
   '/_app/categories/$id/subcategories/': typeof AppCategoriesIdSubcategoriesIndexRoute
   '/_app/companies/$id/admins/': typeof AppCompaniesIdAdminsIndexRoute
+  '/_app/countries/$countryId/cities/': typeof AppCountriesCountryIdCitiesIndexRoute
   '/_app/groups/$groupId/products/': typeof AppGroupsGroupIdProductsIndexRoute
   '/_app/products/$productId/variants/': typeof AppProductsProductIdVariantsIndexRoute
   '/_app/users/$userId/addresses/': typeof AppUsersUserIdAddressesIndexRoute
+  '/_app/users/$userId/cars/': typeof AppUsersUserIdCarsIndexRoute
   '/_app/products/$productId/variants/$variantId/': typeof AppProductsProductIdVariantsVariantIdIndexRoute
 }
 
@@ -963,10 +1040,12 @@ export interface FileRouteTypes {
     | '/categories'
     | '/companies'
     | '/contact-messages'
+    | '/countries'
     | '/groups'
     | '/languages'
     | '/meta'
     | '/notification-settings'
+    | '/orders'
     | '/product-options'
     | '/products'
     | '/profile'
@@ -992,9 +1071,11 @@ export interface FileRouteTypes {
     | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/countries/$countryId/cities'
     | '/groups/$groupId/products'
     | '/products/$productId/variants'
     | '/users/$userId/addresses'
+    | '/users/$userId/cars'
     | '/products/$productId/variants/$variantId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1011,10 +1092,12 @@ export interface FileRouteTypes {
     | '/categories'
     | '/companies'
     | '/contact-messages'
+    | '/countries'
     | '/groups'
     | '/languages'
     | '/meta'
     | '/notification-settings'
+    | '/orders'
     | '/product-options'
     | '/products'
     | '/profile'
@@ -1040,9 +1123,11 @@ export interface FileRouteTypes {
     | '/brands/$brandId/models'
     | '/categories/$id/subcategories'
     | '/companies/$id/admins'
+    | '/countries/$countryId/cities'
     | '/groups/$groupId/products'
     | '/products/$productId/variants'
     | '/users/$userId/addresses'
+    | '/users/$userId/cars'
     | '/products/$productId/variants/$variantId'
   id:
     | '__root__'
@@ -1060,10 +1145,12 @@ export interface FileRouteTypes {
     | '/_app/categories/'
     | '/_app/companies/'
     | '/_app/contact-messages/'
+    | '/_app/countries/'
     | '/_app/groups/'
     | '/_app/languages/'
     | '/_app/meta/'
     | '/_app/notification-settings/'
+    | '/_app/orders/'
     | '/_app/product-options/'
     | '/_app/products/'
     | '/_app/profile/'
@@ -1089,9 +1176,11 @@ export interface FileRouteTypes {
     | '/_app/brands/$brandId/models/'
     | '/_app/categories/$id/subcategories/'
     | '/_app/companies/$id/admins/'
+    | '/_app/countries/$countryId/cities/'
     | '/_app/groups/$groupId/products/'
     | '/_app/products/$productId/variants/'
     | '/_app/users/$userId/addresses/'
+    | '/_app/users/$userId/cars/'
     | '/_app/products/$productId/variants/$variantId/'
   fileRoutesById: FileRoutesById
 }
@@ -1132,10 +1221,12 @@ export const routeTree = rootRoute
         "/_app/categories/",
         "/_app/companies/",
         "/_app/contact-messages/",
+        "/_app/countries/",
         "/_app/groups/",
         "/_app/languages/",
         "/_app/meta/",
         "/_app/notification-settings/",
+        "/_app/orders/",
         "/_app/product-options/",
         "/_app/products/",
         "/_app/profile/",
@@ -1161,9 +1252,11 @@ export const routeTree = rootRoute
         "/_app/brands/$brandId/models/",
         "/_app/categories/$id/subcategories/",
         "/_app/companies/$id/admins/",
+        "/_app/countries/$countryId/cities/",
         "/_app/groups/$groupId/products/",
         "/_app/products/$productId/variants/",
         "/_app/users/$userId/addresses/",
+        "/_app/users/$userId/cars/",
         "/_app/products/$productId/variants/$variantId/"
       ]
     },
@@ -1223,6 +1316,10 @@ export const routeTree = rootRoute
       "filePath": "_app/contact-messages/index.tsx",
       "parent": "/_app"
     },
+    "/_app/countries/": {
+      "filePath": "_app/countries/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/groups/": {
       "filePath": "_app/groups/index.tsx",
       "parent": "/_app"
@@ -1237,6 +1334,10 @@ export const routeTree = rootRoute
     },
     "/_app/notification-settings/": {
       "filePath": "_app/notification-settings/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/orders/": {
+      "filePath": "_app/orders/index.tsx",
       "parent": "/_app"
     },
     "/_app/product-options/": {
@@ -1339,6 +1440,10 @@ export const routeTree = rootRoute
       "filePath": "_app/companies/$id/admins/index.tsx",
       "parent": "/_app"
     },
+    "/_app/countries/$countryId/cities/": {
+      "filePath": "_app/countries/$countryId/cities/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/groups/$groupId/products/": {
       "filePath": "_app/groups/$groupId/products/index.tsx",
       "parent": "/_app"
@@ -1349,6 +1454,10 @@ export const routeTree = rootRoute
     },
     "/_app/users/$userId/addresses/": {
       "filePath": "_app/users/$userId/addresses/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/users/$userId/cars/": {
+      "filePath": "_app/users/$userId/cars/index.tsx",
       "parent": "/_app"
     },
     "/_app/products/$productId/variants/$variantId/": {

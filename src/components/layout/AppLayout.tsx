@@ -19,14 +19,18 @@ import {
   Settings as SettingsIcon,
   Settings2,
   Share2,
+  ShoppingCart,
   Star,
   Tag,
   UserCheck,
   Users,
   Layers,
+  FolderTree,
+  MessageSquare,
+  MapPin,
 } from "lucide-react";
 import { useMediaQuery } from "@uidotdev/usehooks";
-import { Sidebar, SidebarItem } from "../ui/sidebar";
+import { Sidebar, SidebarGroup, SidebarItem } from "../ui/sidebar";
 import { Header } from "../ui/header";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -40,35 +44,92 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobileView = useMediaQuery("(width<48rem)");
   const { t } = useTranslation();
 
-  const sidebarItems = [
-    { icon: <LayoutDashboard />, label: t("dashboard"), href: "/" },
-    { icon: <Building2 />, label: t("companies"), href: "/companies" },
-    { icon: <UserCheck />, label: t("admins"), href: "/admins" },
-    { icon: <Users />, label: t("users"), href: "/users" },
-    { icon: <Globe />, label: t("languages"), href: "/languages" },
-    { icon: <Languages />, label: t("translations"), href: "/translations" },
-    { icon: <Tag />, label: t("brands"), href: "/brands" },
-    { icon: <Palette />, label: t("car_colors"), href: "/car-colors" },
-    { icon: <Layers />, label: t("groups"), href: "/groups" },
-    { icon: <List />, label: t("categories"), href: "/categories" },
-    { icon: <Package />, label: t("products"), href: "/products" },
-    { icon: <Star />, label: t("reviews"), href: "/reviews" },
-    { icon: <LayoutList />, label: t("catalogs"), href: "/catalogs" },
-    { icon: <Megaphone />, label: t("advertisements"), href: "/advertisements" },
+  const sidebarGroupsBeforeProducts = [
     {
-      icon: <Settings2 />,
-      label: t("product_options"),
-      href: "/product-options",
+      icon: <Users />,
+      label: t("management"),
+      items: [
+        { icon: <Building2 />, label: t("companies"), href: "/companies" },
+        { icon: <UserCheck />, label: t("admins"), href: "/admins" },
+        { icon: <Users />, label: t("users"), href: "/users" },
+      ],
     },
-    { icon: <Mail />, label: t("contact_messages"), href: "/contact-messages" },
-    { icon: <HeadphonesIcon />, label: t("support"), href: "/support" },
-    { icon: <Bell />, label: t("push_notifications", "Push Bildirişlər"), href: "/push-notifications" },
-    { icon: <BellDot />, label: t("notification_settings", "Bildiriş Ayarları"), href: "/notification-settings" },
-    { icon: <BookOpen />, label: t("pages"), href: "/static-pages" },
-    { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
-    { icon: <Share2 />, label: t("socials"), href: "/socials" },
-    { icon: <SettingsIcon />, label: t("settings"), href: "/settings" },
+    {
+      icon: <Globe />,
+      label: t("localization"),
+      items: [
+        { icon: <Globe />, label: t("languages"), href: "/languages" },
+        {
+          icon: <Languages />,
+          label: t("translations"),
+          href: "/translations",
+        },
+      ],
+    },
+    {
+      icon: <FolderTree />,
+      label: t("catalog"),
+      items: [
+        { icon: <Tag />, label: t("brands"), href: "/brands" },
+        { icon: <MapPin />, label: t("countries"), href: "/countries" },
+        { icon: <Palette />, label: t("car_colors"), href: "/car-colors" },
+        { icon: <LayoutList />, label: t("catalogs"), href: "/catalogs" },
+        { icon: <List />, label: t("categories"), href: "/categories" },
+        { icon: <Layers />, label: t("groups"), href: "/groups" },
+        {
+          icon: <Settings2 />,
+          label: t("product_options"),
+          href: "/product-options",
+        },
+      ],
+    },
   ];
+
+  const sidebarGroupsAfterProducts = [
+    {
+      icon: <Megaphone />,
+      label: t("marketing"),
+      items: [
+        {
+          icon: <Megaphone />,
+          label: t("advertisements"),
+          href: "/advertisements",
+        },
+        {
+          icon: <Bell />,
+          label: t("push_notifications"),
+          href: "/push-notifications",
+        },
+        {
+          icon: <BellDot />,
+          label: t("notification_settings"),
+          href: "/notification-settings",
+        },
+      ],
+    },
+    {
+      icon: <BookOpen />,
+      label: t("content"),
+      items: [
+        { icon: <BookOpen />, label: t("pages"), href: "/static-pages" },
+        { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
+        { icon: <Share2 />, label: t("socials"), href: "/socials" },
+      ],
+    },
+    {
+      icon: <MessageSquare />,
+      label: t("support"),
+      items: [
+        {
+          icon: <Mail />,
+          label: t("contact_messages"),
+          href: "/contact-messages",
+        },
+        { icon: <HeadphonesIcon />, label: t("support"), href: "/support" },
+      ],
+    },
+  ];
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(isMobileView);
 
   const toggleSidebar = () => {
@@ -87,15 +148,47 @@ export function AppLayout({ children }: AppLayoutProps) {
         onToggle={toggleSidebar}
         isMobile={isMobileView}
       >
-        {sidebarItems.map((item) => (
-          <SidebarItem
-            key={item.href}
-            icon={item.icon}
-            label={item.label}
-            href={item.href}
-            isMobile={isMobileView}
+        <SidebarItem
+          icon={<LayoutDashboard />}
+          label={t("dashboard")}
+          href="/"
+        />
+
+        {sidebarGroupsBeforeProducts.map((group) => (
+          <SidebarGroup
+            key={group.label}
+            icon={group.icon}
+            label={group.label}
+            items={group.items}
           />
         ))}
+
+        <SidebarItem
+          icon={<Package />}
+          label={t("products")}
+          href="/products"
+        />
+        <SidebarItem
+          icon={<ShoppingCart />}
+          label={t("orders")}
+          href="/orders"
+        />
+        <SidebarItem icon={<Star />} label={t("reviews")} href="/reviews" />
+
+        {sidebarGroupsAfterProducts.map((group) => (
+          <SidebarGroup
+            key={group.label}
+            icon={group.icon}
+            label={group.label}
+            items={group.items}
+          />
+        ))}
+
+        <SidebarItem
+          icon={<SettingsIcon />}
+          label={t("settings")}
+          href="/settings"
+        />
       </Sidebar>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
