@@ -307,6 +307,18 @@ function RouteComponent() {
                   {variant.stock}
                 </Badge>
               </div>
+              <div>
+                <p className="text-xs text-gray-500">{t("size_category")}</p>
+                <p className="mt-0.5 font-medium capitalize">
+                  {variant.size_category?.value || variant.size_category || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t("weight_gram")}</p>
+                <p className="mt-0.5 font-medium">
+                  {variant.weight_gram ? `${variant.weight_gram} g` : "—"}
+                </p>
+              </div>
             </div>
           </Card>
 
