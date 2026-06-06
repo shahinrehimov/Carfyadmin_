@@ -24,6 +24,7 @@ import { Route as AppStaticPagesIndexImport } from './routes/_app/static-pages/i
 import { Route as AppSocialsIndexImport } from './routes/_app/socials/index'
 import { Route as AppSettingsIndexImport } from './routes/_app/settings/index'
 import { Route as AppReviewsIndexImport } from './routes/_app/reviews/index'
+import { Route as AppReferralsIndexImport } from './routes/_app/referrals/index'
 import { Route as AppPushNotificationsIndexImport } from './routes/_app/push-notifications/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppProductsIndexImport } from './routes/_app/products/index'
@@ -46,6 +47,10 @@ import { Route as AppSupportAddIndexImport } from './routes/_app/support/add/ind
 import { Route as AppSupportIdIndexImport } from './routes/_app/support/$id/index'
 import { Route as AppStaticPagesAddIndexImport } from './routes/_app/static-pages/add/index'
 import { Route as AppStaticPagesIdIndexImport } from './routes/_app/static-pages/$id/index'
+import { Route as AppReferralsWithdrawalsIndexImport } from './routes/_app/referrals/withdrawals/index'
+import { Route as AppReferralsSettingsIndexImport } from './routes/_app/referrals/settings/index'
+import { Route as AppReferralsFraudFlagsIndexImport } from './routes/_app/referrals/fraud-flags/index'
+import { Route as AppReferralsCodesIndexImport } from './routes/_app/referrals/codes/index'
 import { Route as AppProductsProductIdIndexImport } from './routes/_app/products/$productId/index'
 import { Route as AppProductOptionsIdIndexImport } from './routes/_app/product-options/$id/index'
 import { Route as AppCompaniesAddIndexImport } from './routes/_app/companies/add/index'
@@ -139,6 +144,12 @@ const AppSettingsIndexRoute = AppSettingsIndexImport.update({
 const AppReviewsIndexRoute = AppReviewsIndexImport.update({
   id: '/reviews/',
   path: '/reviews/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppReferralsIndexRoute = AppReferralsIndexImport.update({
+  id: '/referrals/',
+  path: '/referrals/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -272,6 +283,32 @@ const AppStaticPagesAddIndexRoute = AppStaticPagesAddIndexImport.update({
 const AppStaticPagesIdIndexRoute = AppStaticPagesIdIndexImport.update({
   id: '/static-pages/$id/',
   path: '/static-pages/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppReferralsWithdrawalsIndexRoute =
+  AppReferralsWithdrawalsIndexImport.update({
+    id: '/referrals/withdrawals/',
+    path: '/referrals/withdrawals/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppReferralsSettingsIndexRoute = AppReferralsSettingsIndexImport.update({
+  id: '/referrals/settings/',
+  path: '/referrals/settings/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppReferralsFraudFlagsIndexRoute =
+  AppReferralsFraudFlagsIndexImport.update({
+    id: '/referrals/fraud-flags/',
+    path: '/referrals/fraud-flags/',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppReferralsCodesIndexRoute = AppReferralsCodesIndexImport.update({
+  id: '/referrals/codes/',
+  path: '/referrals/codes/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -550,6 +587,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPushNotificationsIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/referrals/': {
+      id: '/_app/referrals/'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AppReferralsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/reviews/': {
       id: '/_app/reviews/'
       path: '/reviews'
@@ -646,6 +690,34 @@ declare module '@tanstack/react-router' {
       path: '/products/$productId'
       fullPath: '/products/$productId'
       preLoaderRoute: typeof AppProductsProductIdIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/referrals/codes/': {
+      id: '/_app/referrals/codes/'
+      path: '/referrals/codes'
+      fullPath: '/referrals/codes'
+      preLoaderRoute: typeof AppReferralsCodesIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/referrals/fraud-flags/': {
+      id: '/_app/referrals/fraud-flags/'
+      path: '/referrals/fraud-flags'
+      fullPath: '/referrals/fraud-flags'
+      preLoaderRoute: typeof AppReferralsFraudFlagsIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/referrals/settings/': {
+      id: '/_app/referrals/settings/'
+      path: '/referrals/settings'
+      fullPath: '/referrals/settings'
+      preLoaderRoute: typeof AppReferralsSettingsIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/referrals/withdrawals/': {
+      id: '/_app/referrals/withdrawals/'
+      path: '/referrals/withdrawals'
+      fullPath: '/referrals/withdrawals'
+      preLoaderRoute: typeof AppReferralsWithdrawalsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/static-pages/$id/': {
@@ -764,6 +836,7 @@ interface AppRouteChildren {
   AppProductsIndexRoute: typeof AppProductsIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppPushNotificationsIndexRoute: typeof AppPushNotificationsIndexRoute
+  AppReferralsIndexRoute: typeof AppReferralsIndexRoute
   AppReviewsIndexRoute: typeof AppReviewsIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSocialsIndexRoute: typeof AppSocialsIndexRoute
@@ -778,6 +851,10 @@ interface AppRouteChildren {
   AppCompaniesAddIndexRoute: typeof AppCompaniesAddIndexRoute
   AppProductOptionsIdIndexRoute: typeof AppProductOptionsIdIndexRoute
   AppProductsProductIdIndexRoute: typeof AppProductsProductIdIndexRoute
+  AppReferralsCodesIndexRoute: typeof AppReferralsCodesIndexRoute
+  AppReferralsFraudFlagsIndexRoute: typeof AppReferralsFraudFlagsIndexRoute
+  AppReferralsSettingsIndexRoute: typeof AppReferralsSettingsIndexRoute
+  AppReferralsWithdrawalsIndexRoute: typeof AppReferralsWithdrawalsIndexRoute
   AppStaticPagesIdIndexRoute: typeof AppStaticPagesIdIndexRoute
   AppStaticPagesAddIndexRoute: typeof AppStaticPagesAddIndexRoute
   AppSupportIdIndexRoute: typeof AppSupportIdIndexRoute
@@ -813,6 +890,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProductsIndexRoute: AppProductsIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppPushNotificationsIndexRoute: AppPushNotificationsIndexRoute,
+  AppReferralsIndexRoute: AppReferralsIndexRoute,
   AppReviewsIndexRoute: AppReviewsIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSocialsIndexRoute: AppSocialsIndexRoute,
@@ -827,6 +905,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompaniesAddIndexRoute: AppCompaniesAddIndexRoute,
   AppProductOptionsIdIndexRoute: AppProductOptionsIdIndexRoute,
   AppProductsProductIdIndexRoute: AppProductsProductIdIndexRoute,
+  AppReferralsCodesIndexRoute: AppReferralsCodesIndexRoute,
+  AppReferralsFraudFlagsIndexRoute: AppReferralsFraudFlagsIndexRoute,
+  AppReferralsSettingsIndexRoute: AppReferralsSettingsIndexRoute,
+  AppReferralsWithdrawalsIndexRoute: AppReferralsWithdrawalsIndexRoute,
   AppStaticPagesIdIndexRoute: AppStaticPagesIdIndexRoute,
   AppStaticPagesAddIndexRoute: AppStaticPagesAddIndexRoute,
   AppSupportIdIndexRoute: AppSupportIdIndexRoute,
@@ -886,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/push-notifications': typeof AppPushNotificationsIndexRoute
+  '/referrals': typeof AppReferralsIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
@@ -900,6 +983,10 @@ export interface FileRoutesByFullPath {
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/product-options/$id': typeof AppProductOptionsIdIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/referrals/codes': typeof AppReferralsCodesIndexRoute
+  '/referrals/fraud-flags': typeof AppReferralsFraudFlagsIndexRoute
+  '/referrals/settings': typeof AppReferralsSettingsIndexRoute
+  '/referrals/withdrawals': typeof AppReferralsWithdrawalsIndexRoute
   '/static-pages/$id': typeof AppStaticPagesIdIndexRoute
   '/static-pages/add': typeof AppStaticPagesAddIndexRoute
   '/support/$id': typeof AppSupportIdIndexRoute
@@ -939,6 +1026,7 @@ export interface FileRoutesByTo {
   '/products': typeof AppProductsIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/push-notifications': typeof AppPushNotificationsIndexRoute
+  '/referrals': typeof AppReferralsIndexRoute
   '/reviews': typeof AppReviewsIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/socials': typeof AppSocialsIndexRoute
@@ -953,6 +1041,10 @@ export interface FileRoutesByTo {
   '/companies/add': typeof AppCompaniesAddIndexRoute
   '/product-options/$id': typeof AppProductOptionsIdIndexRoute
   '/products/$productId': typeof AppProductsProductIdIndexRoute
+  '/referrals/codes': typeof AppReferralsCodesIndexRoute
+  '/referrals/fraud-flags': typeof AppReferralsFraudFlagsIndexRoute
+  '/referrals/settings': typeof AppReferralsSettingsIndexRoute
+  '/referrals/withdrawals': typeof AppReferralsWithdrawalsIndexRoute
   '/static-pages/$id': typeof AppStaticPagesIdIndexRoute
   '/static-pages/add': typeof AppStaticPagesAddIndexRoute
   '/support/$id': typeof AppSupportIdIndexRoute
@@ -994,6 +1086,7 @@ export interface FileRoutesById {
   '/_app/products/': typeof AppProductsIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
   '/_app/push-notifications/': typeof AppPushNotificationsIndexRoute
+  '/_app/referrals/': typeof AppReferralsIndexRoute
   '/_app/reviews/': typeof AppReviewsIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/socials/': typeof AppSocialsIndexRoute
@@ -1008,6 +1101,10 @@ export interface FileRoutesById {
   '/_app/companies/add/': typeof AppCompaniesAddIndexRoute
   '/_app/product-options/$id/': typeof AppProductOptionsIdIndexRoute
   '/_app/products/$productId/': typeof AppProductsProductIdIndexRoute
+  '/_app/referrals/codes/': typeof AppReferralsCodesIndexRoute
+  '/_app/referrals/fraud-flags/': typeof AppReferralsFraudFlagsIndexRoute
+  '/_app/referrals/settings/': typeof AppReferralsSettingsIndexRoute
+  '/_app/referrals/withdrawals/': typeof AppReferralsWithdrawalsIndexRoute
   '/_app/static-pages/$id/': typeof AppStaticPagesIdIndexRoute
   '/_app/static-pages/add/': typeof AppStaticPagesAddIndexRoute
   '/_app/support/$id/': typeof AppSupportIdIndexRoute
@@ -1050,6 +1147,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/profile'
     | '/push-notifications'
+    | '/referrals'
     | '/reviews'
     | '/settings'
     | '/socials'
@@ -1064,6 +1162,10 @@ export interface FileRouteTypes {
     | '/companies/add'
     | '/product-options/$id'
     | '/products/$productId'
+    | '/referrals/codes'
+    | '/referrals/fraud-flags'
+    | '/referrals/settings'
+    | '/referrals/withdrawals'
     | '/static-pages/$id'
     | '/static-pages/add'
     | '/support/$id'
@@ -1102,6 +1204,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/profile'
     | '/push-notifications'
+    | '/referrals'
     | '/reviews'
     | '/settings'
     | '/socials'
@@ -1116,6 +1219,10 @@ export interface FileRouteTypes {
     | '/companies/add'
     | '/product-options/$id'
     | '/products/$productId'
+    | '/referrals/codes'
+    | '/referrals/fraud-flags'
+    | '/referrals/settings'
+    | '/referrals/withdrawals'
     | '/static-pages/$id'
     | '/static-pages/add'
     | '/support/$id'
@@ -1155,6 +1262,7 @@ export interface FileRouteTypes {
     | '/_app/products/'
     | '/_app/profile/'
     | '/_app/push-notifications/'
+    | '/_app/referrals/'
     | '/_app/reviews/'
     | '/_app/settings/'
     | '/_app/socials/'
@@ -1169,6 +1277,10 @@ export interface FileRouteTypes {
     | '/_app/companies/add/'
     | '/_app/product-options/$id/'
     | '/_app/products/$productId/'
+    | '/_app/referrals/codes/'
+    | '/_app/referrals/fraud-flags/'
+    | '/_app/referrals/settings/'
+    | '/_app/referrals/withdrawals/'
     | '/_app/static-pages/$id/'
     | '/_app/static-pages/add/'
     | '/_app/support/$id/'
@@ -1231,6 +1343,7 @@ export const routeTree = rootRoute
         "/_app/products/",
         "/_app/profile/",
         "/_app/push-notifications/",
+        "/_app/referrals/",
         "/_app/reviews/",
         "/_app/settings/",
         "/_app/socials/",
@@ -1245,6 +1358,10 @@ export const routeTree = rootRoute
         "/_app/companies/add/",
         "/_app/product-options/$id/",
         "/_app/products/$productId/",
+        "/_app/referrals/codes/",
+        "/_app/referrals/fraud-flags/",
+        "/_app/referrals/settings/",
+        "/_app/referrals/withdrawals/",
         "/_app/static-pages/$id/",
         "/_app/static-pages/add/",
         "/_app/support/$id/",
@@ -1356,6 +1473,10 @@ export const routeTree = rootRoute
       "filePath": "_app/push-notifications/index.tsx",
       "parent": "/_app"
     },
+    "/_app/referrals/": {
+      "filePath": "_app/referrals/index.tsx",
+      "parent": "/_app"
+    },
     "/_app/reviews/": {
       "filePath": "_app/reviews/index.tsx",
       "parent": "/_app"
@@ -1410,6 +1531,22 @@ export const routeTree = rootRoute
     },
     "/_app/products/$productId/": {
       "filePath": "_app/products/$productId/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/referrals/codes/": {
+      "filePath": "_app/referrals/codes/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/referrals/fraud-flags/": {
+      "filePath": "_app/referrals/fraud-flags/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/referrals/settings/": {
+      "filePath": "_app/referrals/settings/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/referrals/withdrawals/": {
+      "filePath": "_app/referrals/withdrawals/index.tsx",
       "parent": "/_app"
     },
     "/_app/static-pages/$id/": {

@@ -6,6 +6,7 @@ import {
   BookOpen,
   Building2,
   FileText,
+  Gift,
   Globe,
   HeadphonesIcon,
   Languages,
@@ -174,6 +175,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           href="/orders"
         />
         <SidebarItem icon={<Star />} label={t("reviews")} href="/reviews" />
+        <SidebarItem icon={<Gift />} label={t("referrals") || "Referrallar"} href="/referrals" />
 
         {sidebarGroupsAfterProducts.map((group) => (
           <SidebarGroup
