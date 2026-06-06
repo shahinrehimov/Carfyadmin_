@@ -310,7 +310,7 @@ function RouteComponent() {
               <div>
                 <p className="text-xs text-gray-500">{t("size_category")}</p>
                 <p className="mt-0.5 font-medium capitalize">
-                  {variant.size_category?.value || variant.size_category || "—"}
+                  {(typeof variant.size_category === "object" ? variant.size_category?.value : variant.size_category) || "—"}
                 </p>
               </div>
               <div>

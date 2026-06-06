@@ -179,6 +179,8 @@ export interface ProductVariantDetail {
   approval_status: "pending" | "approved" | "rejected";
   approval_status_label: string;
   approval_status_message: string | null;
+  size_category: { value: string } | string | null;
+  weight_gram: number | null;
 }
 
 // ─── Company Product Variant Types ───────────────────────────────────────────
