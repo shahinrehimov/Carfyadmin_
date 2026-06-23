@@ -18,6 +18,14 @@ export interface OrderAddress {
   phone: string;
 }
 
+export interface OrderUser {
+  id: number;
+  uuid: string;
+  full_name: string;
+  email: string;
+  phone: string;
+}
+
 export interface Order {
   id: number;
   code: string;
@@ -35,6 +43,7 @@ export interface Order {
   amount_final: number;
   total_discount_in_basket: number;
   shipping: number;
+  user: OrderUser | null;
   address: OrderAddress;
   created_at: string;
 }

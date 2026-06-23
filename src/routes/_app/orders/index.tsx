@@ -146,6 +146,7 @@ function RouteComponent() {
           <TableRow>
             <TableHead>#</TableHead>
             <TableHead>{t("code")}</TableHead>
+            <TableHead>{t("user")}</TableHead>
             <TableHead>{t("address")}</TableHead>
             <TableHead>{t("amount")}</TableHead>
             <TableHead>{t("shipping")}</TableHead>
@@ -159,7 +160,7 @@ function RouteComponent() {
           {isLoading ? (
             [...Array(8)].map((_, i) => (
               <TableRow key={i}>
-                {[...Array(9)].map((_, j) => (
+                {[...Array(10)].map((_, j) => (
                   <TableCell key={j}>
                     <div className="h-4 animate-pulse rounded bg-gray-200" />
                   </TableCell>
@@ -172,6 +173,19 @@ function RouteComponent() {
                 <TableCell>{(filters.page - 1) * perPage + index + 1}</TableCell>
                 <TableCell>
                   <span className="font-mono text-xs font-medium">{order.code}</span>
+                </TableCell>
+                <TableCell>
+                  {order.user ? (
+                    <div className="text-sm">
+                      <p className="font-medium">{order.user.full_name}</p>
+                      <p className="text-xs text-gray-500">{order.user.email}</p>
+                      {order.user.phone && (
+                        <p className="text-xs text-gray-500">{order.user.phone}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400">—</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="text-sm">
@@ -211,7 +225,7 @@ function RouteComponent() {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={9} className="py-12 text-center text-gray-500">
+              <TableCell colSpan={10} className="py-12 text-center text-gray-500">
                 {t("no_data_found")}
               </TableCell>
             </TableRow>

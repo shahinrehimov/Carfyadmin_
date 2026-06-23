@@ -14,6 +14,7 @@ import {
   Clock,
   RefreshCw,
   XCircle,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -327,6 +328,27 @@ export default function Show({ orderId, onClose }: ShowProps) {
           <SectionTitle icon={<CheckCircle2 className="h-4 w-4" />} title={t("status_progress")} />
           <div className="overflow-x-auto py-1">
             <StatusTree items={order.status_tree} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Customer ───────────────────────────────────────────────── */}
+      {order.user && (
+        <div className="space-y-2">
+          <SectionTitle icon={<User className="h-4 w-4" />} title={t("user")} />
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-gray-500">{t("full_name")}</p>
+              <p className="font-medium">{order.user.full_name}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t("email")}</p>
+              <p className="font-medium">{order.user.email}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t("phone")}</p>
+              <p className="font-medium">{order.user.phone || "—"}</p>
+            </div>
           </div>
         </div>
       )}
