@@ -5,11 +5,13 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import Add from "./-popups/Add";
 import Edit from "./-popups/Edit";
+import type { Social } from "@/lib/queries/socials";
+import { useDeleteSocial, useSocials } from "@/lib/queries/socials";
+import { useTranslation } from "@/lib/utils/translationLoader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Modal from "@/components/ui/modal";
 import Pagination from "@/components/ui/pagination";
-import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -18,22 +20,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useSocials, useDeleteSocial, useToggleSocialStatus } from "@/lib/queries/socials";
-import { useTranslation } from "@/lib/utils/translationLoader";
 import DeleteModal from "@/components/ui/delete-modal";
 
 export const Route = createFileRoute("/_app/socials/")({
   component: RouteComponent,
 });
-
-interface Social {
-  id: number;
-  key: string;
-  link: string;
-  is_active: boolean;
-  created_user: string;
-  created_date: string;
-}
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -50,7 +41,6 @@ function RouteComponent() {
 
   const { data, isLoading, error } = useSocials(filters);
   const deleteSocialMutation = useDeleteSocial();
-  const toggleStatusMutation = useToggleSocialStatus();
 
   const socials = data?.data || [];
   const total = data?.meta.total || 0;
@@ -59,18 +49,6 @@ function RouteComponent() {
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
-  };
-
-  const handleToggleStatus = async (social: Social) => {
-    try {
-      await toggleStatusMutation.mutateAsync({
-        id: social.id,
-        isActive: social.is_active,
-      });
-      toast.success(t("status_updated_successfully"));
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t("failed_to_update_status"));
-    }
   };
 
   const handleDelete = async () => {
@@ -100,9 +78,9 @@ function RouteComponent() {
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">#</TableHead>
-          <TableHead>{t("key")}</TableHead>
+          <TableHead className="w-[80px]">{t("image")}</TableHead>
+          <TableHead>{t("title")}</TableHead>
           <TableHead>{t("link")}</TableHead>
-          <TableHead className="w-[100px]">{t("status")}</TableHead>
           <TableHead>{t("created_by")}</TableHead>
           <TableHead>{t("created_date")}</TableHead>
           <TableHead className="w-[120px]">{t("actions")}</TableHead>
@@ -123,23 +101,27 @@ function RouteComponent() {
           socials.map((social, index) => (
             <TableRow key={social.id}>
               <TableCell>{filters.page * perPage - perPage + index + 1}</TableCell>
-              <TableCell className="font-medium">{social.key}</TableCell>
+              <TableCell>
+                {social.image ? (
+                  <img
+                    src={social.image}
+                    alt={social.title}
+                    className="h-10 w-10 rounded object-cover"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded bg-gray-100" />
+                )}
+              </TableCell>
+              <TableCell className="font-medium">{social.title}</TableCell>
               <TableCell className="max-w-xs truncate text-gray-600">
                 <a
-                  href={social.link}
+                  href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
                 >
-                  {social.link}
+                  {social.url}
                 </a>
-              </TableCell>
-              <TableCell>
-                <Switch
-                  checked={social.is_active}
-                  onCheckedChange={() => handleToggleStatus(social)}
-                  disabled={toggleStatusMutation.isPending}
-                />
               </TableCell>
               <TableCell>{social.created_user}</TableCell>
               <TableCell>{social.created_date}</TableCell>
@@ -186,36 +168,38 @@ function RouteComponent() {
       ) : socials.length > 0 ? (
         socials.map((social, index) => (
           <Card key={social.id} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
+            <div className="flex items-start gap-3">
+              {social.image ? (
+                <img
+                  src={social.image}
+                  alt={social.title}
+                  className="h-12 w-12 shrink-0 rounded object-cover"
+                />
+              ) : (
+                <div className="h-12 w-12 shrink-0 rounded bg-gray-100" />
+              )}
+              <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-medium">
-                  {filters.page * perPage - perPage + index + 1}. {social.key}
+                  {filters.page * perPage - perPage + index + 1}. {social.title}
                 </h3>
-                <p className="mt-1 truncate text-sm text-gray-600">{social.link}</p>
+                <p className="mt-1 truncate text-sm text-gray-600">{social.url}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between">
-              <Switch
-                checked={social.is_active}
-                onCheckedChange={() => handleToggleStatus(social)}
-                disabled={toggleStatusMutation.isPending}
-              />
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setModalState({ type: "edit", data: social })}
-                >
-                  <EditIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setModalState({ type: "delete", data: social })}
-                >
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                </Button>
-              </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setModalState({ type: "edit", data: social })}
+              >
+                <EditIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setModalState({ type: "delete", data: social })}
+              >
+                <Trash2 className="h-4 w-4 text-red-600" />
+              </Button>
             </div>
           </Card>
         ))

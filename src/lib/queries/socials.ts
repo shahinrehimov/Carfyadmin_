@@ -1,12 +1,11 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { controlPrivateApi } from "../axios/controlPrivateApi";
 
-// Types
 export interface Social {
   id: number;
-  key: string;
-  link: string;
-  is_active: boolean;
+  title: string;
+  url: string;
+  image: string | null;
   created_user: string;
   created_date: string;
 }
@@ -21,20 +20,21 @@ interface SocialsResponse {
 }
 
 interface CreateSocialRequest {
-  key: string;
-  link: string;
+  title: string;
+  url: string;
+  image: File;
 }
 
 interface UpdateSocialRequest {
-  key: string;
-  link: string;
+  title: string;
+  url: string;
+  image?: File;
 }
 
 interface SocialsFilters {
   page: number;
 }
 
-// API functions
 async function getSocials(filters: SocialsFilters) {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
@@ -53,12 +53,26 @@ async function getSocial(id: number) {
 }
 
 async function createSocial(data: CreateSocialRequest) {
-  const response = await controlPrivateApi.post("/socials/add", data);
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("url", data.url);
+  formData.append("image", data.image);
+
+  const response = await controlPrivateApi.post("/socials/add", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response.data;
 }
 
 async function updateSocial(id: number, data: UpdateSocialRequest) {
-  const response = await controlPrivateApi.post(`/socials/update/${id}`, data);
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("url", data.url);
+  if (data.image) formData.append("image", data.image);
+
+  const response = await controlPrivateApi.post(`/socials/update/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response.data;
 }
 
@@ -67,14 +81,6 @@ async function deleteSocial(id: number) {
   return response.data;
 }
 
-async function toggleSocialStatus(id: number, isActive: boolean) {
-  const response = await controlPrivateApi.post(`/socials/change-active-status/${id}`, {
-    is_active: !isActive,
-  });
-  return response.data;
-}
-
-// Query options
 export const socialsQueryOptions = (filters: SocialsFilters) =>
   queryOptions({
     queryKey: ["socials", filters],
@@ -89,7 +95,6 @@ export const socialQueryOptions = (id: number) =>
     enabled: !!id,
   });
 
-// Hooks
 export function useSocials(filters: SocialsFilters) {
   return useQuery(socialsQueryOptions(filters));
 }
@@ -125,18 +130,6 @@ export function useDeleteSocial() {
 
   return useMutation({
     mutationFn: deleteSocial,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["socials"] });
-    },
-  });
-}
-
-export function useToggleSocialStatus() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      toggleSocialStatus(id, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["socials"] });
     },
