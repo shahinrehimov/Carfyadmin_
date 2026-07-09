@@ -34,6 +34,7 @@ import { Route as AppNotificationSettingsIndexImport } from './routes/_app/notif
 import { Route as AppMetaIndexImport } from './routes/_app/meta/index'
 import { Route as AppLanguagesIndexImport } from './routes/_app/languages/index'
 import { Route as AppGroupsIndexImport } from './routes/_app/groups/index'
+import { Route as AppFaqsIndexImport } from './routes/_app/faqs/index'
 import { Route as AppCountriesIndexImport } from './routes/_app/countries/index'
 import { Route as AppContactMessagesIndexImport } from './routes/_app/contact-messages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
@@ -205,6 +206,12 @@ const AppLanguagesIndexRoute = AppLanguagesIndexImport.update({
 const AppGroupsIndexRoute = AppGroupsIndexImport.update({
   id: '/groups/',
   path: '/groups/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppFaqsIndexRoute = AppFaqsIndexImport.update({
+  id: '/faqs/',
+  path: '/faqs/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -524,6 +531,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCountriesIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/faqs/': {
+      id: '/_app/faqs/'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof AppFaqsIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/groups/': {
       id: '/_app/groups/'
       path: '/groups'
@@ -827,6 +841,7 @@ interface AppRouteChildren {
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
   AppContactMessagesIndexRoute: typeof AppContactMessagesIndexRoute
   AppCountriesIndexRoute: typeof AppCountriesIndexRoute
+  AppFaqsIndexRoute: typeof AppFaqsIndexRoute
   AppGroupsIndexRoute: typeof AppGroupsIndexRoute
   AppLanguagesIndexRoute: typeof AppLanguagesIndexRoute
   AppMetaIndexRoute: typeof AppMetaIndexRoute
@@ -881,6 +896,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
   AppContactMessagesIndexRoute: AppContactMessagesIndexRoute,
   AppCountriesIndexRoute: AppCountriesIndexRoute,
+  AppFaqsIndexRoute: AppFaqsIndexRoute,
   AppGroupsIndexRoute: AppGroupsIndexRoute,
   AppLanguagesIndexRoute: AppLanguagesIndexRoute,
   AppMetaIndexRoute: AppMetaIndexRoute,
@@ -959,6 +975,7 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
   '/countries': typeof AppCountriesIndexRoute
+  '/faqs': typeof AppFaqsIndexRoute
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
@@ -1017,6 +1034,7 @@ export interface FileRoutesByTo {
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
   '/countries': typeof AppCountriesIndexRoute
+  '/faqs': typeof AppFaqsIndexRoute
   '/groups': typeof AppGroupsIndexRoute
   '/languages': typeof AppLanguagesIndexRoute
   '/meta': typeof AppMetaIndexRoute
@@ -1077,6 +1095,7 @@ export interface FileRoutesById {
   '/_app/companies/': typeof AppCompaniesIndexRoute
   '/_app/contact-messages/': typeof AppContactMessagesIndexRoute
   '/_app/countries/': typeof AppCountriesIndexRoute
+  '/_app/faqs/': typeof AppFaqsIndexRoute
   '/_app/groups/': typeof AppGroupsIndexRoute
   '/_app/languages/': typeof AppLanguagesIndexRoute
   '/_app/meta/': typeof AppMetaIndexRoute
@@ -1138,6 +1157,7 @@ export interface FileRouteTypes {
     | '/companies'
     | '/contact-messages'
     | '/countries'
+    | '/faqs'
     | '/groups'
     | '/languages'
     | '/meta'
@@ -1195,6 +1215,7 @@ export interface FileRouteTypes {
     | '/companies'
     | '/contact-messages'
     | '/countries'
+    | '/faqs'
     | '/groups'
     | '/languages'
     | '/meta'
@@ -1253,6 +1274,7 @@ export interface FileRouteTypes {
     | '/_app/companies/'
     | '/_app/contact-messages/'
     | '/_app/countries/'
+    | '/_app/faqs/'
     | '/_app/groups/'
     | '/_app/languages/'
     | '/_app/meta/'
@@ -1334,6 +1356,7 @@ export const routeTree = rootRoute
         "/_app/companies/",
         "/_app/contact-messages/",
         "/_app/countries/",
+        "/_app/faqs/",
         "/_app/groups/",
         "/_app/languages/",
         "/_app/meta/",
@@ -1435,6 +1458,10 @@ export const routeTree = rootRoute
     },
     "/_app/countries/": {
       "filePath": "_app/countries/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/faqs/": {
+      "filePath": "_app/faqs/index.tsx",
       "parent": "/_app"
     },
     "/_app/groups/": {

@@ -29,6 +29,7 @@ import {
   FolderTree,
   MessageSquare,
   MapPin,
+  HelpCircle,
 } from "lucide-react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Sidebar, SidebarGroup, SidebarItem } from "../ui/sidebar";
@@ -115,6 +116,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { icon: <BookOpen />, label: t("pages"), href: "/static-pages" },
         { icon: <FileText />, label: t("meta_tags"), href: "/meta" },
         { icon: <Share2 />, label: t("socials"), href: "/socials" },
+        { icon: <HelpCircle />, label: t("faqs"), href: "/faqs" },
       ],
     },
     {
