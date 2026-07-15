@@ -236,6 +236,7 @@ function RouteComponent() {
           <TableHead className="w-[50px]">#</TableHead>
           <TableHead className="w-[80px]">{t("image")}</TableHead>
           <TableHead>{t("title")}</TableHead>
+          <TableHead>{t("store") || "Mağaza"}</TableHead>
           <TableHead>{t("brand")}</TableHead>
           <TableHead>{t("category")}</TableHead>
           <TableHead className="w-[80px]">{t("type")}</TableHead>
@@ -276,6 +277,15 @@ function RouteComponent() {
                 )}
               </TableCell>
               <TableCell className="font-medium">{product.title}</TableCell>
+              <TableCell className="text-gray-600">
+                {product.company?.title ? (
+                  <span className="text-sm font-medium">
+                    {product.company.title}
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-400">—</span>
+                )}
+              </TableCell>
               <TableCell className="text-gray-600">
                 {product.brand.title}
               </TableCell>
@@ -379,7 +389,7 @@ function RouteComponent() {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={12}>
+            <TableCell colSpan={13}>
               <NoData />
             </TableCell>
           </TableRow>
@@ -428,6 +438,11 @@ function RouteComponent() {
                 <p className="mt-1 text-sm text-gray-600">
                   {product.brand.title} · {product.main_category.title}
                 </p>
+                {product.company?.title && (
+                  <p className="mt-0.5 text-xs font-medium text-gray-500">
+                    {t("store") || "Mağaza"}: {product.company.title}
+                  </p>
+                )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   {product.is_set ? (
                     <Badge variant="secondary">

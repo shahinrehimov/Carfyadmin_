@@ -8,6 +8,7 @@ import {
   History,
   Image as ImageIcon,
   Loader2,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Modal from "@/components/ui/modal";
+import DeleteModal from "@/components/ui/delete-modal";
 import Pagination from "@/components/ui/pagination";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -35,6 +37,7 @@ import {
   useVariantRevisions,
   useApproveRevision,
   useRejectRevision,
+  useDeleteCPV,
 } from "@/lib/queries/products";
 import type {
   AdminCPV,
@@ -53,7 +56,8 @@ type ModalState =
   | { type: "history"; cpv: AdminCPV }
   | { type: "approve"; cpv: AdminCPV }
   | { type: "reject"; cpv: AdminCPV }
-  | { type: "revisions"; variantId: number };
+  | { type: "revisions"; variantId: number }
+  | { type: "delete"; cpv: AdminCPV };
 
 function ApprovalStatusBadge({
   status,
@@ -507,6 +511,18 @@ function RouteComponent() {
   const { data, isLoading, error } = useAdminCPVs(filters);
   const { data: companiesData } = useCompaniesList();
   const toggleStatusMutation = useToggleCPVStatus();
+  const deleteCPVMutation = useDeleteCPV();
+
+  const handleDeleteCPV = async (cpv: AdminCPV) => {
+    try {
+      await deleteCPVMutation.mutateAsync(cpv.id);
+      toast.success(t("deleted_successfully"));
+      closeModal();
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("failed_to_delete"));
+    }
+  };
 
   const handleToggleStatus = async (cpv: AdminCPV) => {
     try {
@@ -738,6 +754,15 @@ function RouteComponent() {
                           </Button>
                         </>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title={t("delete")}
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => setModalState({ type: "delete", cpv })}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -851,6 +876,14 @@ function RouteComponent() {
                       </Button>
                     </>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-600"
+                    onClick={() => setModalState({ type: "delete", cpv })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -920,6 +953,23 @@ function RouteComponent() {
           <RevisionsModal
             variantId={modalState.variantId}
             onClose={closeModal}
+          />
+        )}
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={modalState.type === "delete"}
+        onClose={closeModal}
+        title={t("delete_listing") || "Elanı sil"}
+        size="sm"
+      >
+        {modalState.type === "delete" && (
+          <DeleteModal
+            title={`${t("delete_confirm_message") || "Silmək istədiyinizə əminsiniz?"} "${modalState.cpv.variant?.title || modalState.cpv.variant?.slug}"${modalState.cpv.company?.title ? ` — ${modalState.cpv.company.title}` : ""}`}
+            closeModal={closeModal}
+            handleDelete={() => handleDeleteCPV(modalState.cpv)}
+            pending={deleteCPVMutation.isPending}
           />
         )}
       </Modal>

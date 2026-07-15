@@ -40,6 +40,7 @@ export interface Product {
   main_category: ProductCategory;
   categories: ProductCategory[];
   groups: unknown[];
+  company: { id: number; uuid: string; title: string } | null;
   variants_count: number;
   pending_variants_count: number;
   pending_revisions_count: number;
@@ -514,6 +515,13 @@ async function toggleCPVStatus(id: number, isActive: boolean) {
   return response.data;
 }
 
+async function deleteCPV(id: number) {
+  const response = await controlPrivateApi.delete(
+    `/company-product-variants/delete/${id}`,
+  );
+  return response.data;
+}
+
 // ─── Query Options ────────────────────────────────────────────────────────────
 
 export const productsQueryOptions = (filters: ProductsFilters) =>
@@ -729,6 +737,17 @@ export function useToggleCPVStatus() {
       toggleCPVStatus(id, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+    },
+  });
+}
+
+export function useDeleteCPV() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteCPV(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
