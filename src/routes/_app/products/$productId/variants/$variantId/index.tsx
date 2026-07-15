@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   CheckCircle,
@@ -7,6 +7,7 @@ import {
   History,
   Image as ImageIcon,
   Loader2,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -14,11 +15,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Modal from "@/components/ui/modal";
+import DeleteModal from "@/components/ui/delete-modal";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useProductVariant,
   useToggleVariantStatus,
+  useDeleteProductVariant,
   useVariantApprovalHistory,
   useApproveVariant,
   useRejectVariant,
@@ -32,7 +35,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-type ModalType = null | "history" | "approve" | "reject";
+type ModalType = null | "history" | "approve" | "reject" | "delete";
 
 function ApprovalStatusBadge({ status, label }: { status: string; label: string }) {
   if (status === "approved")
@@ -59,6 +62,7 @@ function ApprovalStatusBadge({ status, label }: { status: string; label: string 
 
 function RouteComponent() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { productId, variantId } = Route.useParams();
   const id = Number(variantId);
 
@@ -73,15 +77,32 @@ function RouteComponent() {
   const toggleStatusMutation = useToggleVariantStatus();
   const approveMutation = useApproveVariant();
   const rejectMutation = useRejectVariant();
+  const deleteMutation = useDeleteProductVariant();
 
   const handleToggleStatus = async () => {
     if (!variant) return;
     try {
-      await toggleStatusMutation.mutateAsync(variant.id);
+      await toggleStatusMutation.mutateAsync({
+        id: variant.id,
+        isActive: variant.is_active,
+      });
       toast.success(t("status_updated_successfully"));
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || t("failed_to_update_status"));
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!variant) return;
+    try {
+      await deleteMutation.mutateAsync(variant.id);
+      toast.success(t("variant_deleted_successfully") || t("deleted_successfully"));
+      setModalType(null);
+      navigate({ to: "/products/$productId/variants", params: { productId } });
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("failed_to_delete"));
     }
   };
 
@@ -197,6 +218,15 @@ function RouteComponent() {
               </Button>
             </>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setModalType("delete")}
+            className="gap-2 text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-4 w-4" />
+            {t("delete")}
+          </Button>
         </div>
       </div>
 
@@ -513,6 +543,21 @@ function RouteComponent() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={modalType === "delete"}
+        onClose={() => setModalType(null)}
+        title={t("delete_variant") || "Variantı sil"}
+        size="sm"
+      >
+        <DeleteModal
+          title={`${t("delete_confirm_message") || "Silmək istədiyinizə əminsiniz?"} "${variant.slug}"`}
+          closeModal={() => setModalType(null)}
+          handleDelete={handleDelete}
+          pending={deleteMutation.isPending}
+        />
       </Modal>
     </div>
   );

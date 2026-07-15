@@ -9,6 +9,7 @@ import {
   Loader2,
   Package,
   PackageCheck,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Modal from "@/components/ui/modal";
+import DeleteModal from "@/components/ui/delete-modal";
 import Pagination from "@/components/ui/pagination";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -31,6 +33,7 @@ import {
 import {
   useProducts,
   useToggleProductStatus,
+  useDeleteProduct,
   useProductRevisions,
   useApproveProductRevision,
   useRejectProductRevision,
@@ -176,9 +179,11 @@ function RouteComponent() {
     search: "",
   });
   const [revisionsProductId, setRevisionsProductId] = useState<number | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const { data, isLoading, error } = useProducts(filters);
   const toggleStatusMutation = useToggleProductStatus();
+  const deleteProductMutation = useDeleteProduct();
 
   const products = data?.data || [];
   const total = data?.meta.total || 0;
@@ -195,11 +200,26 @@ function RouteComponent() {
 
   const handleToggleStatus = async (product: Product) => {
     try {
-      await toggleStatusMutation.mutateAsync(product.id);
+      await toggleStatusMutation.mutateAsync({
+        id: product.id,
+        isActive: product.is_active,
+      });
       toast.success(t("status_updated_successfully"));
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || t("failed_to_update_status"));
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!productToDelete) return;
+    try {
+      await deleteProductMutation.mutateAsync(productToDelete.id);
+      toast.success(t("product_deleted_successfully") || t("deleted_successfully"));
+      setProductToDelete(null);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("failed_to_delete"));
     }
   };
 
@@ -344,6 +364,15 @@ function RouteComponent() {
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title={t("delete")}
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => setProductToDelete(product)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
@@ -463,6 +492,14 @@ function RouteComponent() {
                     <Eye className="h-4 w-4" />
                   </Button>
                 </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-600 hover:text-red-700"
+                  onClick={() => setProductToDelete(product)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </Card>
@@ -525,6 +562,23 @@ function RouteComponent() {
             onClose={() => setRevisionsProductId(null)}
           />
         )}
+      </Modal>
+
+      <Modal
+        isOpen={productToDelete !== null}
+        title={t("delete_product") || "Məhsulu sil"}
+        onClose={() => setProductToDelete(null)}
+      >
+        <DeleteModal
+          title={
+            productToDelete
+              ? `${t("delete_confirm_message") || "Silmək istədiyinizə əminsiniz?"} "${productToDelete.title}"`
+              : undefined
+          }
+          closeModal={() => setProductToDelete(null)}
+          handleDelete={handleDeleteProduct}
+          pending={deleteProductMutation.isPending}
+        />
       </Modal>
     </div>
   );

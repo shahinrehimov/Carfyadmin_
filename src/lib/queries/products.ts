@@ -1,4 +1,9 @@
-import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { controlPrivateApi } from "../axios/controlPrivateApi";
 
 // ─── Product Types ────────────────────────────────────────────────────────────
@@ -92,7 +97,22 @@ export interface ProductVariant {
   title: string;
   main_image: string | null;
   hover_image: string | null;
-  product: Pick<Product, "id" | "uuid" | "slug" | "title" | "main_image" | "hover_image" | "is_set" | "brand" | "main_category" | "categories" | "is_active" | "created_user" | "created_date">;
+  product: Pick<
+    Product,
+    | "id"
+    | "uuid"
+    | "slug"
+    | "title"
+    | "main_image"
+    | "hover_image"
+    | "is_set"
+    | "brand"
+    | "main_category"
+    | "categories"
+    | "is_active"
+    | "created_user"
+    | "created_date"
+  >;
   is_set: boolean;
   sets_count: number;
   groups: unknown[];
@@ -268,7 +288,14 @@ export interface ProductRevision {
     main_category_id: number | null;
     categories: number[];
     sets: { product_variant_id: number; quantity: number }[];
-    translations: { language_id: number; title: string; description_short: string; description?: string; delivery?: string; note?: string }[];
+    translations: {
+      language_id: number;
+      title: string;
+      description_short: string;
+      description?: string;
+      delivery?: string;
+      note?: string;
+    }[];
   };
   current: {
     brand_id: number | null;
@@ -340,8 +367,18 @@ async function getProduct(id: number) {
   return response.data.data as ProductDetail;
 }
 
-async function toggleProductStatus(id: number) {
-  const response = await controlPrivateApi.post(`/products/change-active-status/${id}`);
+async function toggleProductStatus(id: number, isActive: boolean) {
+  const response = await controlPrivateApi.post(
+    `/products/change-active-status/${id}`,
+    {
+      is_active: !isActive,
+    },
+  );
+  return response.data;
+}
+
+async function deleteProduct(id: number) {
+  const response = await controlPrivateApi.delete(`/products/delete/${id}`);
   return response.data;
 }
 
@@ -352,7 +389,9 @@ async function getProductVariants(filters: VariantsFilters) {
   Object.entries(filters).forEach(([k, v]) => {
     if (v !== null && v !== undefined && v !== "") params.append(k, String(v));
   });
-  const response = await controlPrivateApi.get(`/product-variants/load?${params}`);
+  const response = await controlPrivateApi.get(
+    `/product-variants/load?${params}`,
+  );
   return response.data as PaginatedResponse<ProductVariant>;
 }
 
@@ -361,61 +400,94 @@ async function getProductVariant(id: number) {
   return response.data.data as ProductVariantDetail;
 }
 
-async function toggleVariantStatus(id: number) {
-  const response = await controlPrivateApi.post(`/product-variants/change-active-status/${id}`);
+async function toggleVariantStatus(id: number, isActive: boolean) {
+  const response = await controlPrivateApi.post(
+    `/product-variants/change-active-status/${id}`,
+    {
+      is_active: !isActive,
+    },
+  );
+  return response.data;
+}
+
+async function deleteProductVariant(id: number) {
+  const response = await controlPrivateApi.delete(
+    `/product-variants/delete/${id}`,
+  );
   return response.data;
 }
 
 async function getVariantApprovalHistory(variantId: number) {
-  const response = await controlPrivateApi.get(`/product-variants/${variantId}/approval-status/history`);
+  const response = await controlPrivateApi.get(
+    `/product-variants/${variantId}/approval-status/history`,
+  );
   return response.data as PaginatedResponse<ApprovalHistoryItem>;
 }
 
 async function approveVariant(id: number) {
-  const response = await controlPrivateApi.post(`/product-variants/${id}/approval-status/approve`);
+  const response = await controlPrivateApi.post(
+    `/product-variants/${id}/approval-status/approve`,
+  );
   return response.data;
 }
 
 async function rejectVariant(id: number, message?: string) {
-  const response = await controlPrivateApi.post(`/product-variants/${id}/approval-status/reject`, {
-    message: message || null,
-  });
+  const response = await controlPrivateApi.post(
+    `/product-variants/${id}/approval-status/reject`,
+    {
+      message: message || null,
+    },
+  );
   return response.data;
 }
 
 async function getVariantRevisions(variantId: number) {
-  const response = await controlPrivateApi.get(`/product-variants/${variantId}/revisions`);
+  const response = await controlPrivateApi.get(
+    `/product-variants/${variantId}/revisions`,
+  );
   return response.data.data as VariantRevision[];
 }
 
 async function approveRevision(revisionId: number) {
-  const response = await controlPrivateApi.post(`/product-variants/revisions/${revisionId}/approve`);
+  const response = await controlPrivateApi.post(
+    `/product-variants/revisions/${revisionId}/approve`,
+  );
   return response.data;
 }
 
 async function rejectRevision(revisionId: number, message?: string) {
-  const response = await controlPrivateApi.post(`/product-variants/revisions/${revisionId}/reject`, {
-    message: message || null,
-  });
+  const response = await controlPrivateApi.post(
+    `/product-variants/revisions/${revisionId}/reject`,
+    {
+      message: message || null,
+    },
+  );
   return response.data;
 }
 
 // ─── API Functions – Product Revisions ───────────────────────────────────────
 
 async function getProductRevisions(productId: number) {
-  const response = await controlPrivateApi.get(`/products/${productId}/revisions`);
+  const response = await controlPrivateApi.get(
+    `/products/${productId}/revisions`,
+  );
   return response.data.data as ProductRevision[];
 }
 
 async function approveProductRevision(revisionId: number) {
-  const response = await controlPrivateApi.post(`/products/revisions/${revisionId}/approve`);
+  const response = await controlPrivateApi.post(
+    `/products/revisions/${revisionId}/approve`,
+  );
   return response.data;
 }
 
 async function rejectProductRevision(revisionId: number, message?: string) {
-  const response = await controlPrivateApi.post(`/products/revisions/${revisionId}/reject`, {
-    message: message || null,
-  });
+  const response = await controlPrivateApi.post(
+    `/products/revisions/${revisionId}/reject`,
+    {
+      message: message || null,
+    },
+  );
   return response.data;
 }
 
@@ -426,24 +498,43 @@ async function getAdminCPVs(filters: CPVFilters) {
   Object.entries(filters).forEach(([k, v]) => {
     if (v !== null && v !== undefined && v !== "") params.append(k, String(v));
   });
-  const response = await controlPrivateApi.get(`/company-product-variants/load?${params}`);
+  const response = await controlPrivateApi.get(
+    `/product-variants/load?${params}`,
+  );
   return response.data as PaginatedResponse<AdminCPV>;
 }
 
 async function getAdminCPVHistory(cpvId: number) {
-  const response = await controlPrivateApi.get(`/company-product-variants/${cpvId}/approval-status/history`);
+  const response = await controlPrivateApi.get(
+    `/company-product-variants/${cpvId}/approval-status/history`,
+  );
   return response.data as PaginatedResponse<ApprovalHistoryItem>;
 }
 
 async function approveCPV(id: number) {
-  const response = await controlPrivateApi.post(`/company-product-variants/${id}/approval-status/approve`);
+  const response = await controlPrivateApi.post(
+    `/company-product-variants/${id}/approval-status/approve`,
+  );
   return response.data;
 }
 
 async function rejectCPV(id: number, message?: string) {
-  const response = await controlPrivateApi.post(`/company-product-variants/${id}/approval-status/reject`, {
-    message: message || null,
-  });
+  const response = await controlPrivateApi.post(
+    `/company-product-variants/${id}/approval-status/reject`,
+    {
+      message: message || null,
+    },
+  );
+  return response.data;
+}
+
+async function toggleCPVStatus(id: number, isActive: boolean) {
+  const response = await controlPrivateApi.post(
+    `/company-product-variants/change-active-status/${id}`,
+    {
+      is_active: !isActive,
+    },
+  );
   return response.data;
 }
 
@@ -477,7 +568,10 @@ export const productVariantQueryOptions = (id: number) =>
     enabled: !!id,
   });
 
-export const variantApprovalHistoryQueryOptions = (variantId: number, enabled = false) =>
+export const variantApprovalHistoryQueryOptions = (
+  variantId: number,
+  enabled = false,
+) =>
   queryOptions({
     queryKey: ["variantApprovalHistory", variantId],
     queryFn: () => getVariantApprovalHistory(variantId),
@@ -511,7 +605,19 @@ export function useProduct(id: number) {
 export function useToggleProductStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => toggleProductStatus(id),
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+      toggleProductStatus(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
+    },
+  });
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
@@ -531,9 +637,24 @@ export function useProductVariant(id: number) {
 export function useToggleVariantStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => toggleVariantStatus(id),
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+      toggleVariantStatus(id, isActive),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["productVariants"] });
+      queryClient.invalidateQueries({ queryKey: ["productVariant", id] });
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+    },
+  });
+}
+
+export function useDeleteProductVariant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteProductVariant(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
@@ -546,8 +667,13 @@ export function useApproveVariant() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => approveVariant(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
+      queryClient.invalidateQueries({ queryKey: ["productVariant", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["variantApprovalHistory", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -558,8 +684,13 @@ export function useRejectVariant() {
   return useMutation({
     mutationFn: ({ id, message }: { id: number; message?: string }) =>
       rejectVariant(id, message),
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
+      queryClient.invalidateQueries({ queryKey: ["productVariant", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["variantApprovalHistory", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -658,6 +789,17 @@ export function useRejectCPV() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+export function useToggleCPVStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+      toggleCPVStatus(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
     },
   });
 }
