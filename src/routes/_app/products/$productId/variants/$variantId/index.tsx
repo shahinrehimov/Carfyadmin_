@@ -2,13 +2,8 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  CheckCircle,
-  Clock,
-  History,
   Image as ImageIcon,
-  Loader2,
   Trash2,
-  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -17,16 +12,11 @@ import { Card } from "@/components/ui/card";
 import Modal from "@/components/ui/modal";
 import DeleteModal from "@/components/ui/delete-modal";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
   useProductVariant,
   useToggleVariantStatus,
   useDeleteProductVariant,
-  useVariantApprovalHistory,
-  useApproveVariant,
-  useRejectVariant,
 } from "@/lib/queries/products";
-import type { ApprovalHistoryItem } from "@/lib/queries/products";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute(
@@ -35,30 +25,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-type ModalType = null | "history" | "approve" | "reject" | "delete";
-
-function ApprovalStatusBadge({ status, label }: { status: string; label: string }) {
-  if (status === "approved")
-    return (
-      <Badge variant="default" className="gap-1">
-        <CheckCircle className="h-3 w-3" />
-        {label}
-      </Badge>
-    );
-  if (status === "rejected")
-    return (
-      <Badge variant="destructive" className="gap-1">
-        <XCircle className="h-3 w-3" />
-        {label}
-      </Badge>
-    );
-  return (
-    <Badge variant="secondary" className="gap-1">
-      <Clock className="h-3 w-3" />
-      {label}
-    </Badge>
-  );
-}
+type ModalType = null | "delete";
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -67,16 +34,9 @@ function RouteComponent() {
   const id = Number(variantId);
 
   const [modalType, setModalType] = useState<ModalType>(null);
-  const [rejectMessage, setRejectMessage] = useState("");
 
   const { data: variant, isLoading, error } = useProductVariant(id);
-  const { data: historyData, isLoading: historyLoading } = useVariantApprovalHistory(
-    id,
-    modalType === "history",
-  );
   const toggleStatusMutation = useToggleVariantStatus();
-  const approveMutation = useApproveVariant();
-  const rejectMutation = useRejectVariant();
   const deleteMutation = useDeleteProductVariant();
 
   const handleToggleStatus = async () => {
@@ -103,31 +63,6 @@ function RouteComponent() {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || t("failed_to_delete"));
-    }
-  };
-
-  const handleApprove = async () => {
-    if (!variant) return;
-    try {
-      await approveMutation.mutateAsync(variant.id);
-      toast.success(t("approved_successfully"));
-      setModalType(null);
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      toast.error(error.response?.data?.message || t("failed_to_approve"));
-    }
-  };
-
-  const handleReject = async () => {
-    if (!variant) return;
-    try {
-      await rejectMutation.mutateAsync({ id: variant.id, message: rejectMessage || undefined });
-      toast.success(t("rejected_successfully"));
-      setModalType(null);
-      setRejectMessage("");
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      toast.error(error.response?.data?.message || t("failed_to_reject"));
     }
   };
 
@@ -161,10 +96,6 @@ function RouteComponent() {
     );
   }
 
-  const history = historyData?.data || [];
-
-  const approvalStatusMessage = variant.approval_status_message;
-
   return (
     <div className="space-y-6 py-6">
       {/* Header */}
@@ -176,10 +107,6 @@ function RouteComponent() {
         </Link>
         <div className="flex flex-1 flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold">{variant.slug}</h1>
-          <ApprovalStatusBadge
-            status={variant.approval_status}
-            label={variant.approval_status_label}
-          />
           <Badge variant={variant.is_active ? "default" : "secondary"}>
             {variant.is_active ? t("active") : t("inactive")}
           </Badge>
@@ -191,36 +118,6 @@ function RouteComponent() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setModalType("history")}
-            className="gap-2"
-          >
-            <History className="h-4 w-4" />
-            {t("history")}
-          </Button>
-          {variant.approval_status === "pending" && (
-            <>
-              <Button
-                size="sm"
-                onClick={() => setModalType("approve")}
-                className="gap-2"
-              >
-                <CheckCircle className="h-4 w-4" />
-                {t("approve")}
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setModalType("reject")}
-                className="gap-2"
-              >
-                <XCircle className="h-4 w-4" />
-                {t("reject")}
-              </Button>
-            </>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
             onClick={() => setModalType("delete")}
             className="gap-2 text-red-600 hover:text-red-700"
           >
@@ -229,13 +126,6 @@ function RouteComponent() {
           </Button>
         </div>
       </div>
-
-      {approvalStatusMessage && (
-        <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-200">
-          <p className="font-medium">{t("rejection_message")}:</p>
-          <p className="mt-1">{approvalStatusMessage}</p>
-        </div>
-      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Images */}
@@ -422,128 +312,6 @@ function RouteComponent() {
           )}
         </div>
       </div>
-
-      {/* History Modal */}
-      <Modal
-        isOpen={modalType === "history"}
-        onClose={() => setModalType(null)}
-        title={t("approval_history")}
-        size="md"
-      >
-        <div className="space-y-4">
-          {historyLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          ) : history.length === 0 ? (
-            <p className="py-6 text-center text-gray-500">{t("no_data_found")}</p>
-          ) : (
-            <div className="space-y-3">
-              {history.map((item: ApprovalHistoryItem) => (
-                <div key={item.id} className="rounded-lg border p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <ApprovalStatusBadge
-                      status={item.approval_status}
-                      label={item.approval_status_label}
-                    />
-                    <span className="text-xs text-gray-400">{item.created_date}</span>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {t("by")}: {item.created_user}
-                  </p>
-                  {item.approval_status_message && (
-                    <p className="mt-2 rounded bg-gray-50 p-2 text-sm text-gray-700 dark:bg-gray-800">
-                      {item.approval_status_message}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="flex justify-end">
-            <Button variant="outline" onClick={() => setModalType(null)}>
-              {t("close")}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Approve Confirmation Modal */}
-      <Modal
-        isOpen={modalType === "approve"}
-        onClose={() => setModalType(null)}
-        title={t("approve_variant")}
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            {t("approve_variant_confirm")} <span className="font-medium">{variant.slug}</span>?
-          </p>
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setModalType(null)}
-              disabled={approveMutation.isPending}
-            >
-              {t("cancel")}
-            </Button>
-            <Button onClick={handleApprove} disabled={approveMutation.isPending}>
-              {approveMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              <CheckCircle className="mr-2 h-4 w-4" />
-              {t("approve")}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Reject Modal */}
-      <Modal
-        isOpen={modalType === "reject"}
-        onClose={() => setModalType(null)}
-        title={t("reject_variant")}
-        size="md"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            {t("reject_variant_confirm")}{" "}
-            <span className="font-medium">{variant.slug}</span>
-          </p>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("message")}{" "}
-              <span className="font-normal text-gray-400">({t("optional")})</span>
-            </label>
-            <Textarea
-              value={rejectMessage}
-              onChange={(e) => setRejectMessage(e.target.value)}
-              placeholder={t("rejection_reason_placeholder")}
-              rows={3}
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setModalType(null)}
-              disabled={rejectMutation.isPending}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={rejectMutation.isPending}
-            >
-              {rejectMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              <XCircle className="mr-2 h-4 w-4" />
-              {t("reject")}
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal

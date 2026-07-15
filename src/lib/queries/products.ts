@@ -417,30 +417,6 @@ async function deleteProductVariant(id: number) {
   return response.data;
 }
 
-async function getVariantApprovalHistory(variantId: number) {
-  const response = await controlPrivateApi.get(
-    `/product-variants/${variantId}/approval-status/history`,
-  );
-  return response.data as PaginatedResponse<ApprovalHistoryItem>;
-}
-
-async function approveVariant(id: number) {
-  const response = await controlPrivateApi.post(
-    `/product-variants/${id}/approval-status/approve`,
-  );
-  return response.data;
-}
-
-async function rejectVariant(id: number, message?: string) {
-  const response = await controlPrivateApi.post(
-    `/product-variants/${id}/approval-status/reject`,
-    {
-      message: message || null,
-    },
-  );
-  return response.data;
-}
-
 async function getVariantRevisions(variantId: number) {
   const response = await controlPrivateApi.get(
     `/product-variants/${variantId}/revisions`,
@@ -499,7 +475,7 @@ async function getAdminCPVs(filters: CPVFilters) {
     if (v !== null && v !== undefined && v !== "") params.append(k, String(v));
   });
   const response = await controlPrivateApi.get(
-    `/product-variants/load?${params}`,
+    `/company-product-variants/load?${params}`,
   );
   return response.data as PaginatedResponse<AdminCPV>;
 }
@@ -522,7 +498,7 @@ async function rejectCPV(id: number, message?: string) {
   const response = await controlPrivateApi.post(
     `/company-product-variants/${id}/approval-status/reject`,
     {
-      message: message || null,
+      approval_status_message: message || null,
     },
   );
   return response.data;
@@ -566,16 +542,6 @@ export const productVariantQueryOptions = (id: number) =>
     queryKey: ["productVariant", id],
     queryFn: () => getProductVariant(id),
     enabled: !!id,
-  });
-
-export const variantApprovalHistoryQueryOptions = (
-  variantId: number,
-  enabled = false,
-) =>
-  queryOptions({
-    queryKey: ["variantApprovalHistory", variantId],
-    queryFn: () => getVariantApprovalHistory(variantId),
-    enabled,
   });
 
 export const adminCPVsQueryOptions = (filters: CPVFilters) =>
@@ -653,43 +619,6 @@ export function useDeleteProductVariant() {
     mutationFn: (id: number) => deleteProductVariant(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productVariants"] });
-      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
-}
-
-export function useVariantApprovalHistory(variantId: number, enabled = false) {
-  return useQuery(variantApprovalHistoryQueryOptions(variantId, enabled));
-}
-
-export function useApproveVariant() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => approveVariant(id),
-    onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["productVariants"] });
-      queryClient.invalidateQueries({ queryKey: ["productVariant", id] });
-      queryClient.invalidateQueries({
-        queryKey: ["variantApprovalHistory", id],
-      });
-      queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
-}
-
-export function useRejectVariant() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, message }: { id: number; message?: string }) =>
-      rejectVariant(id, message),
-    onSuccess: (_data, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["productVariants"] });
-      queryClient.invalidateQueries({ queryKey: ["productVariant", id] });
-      queryClient.invalidateQueries({
-        queryKey: ["variantApprovalHistory", id],
-      });
       queryClient.invalidateQueries({ queryKey: ["adminCPVs"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
