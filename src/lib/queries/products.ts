@@ -241,8 +241,18 @@ export interface AdminCPV {
   approval_status: "pending" | "approved" | "rejected";
   approval_status_label: string;
   approval_status_message: string | null;
+  seller_images: Array<{ id: number; url: string }>;
   company: { id: number; uuid: string; title: string } | null;
   created_date: string;
+}
+
+export function getCpvImage(cpv: AdminCPV): string | null {
+  return (
+    cpv.variant?.main_image ??
+    cpv.seller_images?.[0]?.url ??
+    cpv.variant?.product?.main_image ??
+    null
+  );
 }
 
 export interface ApprovalHistoryItem {

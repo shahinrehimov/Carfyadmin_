@@ -29,20 +29,19 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useAdminCPVs,
+  getCpvImage,
   useAdminCPVHistory,
+  useAdminCPVs,
   useApproveCPV,
+  useApproveRevision,
+  useDeleteCPV,
   useRejectCPV,
+  useRejectRevision,
   useToggleCPVStatus,
   useVariantRevisions,
-  useApproveRevision,
-  useRejectRevision,
-  useDeleteCPV,
-} from "@/lib/queries/products";
-import type {
-  AdminCPV,
-  ApprovalHistoryItem,
-  VariantRevision,
+  type AdminCPV,
+  type ApprovalHistoryItem,
+  type VariantRevision,
 } from "@/lib/queries/products";
 import { useCompaniesList } from "@/lib/queries/companies";
 import { useTranslation } from "@/lib/utils/translationLoader";
@@ -625,16 +624,19 @@ function RouteComponent() {
                 </TableRow>
               ))
             ) : cpvs.length > 0 ? (
-              cpvs.map((cpv, index) => (
+              cpvs.map((cpv, index) => {
+                const image = getCpvImage(cpv);
+
+                return (
                 <TableRow key={cpv.id}>
                   <TableCell>
                     {filters.page * perPage - perPage + index + 1}
                   </TableCell>
                   <TableCell>
-                    {cpv.variant?.main_image ? (
+                    {image ? (
                       <img
-                        src={cpv.variant.main_image}
-                        alt={cpv.variant.slug}
+                        src={image}
+                        alt={cpv.variant?.title || cpv.variant?.slug || ""}
                         className="h-12 w-12 rounded object-cover"
                       />
                     ) : (
@@ -766,7 +768,8 @@ function RouteComponent() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
@@ -791,13 +794,16 @@ function RouteComponent() {
             />
           ))
         ) : cpvs.length > 0 ? (
-          cpvs.map((cpv, index) => (
+          cpvs.map((cpv, index) => {
+            const image = getCpvImage(cpv);
+
+            return (
             <Card key={cpv.id} className="p-4">
               <div className="flex items-start gap-3">
-                {cpv.variant?.main_image ? (
+                {image ? (
                   <img
-                    src={cpv.variant.main_image}
-                    alt={cpv.variant.slug}
+                    src={image}
+                    alt={cpv.variant?.title || cpv.variant?.slug || ""}
                     className="h-16 w-16 rounded object-cover"
                   />
                 ) : (
@@ -887,7 +893,8 @@ function RouteComponent() {
                 </div>
               </div>
             </Card>
-          ))
+            );
+          })
         ) : (
           <p className="py-12 text-center text-gray-500">
             {t("no_data_found")}
