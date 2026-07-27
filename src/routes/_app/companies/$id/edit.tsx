@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select } from "@/components/ui/select";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, MapPin, Trash2, Clock } from "lucide-react";
@@ -20,6 +21,7 @@ import {
   type WorkingHour,
 } from "@/lib/queries/companies";
 import { useLangs } from "@/lib/queries/langs";
+import { useCountries, useCities } from "@/lib/queries/countries";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LocationPickerModal from "@/components/ui/location-picker-modal";
 
@@ -34,6 +36,10 @@ function EditCompanyComponent() {
   const { data: langs = [] } = useLangs();
   const [activeTab, setActiveTab] = useState("0");
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+
+  const { data: countries = [] } = useCountries();
+  const { data: cities = [] } = useCities(selectedCountryId);
 
   // Zod validation schema
   const schema = z.object({
@@ -42,8 +48,13 @@ function EditCompanyComponent() {
     email: z.string().email(t("invalid_email")).min(1, t("required_field")),
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),
-    website: z.string().url(t("invalid_url")).min(1, t("required_field")),
+    website: z
+      .string()
+      .refine((val) => val === "" || z.string().url().safeParse(val).success, {
+        message: t("invalid_url"),
+      }),
     is_active: z.boolean(),
+    city_id: z.number({ required_error: t("required_field") }).min(1, t("required_field")),
     translations: z.array(
       z.object({
         language_id: z.number(),
@@ -61,6 +72,7 @@ function EditCompanyComponent() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -72,6 +84,7 @@ function EditCompanyComponent() {
       longitude: 49.8671,
       website: "",
       is_active: true,
+      city_id: undefined as unknown as number,
       translations: [],
     },
   });
@@ -97,38 +110,63 @@ function EditCompanyComponent() {
   }));
 
   const [workingHours, setWorkingHours] = useState<WorkingHour[]>(defaultWorkingHours);
+  const [isFormReady, setIsFormReady] = useState(false);
+
+  const cityOptions = useMemo(() => {
+    const options = cities.map((c) => ({ value: String(c.id), label: c.title }));
+    if (company?.city) {
+      const cityValue = String(company.city.id);
+      if (!options.some((option) => option.value === cityValue)) {
+        options.unshift({ value: cityValue, label: company.city.title });
+      }
+    }
+    return options;
+  }, [cities, company?.city]);
+
+  useEffect(() => {
+    setIsFormReady(false);
+    setSelectedCountryId(null);
+  }, [id]);
 
   // Reset form when company data is loaded
   useEffect(() => {
-    if (company && langs.length > 0) {
-      // Match translations with langs
-      const translations = langs.map((lang: any) => {
-        const existingTranslation = company.translations.find(
-          (t) => t.language_id === lang.id,
-        );
-        return {
-          language_id: lang.id,
-          title: existingTranslation?.title || null,
-          info: existingTranslation?.info || null,
-          address: existingTranslation?.address || null,
-        };
-      });
+    if (!company || langs.length === 0) return;
 
-      reset({
-        voen: company.voen,
-        phone: company.phone,
-        email: company.email,
-        latitude: parseFloat(company.latitude),
-        longitude: parseFloat(company.longitude),
-        website: company.website,
-        is_active: company.is_active,
-        translations,
-      });
+    const translations = langs.map((lang: any) => {
+      const existingTranslation = company.translations.find(
+        (translation) => translation.language_id === lang.id,
+      );
+      return {
+        language_id: lang.id,
+        title: existingTranslation?.title || null,
+        info: existingTranslation?.info || null,
+        address: existingTranslation?.address || null,
+      };
+    });
 
-      if (company.working_hours && company.working_hours.length > 0) {
-        setWorkingHours(company.working_hours);
-      }
+    if (company.city?.country_id) {
+      setSelectedCountryId(company.city.country_id);
     }
+
+    reset({
+      voen: company.voen,
+      phone: company.phone,
+      email: company.email,
+      latitude: parseFloat(company.latitude),
+      longitude: parseFloat(company.longitude),
+      website: company.website || "",
+      is_active: company.is_active,
+      city_id: company.city_id,
+      translations,
+    });
+
+    if (company.working_hours.length > 0) {
+      setWorkingHours(company.working_hours);
+    } else {
+      setWorkingHours(defaultWorkingHours);
+    }
+
+    setIsFormReady(true);
   }, [company, langs, reset]);
 
   useEffect(() => {
@@ -204,7 +242,7 @@ function EditCompanyComponent() {
     }
   };
 
-  if (companyLoading) {
+  if (companyLoading || !isFormReady) {
     return (
       <div className="w-full flex flex-col gap-5 pt-5">
         <div className="flex items-center gap-4">
@@ -341,6 +379,39 @@ function EditCompanyComponent() {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label>{t("country")}</Label>
+                <Select
+                  value={selectedCountryId ? String(selectedCountryId) : ""}
+                  onValueChange={(val) => {
+                    setSelectedCountryId(Number(val));
+                    reset({ ...watch(), city_id: undefined as unknown as number });
+                  }}
+                  placeholder={t("select_country")}
+                  options={countries.map((c) => ({ value: String(c.id), label: c.title }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("city")} <span className="text-red-500">*</span></Label>
+                <Controller
+                  name="city_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ? String(field.value) : ""}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      placeholder={t("select_city")}
+                      options={cityOptions}
+                      disabled={!selectedCountryId}
+                    />
+                  )}
+                />
+                {errors.city_id && (
+                  <p className="text-red-500 text-sm">{errors.city_id.message}</p>
+                )}
+              </div>
+
               <div className="col-span-2 space-y-2">
                 <Label>{t("location")}</Label>
                 <div className="flex gap-2 items-start">
@@ -355,12 +426,10 @@ function EditCompanyComponent() {
                   </Button>
                   <div className="flex-1 space-y-1">
                     <p className="text-sm text-muted-foreground">
-                      {t("latitude")}:{" "}
-                      {watch("latitude")?.toFixed(6) || "40.409300"}
+                      {t("latitude")}: {watch("latitude").toFixed(6)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t("longitude")}:{" "}
-                      {watch("longitude")?.toFixed(6) || "49.867100"}
+                      {t("longitude")}: {watch("longitude").toFixed(6)}
                     </p>
                   </div>
                 </div>
@@ -658,14 +727,11 @@ function EditCompanyComponent() {
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
         onSelectLocation={(lat, lng) => {
-          reset({
-            ...watch(),
-            latitude: lat,
-            longitude: lng,
-          });
+          setValue("latitude", lat);
+          setValue("longitude", lng);
         }}
-        initialLat={watch("latitude") || 40.4093}
-        initialLng={watch("longitude") || 49.8671}
+        initialLat={watch("latitude")}
+        initialLng={watch("longitude")}
         title={t("select_company_location")}
       />
     </div>

@@ -96,6 +96,12 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
+    if (isOpen) {
+      setPosition([initialLat, initialLng]);
+    }
+  }, [isOpen, initialLat, initialLng]);
+
+  useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
@@ -191,7 +197,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               }}
               zoomControl={true}
               scrollWheelZoom={true}
-              key={`map-${isOpen}`}
+              key={`map-${initialLat}-${initialLng}`}
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
