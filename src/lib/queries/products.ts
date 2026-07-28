@@ -91,6 +91,18 @@ export interface VariantBrandModel {
   title: string;
 }
 
+/**
+ * One "fits this car" rule. null means "all": no brand fits every car, a brand
+ * without a model fits all of its models, and an open year bound is
+ * unrestricted on that side.
+ */
+export interface Fitment {
+  brand: { id: number; title: string } | null;
+  brand_model: { id: number; title: string } | null;
+  year_from: number | null;
+  year_to: number | null;
+}
+
 export interface ProductVariant {
   id: number;
   uuid: string;
@@ -124,8 +136,14 @@ export interface ProductVariant {
   discount_type_title: string | null;
   discount: number;
   city: VariantCity | null;
+  /** @deprecated derived from fitments; prefer fitments */
   brand_models: VariantBrandModel[];
-  year: number;
+  fitments: Fitment[];
+  is_universal: boolean;
+  /** @deprecated use year_from / year_to */
+  year: number | null;
+  year_from: number | null;
+  year_to: number | null;
   is_default: boolean;
   is_active: boolean;
   approval_status: "pending" | "approved" | "rejected";
@@ -181,8 +199,14 @@ export interface ProductVariantDetail {
   discount_start_at: string | null;
   discount_end_at: string | null;
   city: VariantCity | null;
+  /** @deprecated derived from fitments; prefer fitments */
   brand_models: VariantBrandModel[];
-  year: number;
+  fitments: Fitment[];
+  is_universal: boolean;
+  /** @deprecated use year_from / year_to */
+  year: number | null;
+  year_from: number | null;
+  year_to: number | null;
   translations: unknown[] | null;
   is_default: boolean;
   is_active: boolean;
@@ -219,8 +243,14 @@ export interface AdminCPV {
     is_set: boolean;
     is_creator: boolean;
     has_pending_revision: boolean;
+    /** @deprecated derived from fitments */
     brand_models: Array<{ id: number; title: string }>;
+    fitments: Fitment[];
+    is_universal: boolean;
+    /** @deprecated use year_from / year_to */
     year: number | null;
+    year_from: number | null;
+    year_to: number | null;
     product: {
       id: number;
       uuid: string;
@@ -271,14 +301,14 @@ export interface VariantRevision {
   company: { id: number; title: string } | null;
   data: {
     oem_code: string | null;
-    brand_model_ids: number[];
-    year: number | null;
+    // Resolved to titles server-side; used to be bare ids.
+    fitments: Fitment[];
     options: { option_id: number; value: any }[];
   };
   current: {
     oem_code: string | null;
-    brand_models: Array<{ id: number; title: string }>;
-    year: number | null;
+    fitments: Fitment[];
+    is_universal: boolean;
     options: { option_id: number; value: any }[];
   };
   images: {
@@ -295,7 +325,6 @@ export interface ProductRevision {
   rejection_message: string | null;
   company: { id: number; title: string } | null;
   data: {
-    brand_id: number | null;
     main_category_id: number | null;
     categories: number[];
     sets: { product_variant_id: number; quantity: number }[];
@@ -309,7 +338,6 @@ export interface ProductRevision {
     }[];
   };
   current: {
-    brand_id: number | null;
     main_category_id: number | null;
   };
   images: {
