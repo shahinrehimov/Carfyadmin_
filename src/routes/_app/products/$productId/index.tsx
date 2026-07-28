@@ -23,6 +23,7 @@ import {
   useRejectProductRevision,
 } from "@/lib/queries/products";
 import type { ProductRevision } from "@/lib/queries/products";
+import { ProductBrands } from "@/components/fitment/ProductBrands";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute("/_app/products/$productId/")({
@@ -304,7 +305,12 @@ function RouteComponent() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("brand")}</p>
-                <p className="mt-0.5 font-medium">{product.brand.title}</p>
+                <p className="mt-0.5 font-medium">
+                  <ProductBrands
+                    brands={product.brands}
+                    isUniversal={product.is_universal}
+                  />
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("main_category")}</p>

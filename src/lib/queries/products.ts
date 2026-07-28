@@ -36,7 +36,10 @@ export interface Product {
   main_image: string | null;
   hover_image: string | null;
   is_set: boolean;
-  brand: ProductBrand;
+  /** @deprecated null when the product spans several brands; use brands */
+  brand: ProductBrand | null;
+  brands: ProductBrand[];
+  is_universal: boolean;
   main_category: ProductCategory;
   categories: ProductCategory[];
   groups: unknown[];
@@ -70,8 +73,10 @@ export interface ProductDetail {
     media_ids: number[];
   };
   is_set: boolean;
-  brand_id: number;
-  brand: ProductBrand;
+  /** @deprecated null when the product spans several brands; use brands */
+  brand: ProductBrand | null;
+  brands: ProductBrand[];
+  is_universal: boolean;
   main_category: ProductCategory;
   categories: ProductCategory[];
   variants_count: number;
@@ -219,7 +224,10 @@ export interface ProductVariantDetail {
     hover_image: string | null;
     images: string[];
     is_set: boolean;
-    brand: ProductBrand;
+    /** @deprecated null when the product spans several brands; use brands */
+    brand: ProductBrand | null;
+    brands: ProductBrand[];
+    is_universal: boolean;
   };
   approval_status: "pending" | "approved" | "rejected";
   approval_status_label: string;

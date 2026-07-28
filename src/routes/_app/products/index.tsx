@@ -39,6 +39,7 @@ import {
   useRejectProductRevision,
 } from "@/lib/queries/products";
 import type { Product, ProductRevision } from "@/lib/queries/products";
+import { ProductBrands } from "@/components/fitment/ProductBrands";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 function ProductRevisionsModal({ productId, onClose }: { productId: number; onClose: () => void }) {
@@ -287,7 +288,10 @@ function RouteComponent() {
                 )}
               </TableCell>
               <TableCell className="text-gray-600">
-                {product.brand.title}
+                <ProductBrands
+                  brands={product.brands}
+                  isUniversal={product.is_universal}
+                />
               </TableCell>
               <TableCell className="text-gray-600">
                 <div className="flex flex-col gap-0.5">
@@ -436,7 +440,11 @@ function RouteComponent() {
                   {filters.page * perPage - perPage + index + 1}. {product.title}
                 </h3>
                 <p className="mt-1 text-sm text-gray-600">
-                  {product.brand.title} · {product.main_category.title}
+                  <ProductBrands
+                    brands={product.brands}
+                    isUniversal={product.is_universal}
+                  />{" "}
+                  · {product.main_category.title}
                 </p>
                 {product.company?.title && (
                   <p className="mt-0.5 text-xs font-medium text-gray-500">
