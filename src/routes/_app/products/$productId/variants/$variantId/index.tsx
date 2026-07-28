@@ -17,6 +17,7 @@ import {
   useToggleVariantStatus,
   useDeleteProductVariant,
 } from "@/lib/queries/products";
+import { FitmentSummary } from "@/components/fitment/FitmentSummary";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute(
@@ -252,13 +253,14 @@ function RouteComponent() {
                 <p className="text-xs text-gray-500">{t("city")}</p>
                 <p className="mt-0.5 font-medium">{variant.city?.title ?? "—"}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500">{t("brand_model")}</p>
-                <p className="mt-0.5 font-medium">{variant.brand_models?.map(m => m.title).join(", ") ?? "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t("year")}</p>
-                <p className="mt-0.5 font-medium">{variant.year}</p>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-gray-500">{t("fitment") || "Uyğunluq"}</p>
+                <div className="mt-1">
+                  <FitmentSummary
+                    fitments={variant.fitments}
+                    isUniversal={variant.is_universal}
+                  />
+                </div>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("product")}</p>

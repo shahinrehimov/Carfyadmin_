@@ -44,6 +44,7 @@ import {
   type VariantRevision,
 } from "@/lib/queries/products";
 import { useCompaniesList } from "@/lib/queries/companies";
+import { FitmentSummary } from "@/components/fitment/FitmentSummary";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 export const Route = createFileRoute("/_app/products/$productId/variants/")({
@@ -236,16 +237,15 @@ function RevisionsModal({
                     <span className="text-gray-500">OEM:</span>{" "}
                     {revision.current.oem_code || "—"}
                   </p>
-                  <p>
-                    <span className="text-gray-500">{t("brand_model")}:</span>{" "}
-                    {revision.current.brand_models
-                      ?.map((m: any) => m.title)
-                      .join(", ") || "—"}
-                  </p>
-                  <p>
-                    <span className="text-gray-500">{t("year")}:</span>{" "}
-                    {revision.current.year || "—"}
-                  </p>
+                  <div className="flex items-start gap-1">
+                    <span className="text-gray-500 shrink-0">
+                      {t("fitment") || "Uyğunluq"}:
+                    </span>
+                    <FitmentSummary
+                      fitments={revision.current.fitments}
+                      isUniversal={revision.current.is_universal}
+                    />
+                  </div>
                 </div>
                 <div className="rounded bg-blue-50 dark:bg-blue-950 p-3 space-y-1">
                   <p className="font-semibold text-xs text-blue-600 mb-2">
@@ -255,14 +255,17 @@ function RevisionsModal({
                     <span className="text-gray-500">OEM:</span>{" "}
                     {revision.data.oem_code || "—"}
                   </p>
-                  <p>
-                    <span className="text-gray-500">{t("brand_model")}:</span>{" "}
-                    {revision.data.brand_model_ids?.join(", ") || "—"}
-                  </p>
-                  <p>
-                    <span className="text-gray-500">{t("year")}:</span>{" "}
-                    {revision.data.year || "—"}
-                  </p>
+                  <div className="flex items-start gap-1">
+                    <span className="text-gray-500 shrink-0">
+                      {t("fitment") || "Uyğunluq"}:
+                    </span>
+                    <FitmentSummary
+                      fitments={revision.data.fitments}
+                      isUniversal={revision.data.fitments?.every(
+                        (f) => f.brand === null,
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -605,8 +608,7 @@ function RouteComponent() {
               <TableHead>{t("price")}</TableHead>
               <TableHead>{t("stock")}</TableHead>
               <TableHead>{t("city")}</TableHead>
-              <TableHead>{t("brand_model")}</TableHead>
-              <TableHead>{t("year")}</TableHead>
+              <TableHead>{t("fitment") || "Uyğunluq"}</TableHead>
               <TableHead>{t("approval_status")}</TableHead>
               <TableHead className="w-[80px]">{t("status")}</TableHead>
               <TableHead className="w-[160px]">{t("actions")}</TableHead>
@@ -673,11 +675,11 @@ function RouteComponent() {
                   </TableCell>
                   <TableCell>{cpv.city?.title || "—"}</TableCell>
                   <TableCell>
-                    {cpv.variant?.brand_models
-                      ?.map((m: any) => m.title)
-                      .join(", ") || "—"}
+                    <FitmentSummary
+                      fitments={cpv.variant?.fitments}
+                      isUniversal={cpv.variant?.is_universal}
+                    />
                   </TableCell>
-                  <TableCell>{cpv.variant?.year || "—"}</TableCell>
                   <TableCell>
                     <ApprovalStatusBadge
                       status={cpv.approval_status}
@@ -831,10 +833,11 @@ function RouteComponent() {
                   </p>
                   <p className="text-xs text-gray-400">
                     {cpv.city?.title} ·{" "}
-                    {cpv.variant?.brand_models
-                      ?.map((m: any) => m.title)
-                      .join(", ") || "—"}{" "}
-                    · {cpv.variant?.year}
+                    <FitmentSummary
+                      inline
+                      fitments={cpv.variant?.fitments}
+                      isUniversal={cpv.variant?.is_universal}
+                    />
                   </p>
                 </div>
               </div>
