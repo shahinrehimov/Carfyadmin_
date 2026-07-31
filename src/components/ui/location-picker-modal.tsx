@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { X, MapPin } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { X, MapPin, LocateFixed, Loader2 } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -63,6 +63,21 @@ function MapResizer() {
   return null;
 }
 
+// Flies the map to a target position, used to recenter the map when the
+// user selects their current location via the browser geolocation API.
+function MapFlyTo({ target }: { target: [number, number] | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (target) {
+      map.flyTo(target, Math.max(map.getZoom(), 15), { duration: 1 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
+
+  return null;
+}
+
 const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   isOpen,
   onClose,
@@ -78,7 +93,32 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   const [address, setAddress] = useState<string>("");
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [recenterTarget, setRecenterTarget] = useState<
+    [number, number] | null
+  >(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const locationWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const geolocationWatchIdRef = useRef<number | null>(null);
   const { t } = useTranslation();
+
+  // Some browsers (notably Chrome on macOS when system Location Services
+  // are disabled) never invoke either callback of getCurrentPosition and
+  // ignore the native `timeout` option, leaving the button stuck loading
+  // forever. This watchdog force-stops the loading state as a safety net.
+  useEffect(() => {
+    return () => {
+      if (locationWatchdogRef.current) {
+        clearTimeout(locationWatchdogRef.current);
+      }
+      if (geolocationWatchIdRef.current != null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(geolocationWatchIdRef.current);
+      }
+    };
+  }, []);
+
   // Ensure map only renders on client side
   useEffect(() => {
     setIsClient(true);
@@ -140,6 +180,132 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   const handleConfirm = () => {
     onSelectLocation(position[0], position[1], address);
     onClose();
+  };
+
+  const clearLocationWatchdog = () => {
+    if (locationWatchdogRef.current) {
+      clearTimeout(locationWatchdogRef.current);
+      locationWatchdogRef.current = null;
+    }
+  };
+
+  const stopGeolocationWatch = () => {
+    if (geolocationWatchIdRef.current != null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(geolocationWatchIdRef.current);
+      geolocationWatchIdRef.current = null;
+    }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError(
+        t(
+          "geolocation_not_supported",
+          "Your browser does not support geolocation.",
+        ),
+      );
+      return;
+    }
+
+    if (typeof window !== "undefined" && window.isSecureContext === false) {
+      setLocationError(
+        t(
+          "geolocation_requires_https",
+          "Detecting your location requires a secure (HTTPS) connection.",
+        ),
+      );
+      return;
+    }
+
+    stopGeolocationWatch();
+    clearLocationWatchdog();
+
+    setIsLocating(true);
+    setLocationError("");
+
+    let settled = false;
+    let sawPermissionDenied = false;
+
+    const finishSuccess = (pos: GeolocationPosition) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      stopGeolocationWatch();
+      clearLocationWatchdog();
+      setLocationError("");
+
+      const coords: [number, number] = [
+        pos.coords.latitude,
+        pos.coords.longitude,
+      ];
+      setPosition(coords);
+      setRecenterTarget(coords);
+      setIsLocating(false);
+    };
+
+    const finishError = (error: Pick<GeolocationPositionError, "code">) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      stopGeolocationWatch();
+      clearLocationWatchdog();
+      setIsLocating(false);
+
+      if (error.code === 1) {
+        setLocationError(
+          t(
+            "location_permission_denied",
+            "Location access was denied. Please allow location access in your browser settings and try again.",
+          ),
+        );
+        return;
+      }
+
+      if (error.code !== 3) {
+        console.error("Geolocation error:", error);
+      }
+
+      setLocationError(
+        error.code === 3
+          ? t(
+              "location_timeout",
+              "Couldn't get your location. Make sure Location Services are enabled for your browser in your system settings, then try again.",
+            )
+          : t(
+              "location_unavailable",
+              "Unable to determine your current location. Make sure Location Services are enabled on your device.",
+            ),
+      );
+    };
+
+    locationWatchdogRef.current = setTimeout(() => {
+      locationWatchdogRef.current = null;
+      finishError({ code: sawPermissionDenied ? 1 : 3 });
+    }, 30000);
+
+    geolocationWatchIdRef.current = navigator.geolocation.watchPosition(
+      finishSuccess,
+      (error) => {
+        if (error.code === 1) {
+          sawPermissionDenied = true;
+          return;
+        }
+        finishError(error);
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
+
+    navigator.geolocation.getCurrentPosition(
+      finishSuccess,
+      (error) => {
+        if (error.code === 1) {
+          sawPermissionDenied = true;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
   };
 
   if (!isOpen) return null;
@@ -206,9 +372,32 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               />
               <LocationMarker position={position} setPosition={setPosition} />
               <MapResizer />
+              <MapFlyTo target={recenterTarget} />
             </MapContainer>
           )}
+
+          {isClient && (
+            <button
+              type="button"
+              onClick={handleUseCurrentLocation}
+              disabled={isLocating}
+              title={t("use_current_location", "Use my current location")}
+              className="absolute right-3 top-3 z-1000 flex items-center justify-center rounded-md border border-border bg-card p-2 shadow-md transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLocating ? (
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              ) : (
+                <LocateFixed className="h-5 w-5 text-foreground" />
+              )}
+            </button>
+          )}
         </div>
+
+        {locationError && (
+          <div className="px-4 pt-3">
+            <p className="text-sm text-destructive">{locationError}</p>
+          </div>
+        )}
 
         {/* Address Info */}
         <div className="border-t p-4">
