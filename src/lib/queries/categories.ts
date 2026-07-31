@@ -51,6 +51,8 @@ interface CreateCategoryRequest {
   }>;
   slug?: string;
   sort: number;
+  /** null clears the category override so the platform rate applies */
+  commission_percent?: number | null;
   image: File;
 }
 
@@ -61,6 +63,8 @@ interface UpdateCategoryRequest {
   }>;
   slug?: string;
   sort: number;
+  /** null clears the category override so the platform rate applies */
+  commission_percent?: number | null;
   image?: File;
 }
 
@@ -72,6 +76,8 @@ interface CreateSubCategoryRequest {
   }>;
   slug?: string;
   sort: number;
+  /** null clears the category override so the platform rate applies */
+  commission_percent?: number | null;
   image: File;
 }
 
@@ -82,6 +88,8 @@ interface UpdateSubCategoryRequest {
   }>;
   slug?: string;
   sort: number;
+  /** null clears the category override so the platform rate applies */
+  commission_percent?: number | null;
   image?: File;
 }
 
@@ -122,6 +130,13 @@ async function createCategory(data: CreateCategoryRequest) {
 
   if (data.slug) formData.append("slug", data.slug);
   formData.append("sort", String(data.sort));
+  // Empty string reaches the API as null, i.e. "inherit the platform rate"
+  formData.append(
+    "commission_percent",
+    data.commission_percent === null || data.commission_percent === undefined
+      ? ""
+      : String(data.commission_percent),
+  );
   formData.append("image", data.image);
 
   const response = await controlPrivateApi.post("/categories/add", formData, {
@@ -142,6 +157,13 @@ async function updateCategory(id: number, data: UpdateCategoryRequest) {
 
   if (data.slug) formData.append("slug", data.slug);
   formData.append("sort", String(data.sort));
+  // Empty string reaches the API as null, i.e. "inherit the platform rate"
+  formData.append(
+    "commission_percent",
+    data.commission_percent === null || data.commission_percent === undefined
+      ? ""
+      : String(data.commission_percent),
+  );
   if (data.image) formData.append("image", data.image);
 
   const response = await controlPrivateApi.post(`/categories/update/${id}`, formData, {
@@ -199,6 +221,13 @@ async function createSubCategory(data: CreateSubCategoryRequest) {
 
   if (data.slug) formData.append("slug", data.slug);
   formData.append("sort", String(data.sort));
+  // Empty string reaches the API as null, i.e. "inherit the platform rate"
+  formData.append(
+    "commission_percent",
+    data.commission_percent === null || data.commission_percent === undefined
+      ? ""
+      : String(data.commission_percent),
+  );
   formData.append("image", data.image);
 
   const response = await controlPrivateApi.post("/categories/add", formData, {
@@ -219,6 +248,13 @@ async function updateSubCategory(id: number, data: UpdateSubCategoryRequest) {
 
   if (data.slug) formData.append("slug", data.slug);
   formData.append("sort", String(data.sort));
+  // Empty string reaches the API as null, i.e. "inherit the platform rate"
+  formData.append(
+    "commission_percent",
+    data.commission_percent === null || data.commission_percent === undefined
+      ? ""
+      : String(data.commission_percent),
+  );
   if (data.image) formData.append("image", data.image);
 
   const response = await controlPrivateApi.post(`/categories/update/${id}`, formData, {

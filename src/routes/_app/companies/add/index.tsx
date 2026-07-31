@@ -42,6 +42,15 @@ function AddCompanyComponent() {
     longitude: z.number().min(-180).max(180),
     website: z.string().url(t("invalid_url")).min(1, t("required_field")),
     is_active: z.boolean(),
+    // Empty string = inherit the category / platform rate
+    commission_percent: z
+      .string()
+      .refine(
+        (val) =>
+          val === "" ||
+          (!Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100),
+        { message: t("invalid_value") },
+      ),
     city_id: z.number({ required_error: t("required_field") }).min(1, t("required_field")),
     translations: z.array(
       z.object({
@@ -78,6 +87,7 @@ function AddCompanyComponent() {
       longitude: 49.8671,
       website: "",
       is_active: true,
+      commission_percent: "",
       city_id: undefined as unknown as number,
       translations: [],
       root_admin_username: "",
@@ -98,6 +108,7 @@ function AddCompanyComponent() {
         longitude: 49.8671,
         website: "",
         is_active: true,
+        commission_percent: "",
         city_id: undefined as unknown as number,
         translations: langs.map((lang: any) => ({
           language_id: lang.id,
@@ -125,7 +136,14 @@ function AddCompanyComponent() {
     }
 
     try {
-      const response = await createCompanyMutation.mutateAsync(data);
+      const response = await createCompanyMutation.mutateAsync({
+        ...data,
+        // Empty means "no seller override" — the category / platform rate applies
+        commission_percent:
+          data.commission_percent === ""
+            ? null
+            : Number(data.commission_percent),
+      });
       toast.success(response.message || t("company_created_successfully"));
       router.navigate({ to: "/companies" });
     } catch (error: any) {
@@ -245,6 +263,38 @@ function AddCompanyComponent() {
                 {errors.website && (
                   <p className="text-red-500 text-sm">
                     {errors.website.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="commission_percent">
+                  {t("commission_percent")}
+                </Label>
+                <Controller
+                  name="commission_percent"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      id="commission_percent"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      {...field}
+                      placeholder="—"
+                      className={
+                        errors.commission_percent ? "border-red-500" : ""
+                      }
+                    />
+                  )}
+                />
+                <p className="text-muted-foreground text-xs">
+                  {t("commission_percent_hint")}
+                </p>
+                {errors.commission_percent && (
+                  <p className="text-red-500 text-sm">
+                    {errors.commission_percent.message}
                   </p>
                 )}
               </div>

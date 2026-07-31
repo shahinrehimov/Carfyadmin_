@@ -27,6 +27,15 @@ const AddFormSchema = z.object({
   category_id: z.number(),
   slug: z.string().optional(),
   sort: z.number().min(0, "Sort must be 0 or greater"),
+  // Empty string = inherit the platform rate
+  commission_percent: z
+    .string()
+    .refine(
+      (val) =>
+        val === "" ||
+        (!Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100),
+      { message: "0 - 100" },
+    ),
   translations: z.array(
     z.object({
       language_id: z.number(),
@@ -51,6 +60,7 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
       category_id: categoryId,
       slug: "",
       sort: 0,
+      commission_percent: "",
       translations: [],
     },
   });
@@ -62,6 +72,7 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
         category_id: categoryId,
         slug: "",
         sort: 0,
+      commission_percent: "",
         translations: langs.map((lang: any) => ({
           language_id: lang.id,
           title: "",
@@ -84,6 +95,11 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
         translations: data.translations,
         slug: data.slug,
         sort: data.sort,
+        // Empty means "no category override" — send null so the API clears it
+        commission_percent:
+          data.commission_percent === ""
+            ? null
+            : Number(data.commission_percent),
         image: file.file,
       });
       toast.success(response.message || t("subcategory_created_successfully"));
@@ -159,6 +175,30 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="commission_percent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("commission_percent")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      placeholder="—"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    {t("commission_percent_hint")}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

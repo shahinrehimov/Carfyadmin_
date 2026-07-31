@@ -17,6 +17,8 @@ export interface Company {
   logo: string | null;
   is_active: boolean;
   is_verified: boolean;
+  /** null = inherits the category rate, or the platform default */
+  commission_percent: number | null;
   created_user: string | null;
   created_date: string;
 }
@@ -42,6 +44,8 @@ export interface CompanyDetails {
   root_admin_email: string;
   verified_at: string | null;
   is_active: boolean;
+  /** null = inherits the category rate, or the platform default */
+  commission_percent: number | null;
   logo: string | null;
   banner: string | null;
   translations: Array<{
@@ -81,6 +85,8 @@ interface CreateCompanyRequest {
   longitude: number;
   website: string;
   is_active: boolean;
+  /** null = no seller override, the category / platform rate applies */
+  commission_percent: number | null;
   city_id: number;
   translations: Array<{
     language_id: number;
@@ -102,6 +108,8 @@ interface UpdateCompanyRequest {
   longitude: number;
   website: string;
   is_active: boolean;
+  /** null clears the seller override so the category / platform rate applies */
+  commission_percent: number | null;
   city_id: number;
   translations: Array<{
     language_id: number;

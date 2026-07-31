@@ -41,11 +41,12 @@ export interface TopStoresFilters extends StatisticsFilters {
 }
 
 export interface TopStoreItem {
+  /** null when the store row no longer exists */
   company: {
     id: number;
     uuid: string;
-    name: string;
-  };
+    name: string | null;
+  } | null;
   quantity_sold: number;
   revenue: number;
   order_count: number;
@@ -57,25 +58,23 @@ export interface TopProductsFilters extends StatisticsFilters {
   limit?: number;
 }
 
+export interface StatisticsCpv {
+  id: number;
+  uuid: string;
+  title: string | null;
+  main_image: string | null;
+}
+
 export interface TopSellingProduct {
-  cpv: {
-    id: number;
-    uuid: string;
-    title: string;
-    main_image: string | null;
-  };
+  /** null when the listing row no longer exists */
+  cpv: StatisticsCpv | null;
   quantity_sold: number;
   revenue: number;
   order_count: number;
 }
 
 export interface TopViewedProduct {
-  cpv: {
-    id: number;
-    uuid: string;
-    title: string;
-    main_image: string | null;
-  };
+  cpv: StatisticsCpv | null;
   view_count: number;
 }
 
@@ -111,9 +110,48 @@ export interface CancellationsFilters extends StatisticsFilters {
 }
 
 export interface CancellationsStatistics {
+  /** Fully cancelled orders + individually cancelled items */
   total_cancelled: number;
+  cancelled_orders: number;
+  cancelled_items: number;
   by_actor: { actor: string; count: number }[];
   top_reasons: { reason: string; count: number }[];
+}
+
+// ─── Commissions ──────────────────────────────────────────────────────────────
+
+export interface CommissionsFilters extends StatisticsFilters {
+  period?: OrderPeriod;
+  limit?: number;
+}
+
+export interface CommissionChartPoint {
+  date: string;
+  commission: number;
+  revenue: number;
+}
+
+export interface CommissionByCompany {
+  company: {
+    id: number;
+    uuid: string;
+    name: string | null;
+  } | null;
+  commission: number;
+  revenue: number;
+}
+
+export interface CommissionsStatistics {
+  summary: {
+    total_commission: number;
+    total_revenue: number;
+    /** Commission as a share of revenue over the period */
+    effective_rate: number;
+    /** > 0 means old order items still need the backfill command */
+    items_without_snapshot: number;
+  };
+  chart: CommissionChartPoint[];
+  by_company: CommissionByCompany[];
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -165,6 +203,13 @@ async function getCancellationsStatistics(filters: CancellationsFilters) {
   return res.data as CancellationsStatistics;
 }
 
+async function getCommissionsStatistics(filters: CommissionsFilters) {
+  const res = await controlPrivateApi.get(
+    `/statistics/commissions?${buildParams(filters)}`,
+  );
+  return res.data as CommissionsStatistics;
+}
+
 // ─── Query options ────────────────────────────────────────────────────────────
 
 export const ordersStatisticsQueryOptions = (
@@ -208,6 +253,15 @@ export const cancellationsStatisticsQueryOptions = (
     staleTime: 2 * 60 * 1000,
   });
 
+export const commissionsStatisticsQueryOptions = (
+  filters: CommissionsFilters,
+) =>
+  queryOptions({
+    queryKey: ["statistics", "commissions", filters],
+    queryFn: () => getCommissionsStatistics(filters),
+    staleTime: 2 * 60 * 1000,
+  });
+
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
 export function useOrdersStatistics(filters: OrdersStatisticsFilters) {
@@ -228,4 +282,8 @@ export function useUsersStatistics(filters: UsersStatisticsFilters) {
 
 export function useCancellationsStatistics(filters: CancellationsFilters) {
   return useQuery(cancellationsStatisticsQueryOptions(filters));
+}
+
+export function useCommissionsStatistics(filters: CommissionsFilters) {
+  return useQuery(commissionsStatisticsQueryOptions(filters));
 }

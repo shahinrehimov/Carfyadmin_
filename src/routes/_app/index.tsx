@@ -25,6 +25,7 @@ import {
   UserCheck,
   XCircle,
   TrendingUp,
+  Percent,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -33,7 +34,9 @@ import {
   useTopProducts,
   useUsersStatistics,
   useCancellationsStatistics,
+  useCommissionsStatistics,
   type OrderPeriod,
+  type StatisticsCpv,
 } from "@/lib/queries/statistics";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -94,15 +97,57 @@ function StatCard({ title, value, icon, color, loading }: StatCardProps) {
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-muted-foreground truncate text-sm">{title}</p>
+          <p className="text-muted-foreground truncate text-sm" title={title}>
+            {title}
+          </p>
           {loading ? (
             <div className="bg-muted mt-1 h-6 w-24 animate-pulse rounded" />
           ) : (
-            <p className="truncate text-2xl font-bold">{value}</p>
+            <p className="truncate text-2xl font-bold" title={String(value)}>
+              {value}
+            </p>
           )}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ─── Product list row ────────────────────────────────────────────────────────
+
+interface ProductRowProps {
+  rank: number;
+  cpv: StatisticsCpv | null;
+  value: string;
+  valueClassName: string;
+  sub: string;
+}
+
+function ProductRow({ rank, cpv, value, valueClassName, sub }: ProductRowProps) {
+  return (
+    <div className="hover:bg-muted/30 flex items-center gap-3 px-5 py-3 transition-colors">
+      <span className="text-muted-foreground w-5 shrink-0 text-center text-sm font-semibold">
+        {rank}
+      </span>
+      {cpv?.main_image ? (
+        <img
+          src={cpv.main_image}
+          alt=""
+          className="h-9 w-9 shrink-0 rounded-md object-cover"
+        />
+      ) : (
+        <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-md">
+          <Package size={16} className="text-muted-foreground" />
+        </div>
+      )}
+      <p className="min-w-0 flex-1 truncate text-sm font-medium">
+        {cpv?.title ?? "—"}
+      </p>
+      <div className="shrink-0 text-right text-xs">
+        <p className={`font-semibold ${valueClassName}`}>{value}</p>
+        <p className="text-muted-foreground">{sub}</p>
+      </div>
+    </div>
   );
 }
 
@@ -185,6 +230,8 @@ function DashboardPage() {
   });
   const { data: cancellations, isLoading: cancellationsLoading } =
     useCancellationsStatistics({ ...sharedFilters });
+  const { data: commissions, isLoading: commissionsLoading } =
+    useCommissionsStatistics({ ...sharedFilters, period, limit: 5 });
 
   const orderChart = (ordersData?.chart ?? []).map((p) => ({
     ...p,
@@ -196,10 +243,15 @@ function DashboardPage() {
     date: formatDate(p.date, period),
   }));
 
+  const commissionChart = (commissions?.chart ?? []).map((p) => ({
+    ...p,
+    date: formatDate(p.date, period),
+  }));
+
   // Flatten nested company object so recharts dataKey works (company.name is nested + can be null)
-  const storesChart = (topStores ?? []).map((s) => ({
+  const storesChart = (topStores ?? []).map((s, i) => ({
     ...s,
-    companyName: s.company.name ?? `#${s.company.id}`,
+    companyName: s.company?.name ?? (s.company ? `#${s.company.id}` : `#${i + 1}`),
   }));
 
   // Labels used inside recharts `name` props and tooltip comparisons
@@ -242,7 +294,7 @@ function DashboardPage() {
       </div>
 
       {/* ── KPI cards ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 2xl:grid-cols-6">
         <StatCard
           title={t("total_orders")}
           value={ordersData?.summary.total_orders ?? "—"}
@@ -582,6 +634,142 @@ function DashboardPage() {
         </Card>
       </div>
 
+      {/* ── Platform commission ── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Percent size={18} className="text-violet-500" />
+            {t("commission_income")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {commissionsLoading ? (
+            <ChartSkeleton height={260} />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {/* Totals + top earners */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border p-3">
+                    <p className="text-2xl font-bold text-violet-600">
+                      {formatAZN(commissions?.summary.total_commission ?? 0)}
+                    </p>
+                    <p className="text-muted-foreground mt-0.5 text-xs">
+                      {t("total_commission")}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <p className="text-2xl font-bold">
+                      {(commissions?.summary.effective_rate ?? 0).toFixed(1)}%
+                    </p>
+                    <p className="text-muted-foreground mt-0.5 text-xs">
+                      {t("effective_commission_rate")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-muted-foreground text-xs font-medium">
+                    {t("top_commission_stores")}
+                  </p>
+                  {(commissions?.by_company ?? []).map((row, i) => (
+                    <div
+                      key={row.company?.id ?? i}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <span className="min-w-0 truncate">
+                        {row.company?.name ??
+                          (row.company ? `#${row.company.id}` : "—")}
+                      </span>
+                      <span className="shrink-0 font-semibold text-violet-600">
+                        {formatAZN(row.commission)}
+                      </span>
+                    </div>
+                  ))}
+                  {(commissions?.by_company ?? []).length === 0 && (
+                    <p className="text-muted-foreground text-xs">
+                      {labelNoData}
+                    </p>
+                  )}
+                </div>
+
+                {/* Only shown while historical orders are still missing their snapshot */}
+                {(commissions?.summary.items_without_snapshot ?? 0) > 0 && (
+                  <p className="text-xs text-amber-600">
+                    {t("commission_missing_snapshot")}:{" "}
+                    {commissions?.summary.items_without_snapshot}
+                  </p>
+                )}
+              </div>
+
+              {/* Commission over time */}
+              <div className="lg:col-span-2">
+                {commissionChart.length === 0 ? (
+                  <div className="text-muted-foreground flex h-[240px] items-center justify-center text-sm">
+                    {labelNoData}
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <AreaChart
+                      data={commissionChart}
+                      margin={{ top: 4, right: 16, left: 0, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="gradCommission"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8b5cf6"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#8b5cf6"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 12 }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12 }}
+                        tickLine={false}
+                        tickFormatter={(v) => `${v}₼`}
+                      />
+                      <Tooltip
+                        formatter={(value, name) => [
+                          formatAZN(Number(value)),
+                          name,
+                        ]}
+                      />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="commission"
+                        name={t("commission")}
+                        stroke="#8b5cf6"
+                        fill="url(#gradCommission)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* ── Top products ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Top selling */}
@@ -597,36 +785,14 @@ function DashboardPage() {
             ) : (
               <div className="divide-border divide-y">
                 {(topProducts?.top_selling ?? []).map((item, i) => (
-                  <div
-                    key={item.cpv.id}
-                    className="hover:bg-muted/30 flex items-center gap-3 px-5 py-3 transition-colors"
-                  >
-                    <span className="text-muted-foreground w-5 shrink-0 text-center text-sm font-semibold">
-                      {i + 1}
-                    </span>
-                    {item.cpv.main_image ? (
-                      <img
-                        src={item.cpv.main_image}
-                        alt=""
-                        className="h-9 w-9 shrink-0 rounded-md object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-md">
-                        <Package size={16} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                      {item.cpv.title}
-                    </p>
-                    <div className="shrink-0 text-right text-xs">
-                      <p className="font-semibold text-emerald-600">
-                        {formatAZN(item.revenue)}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {item.quantity_sold} {t("pcs")}
-                      </p>
-                    </div>
-                  </div>
+                  <ProductRow
+                    key={item.cpv?.id ?? i}
+                    rank={i + 1}
+                    cpv={item.cpv}
+                    value={formatAZN(item.revenue)}
+                    valueClassName="text-emerald-600"
+                    sub={`${item.quantity_sold} ${t("pcs")}`}
+                  />
                 ))}
                 {(topProducts?.top_selling ?? []).length === 0 && (
                   <p className="text-muted-foreground p-5 text-center text-sm">
@@ -651,34 +817,14 @@ function DashboardPage() {
             ) : (
               <div className="divide-border divide-y">
                 {(topProducts?.top_viewed ?? []).map((item, i) => (
-                  <div
-                    key={item.cpv.id}
-                    className="hover:bg-muted/30 flex items-center gap-3 px-5 py-3 transition-colors"
-                  >
-                    <span className="text-muted-foreground w-5 shrink-0 text-center text-sm font-semibold">
-                      {i + 1}
-                    </span>
-                    {item.cpv.main_image ? (
-                      <img
-                        src={item.cpv.main_image}
-                        alt=""
-                        className="h-9 w-9 shrink-0 rounded-md object-cover"
-                      />
-                    ) : (
-                      <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-md">
-                        <Package size={16} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                      {item.cpv.title}
-                    </p>
-                    <div className="shrink-0 text-right text-xs">
-                      <p className="font-semibold text-indigo-600">
-                        {item.view_count.toLocaleString()}
-                      </p>
-                      <p className="text-muted-foreground">{t("views")}</p>
-                    </div>
-                  </div>
+                  <ProductRow
+                    key={item.cpv?.id ?? i}
+                    rank={i + 1}
+                    cpv={item.cpv}
+                    value={item.view_count.toLocaleString()}
+                    valueClassName="text-indigo-600"
+                    sub={t("views")}
+                  />
                 ))}
                 {(topProducts?.top_viewed ?? []).length === 0 && (
                   <p className="text-muted-foreground p-5 text-center text-sm">

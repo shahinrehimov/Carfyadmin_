@@ -27,6 +27,15 @@ interface EditProps {
 const EditFormSchema = z.object({
   slug: z.string().optional(),
   sort: z.number().min(0, "Sort must be 0 or greater"),
+  // Empty string = inherit the platform rate
+  commission_percent: z
+    .string()
+    .refine(
+      (val) =>
+        val === "" ||
+        (!Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100),
+      { message: "0 - 100" },
+    ),
   translations: z.array(
     z.object({
       language_id: z.number(),
@@ -52,6 +61,7 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
     defaultValues: {
       slug: "",
       sort: 0,
+      commission_percent: "",
       translations: langs.map((lang: any) => ({
         language_id: lang.id,
         title: "",
@@ -67,6 +77,11 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
       form.reset({
         slug: subCategoryData.slug || "",
         sort: subCategoryData.sort || 0,
+        commission_percent:
+          subCategoryData.commission_percent === null ||
+          subCategoryData.commission_percent === undefined
+            ? ""
+            : String(subCategoryData.commission_percent),
         translations:
           subCategoryData.translations?.map((translation: any) => ({
             language_id: translation.language_id,
@@ -94,6 +109,11 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
         translations: data.translations,
         slug: data.slug,
         sort: data.sort,
+        // Empty means "no category override" — send null so the API clears it
+        commission_percent:
+          data.commission_percent === ""
+            ? null
+            : Number(data.commission_percent),
       };
 
       // Only include image if a new file was selected
@@ -190,6 +210,30 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
                       }
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="commission_percent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("commission_percent")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      placeholder="—"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    {t("commission_percent_hint")}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

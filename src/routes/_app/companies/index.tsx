@@ -224,6 +224,9 @@ function RouteComponent() {
             <TableHead className="font-medium">{t("voen")}</TableHead>
             <TableHead className="font-medium">{t("email")}</TableHead>
             <TableHead className="font-medium">{t("phone")}</TableHead>
+            <TableHead className="font-medium">
+              {t("commission_percent")}
+            </TableHead>
             <TableHead className="font-medium">{t("verified")}</TableHead>
             <TableHead className="font-medium">{t("status")}</TableHead>
             <TableHead className="font-medium">{t("created_date")}</TableHead>
@@ -250,6 +253,9 @@ function RouteComponent() {
                 </TableCell>
                 <TableCell>
                   <div className="animate-pulse h-4 bg-gray-300 rounded w-3/4"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="animate-pulse h-4 bg-gray-300 rounded w-12"></div>
                 </TableCell>
                 <TableCell>
                   <div className="animate-pulse h-4 bg-gray-300 rounded w-16"></div>
@@ -282,6 +288,17 @@ function RouteComponent() {
                 <TableCell>{company.voen}</TableCell>
                 <TableCell>{company.email}</TableCell>
                 <TableCell>{company.phone}</TableCell>
+                <TableCell>
+                  {company.commission_percent === null ? (
+                    <span className="text-muted-foreground text-sm">
+                      {t("inherited")}
+                    </span>
+                  ) : (
+                    <span className="font-medium">
+                      {company.commission_percent}%
+                    </span>
+                  )}
+                </TableCell>
                 <TableCell>
                   {company.is_verified ? (
                     <Badge variant="default" className="bg-green-600">
@@ -357,7 +374,7 @@ function RouteComponent() {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={9}>
+              <TableCell colSpan={10}>
                 <NoData />
               </TableCell>
             </TableRow>
