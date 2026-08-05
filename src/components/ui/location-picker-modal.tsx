@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { X, MapPin, LocateFixed, Loader2 } from "lucide-react";
+import { X, MapPin, LocateFixed, Loader2, Search } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -78,6 +78,31 @@ function MapFlyTo({ target }: { target: [number, number] | null }) {
   return null;
 }
 
+interface NominatimSearchResult {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
+async function searchLocations(query: string): Promise<NominatimSearchResult[]> {
+  const params = new URLSearchParams({
+    format: "json",
+    q: query,
+    limit: "5",
+    addressdetails: "1",
+    countrycodes: "az",
+  });
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?${params}`,
+    { headers: { "Accept-Language": "az,en" } },
+  );
+  if (!response.ok) {
+    throw new Error("Search request failed");
+  }
+  return response.json();
+}
+
 const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   isOpen,
   onClose,
@@ -98,10 +123,19 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   >(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<NominatimSearchResult[]>(
+    [],
+  );
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const locationWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
   const geolocationWatchIdRef = useRef<number | null>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchRequestIdRef = useRef(0);
+  const skipSearchRef = useRef(false);
   const { t } = useTranslation();
 
   // Some browsers (notably Chrome on macOS when system Location Services
@@ -113,11 +147,77 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
       if (locationWatchdogRef.current) {
         clearTimeout(locationWatchdogRef.current);
       }
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
       if (geolocationWatchIdRef.current != null && navigator.geolocation) {
         navigator.geolocation.clearWatch(geolocationWatchIdRef.current);
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (skipSearchRef.current) {
+      skipSearchRef.current = false;
+      return;
+    }
+
+    const query = searchQuery.trim();
+    if (query.length < 3) {
+      setSearchResults([]);
+      setSearchError("");
+      setIsSearching(false);
+      return;
+    }
+
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    searchDebounceRef.current = setTimeout(async () => {
+      const requestId = ++searchRequestIdRef.current;
+      setIsSearching(true);
+      setSearchError("");
+
+      try {
+        const results = await searchLocations(query);
+        if (requestId !== searchRequestIdRef.current) {
+          return;
+        }
+        if (results.length === 0) {
+          setSearchResults([]);
+          setSearchError(
+            t("no_search_results", "No locations found for this search."),
+          );
+        } else {
+          setSearchResults(results);
+          setSearchError("");
+        }
+      } catch (error) {
+        if (requestId !== searchRequestIdRef.current) {
+          return;
+        }
+        console.error("Location search error:", error);
+        setSearchResults([]);
+        setSearchError(
+          t(
+            "search_failed",
+            "Could not search for this address. Please try again.",
+          ),
+        );
+      } finally {
+        if (requestId === searchRequestIdRef.current) {
+          setIsSearching(false);
+        }
+      }
+    }, 400);
+
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, [searchQuery, t]);
 
   // Ensure map only renders on client side
   useEffect(() => {
@@ -308,6 +408,31 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
     );
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
+  const handleSelectSearchResult = (result: NominatimSearchResult) => {
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+    if (isNaN(lat) || isNaN(lng)) {
+      return;
+    }
+
+    skipSearchRef.current = true;
+    searchRequestIdRef.current += 1;
+
+    setPosition([lat, lng]);
+    setRecenterTarget([lat, lng]);
+    setSearchResults([]);
+    setSearchQuery(result.display_name?.split(",")[0] || searchQuery);
+    setSearchError("");
+    setIsSearching(false);
+    if (result.display_name) {
+      setAddress(result.display_name);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -342,7 +467,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
         {/* Map Container */}
         <div
-          className="relative flex-1"
+          className="relative flex-1 overflow-visible"
           style={{ minHeight: "400px", height: "500px" }}
         >
           {!isClient ? (
@@ -352,7 +477,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               </div>
             </div>
           ) : (
-            <MapContainer
+            <div className="absolute inset-0 overflow-hidden">
+              <MapContainer
               center={position}
               zoom={13}
               style={{
@@ -374,28 +500,83 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               <MapResizer />
               <MapFlyTo target={recenterTarget} />
             </MapContainer>
+            </div>
           )}
 
           {isClient && (
-            <button
-              type="button"
-              onClick={handleUseCurrentLocation}
-              disabled={isLocating}
-              title={t("use_current_location", "Use my current location")}
-              className="absolute right-3 top-3 z-1000 flex items-center justify-center rounded-md border border-border bg-card p-2 shadow-md transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <>
+              <form
+                onSubmit={handleSearchSubmit}
+                className="absolute left-3 top-3 right-14 z-1001"
+              >
+                <div className="flex overflow-hidden rounded-md border border-border bg-card shadow-md">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t("search_location", "Search address...")}
+                    autoComplete="off"
+                    className="min-w-0 flex-1 bg-card px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                  />
+                  <div className="flex items-center justify-center border-l border-border px-2.5 text-muted-foreground">
+                    {isSearching ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                  </div>
+                </div>
+
+                {(searchResults.length > 0 ||
+                  (isSearching && searchQuery.trim().length >= 3)) && (
+                  <ul className="mt-1 max-h-48 overflow-y-auto rounded-md border border-border bg-card shadow-lg">
+                    {isSearching && searchResults.length === 0 ? (
+                      <li className="px-3 py-2 text-sm text-muted-foreground">
+                        {t("searching", "Searching...")}
+                      </li>
+                    ) : (
+                      searchResults.map((result) => (
+                        <li key={result.place_id}>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSearchResult(result)}
+                            className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                          >
+                            {result.display_name}
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
+              </form>
+
+              <button
+                type="button"
+                onClick={handleUseCurrentLocation}
+                disabled={isLocating}
+                title={t("use_current_location", "Use my current location")}
+                className="absolute right-3 top-3 z-1001 flex items-center justify-center rounded-md border border-border bg-card p-2 shadow-md transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+              >
               {isLocating ? (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               ) : (
                 <LocateFixed className="h-5 w-5 text-foreground" />
               )}
             </button>
+            </>
           )}
         </div>
 
         {locationError && (
           <div className="px-4 pt-3">
             <p className="text-sm text-destructive">{locationError}</p>
+          </div>
+        )}
+
+        {searchError && (
+          <div className="px-4 pt-3">
+            <p className="text-sm text-destructive">{searchError}</p>
           </div>
         )}
 
