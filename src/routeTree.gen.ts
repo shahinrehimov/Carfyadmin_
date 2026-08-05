@@ -38,6 +38,7 @@ import { Route as AppFaqsIndexImport } from './routes/_app/faqs/index'
 import { Route as AppCountriesIndexImport } from './routes/_app/countries/index'
 import { Route as AppContactMessagesIndexImport } from './routes/_app/contact-messages/index'
 import { Route as AppCompaniesIndexImport } from './routes/_app/companies/index'
+import { Route as AppCommissionTiersIndexImport } from './routes/_app/commission-tiers/index'
 import { Route as AppCategoriesIndexImport } from './routes/_app/categories/index'
 import { Route as AppCatalogsIndexImport } from './routes/_app/catalogs/index'
 import { Route as AppCarColorsIndexImport } from './routes/_app/car-colors/index'
@@ -230,6 +231,12 @@ const AppContactMessagesIndexRoute = AppContactMessagesIndexImport.update({
 const AppCompaniesIndexRoute = AppCompaniesIndexImport.update({
   id: '/companies/',
   path: '/companies/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppCommissionTiersIndexRoute = AppCommissionTiersIndexImport.update({
+  id: '/commission-tiers/',
+  path: '/commission-tiers/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -508,6 +515,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof AppCategoriesIndexImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/commission-tiers/': {
+      id: '/_app/commission-tiers/'
+      path: '/commission-tiers'
+      fullPath: '/commission-tiers'
+      preLoaderRoute: typeof AppCommissionTiersIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/companies/': {
@@ -838,6 +852,7 @@ interface AppRouteChildren {
   AppCarColorsIndexRoute: typeof AppCarColorsIndexRoute
   AppCatalogsIndexRoute: typeof AppCatalogsIndexRoute
   AppCategoriesIndexRoute: typeof AppCategoriesIndexRoute
+  AppCommissionTiersIndexRoute: typeof AppCommissionTiersIndexRoute
   AppCompaniesIndexRoute: typeof AppCompaniesIndexRoute
   AppContactMessagesIndexRoute: typeof AppContactMessagesIndexRoute
   AppCountriesIndexRoute: typeof AppCountriesIndexRoute
@@ -893,6 +908,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCarColorsIndexRoute: AppCarColorsIndexRoute,
   AppCatalogsIndexRoute: AppCatalogsIndexRoute,
   AppCategoriesIndexRoute: AppCategoriesIndexRoute,
+  AppCommissionTiersIndexRoute: AppCommissionTiersIndexRoute,
   AppCompaniesIndexRoute: AppCompaniesIndexRoute,
   AppContactMessagesIndexRoute: AppContactMessagesIndexRoute,
   AppCountriesIndexRoute: AppCountriesIndexRoute,
@@ -972,6 +988,7 @@ export interface FileRoutesByFullPath {
   '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
+  '/commission-tiers': typeof AppCommissionTiersIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
   '/countries': typeof AppCountriesIndexRoute
@@ -1031,6 +1048,7 @@ export interface FileRoutesByTo {
   '/car-colors': typeof AppCarColorsIndexRoute
   '/catalogs': typeof AppCatalogsIndexRoute
   '/categories': typeof AppCategoriesIndexRoute
+  '/commission-tiers': typeof AppCommissionTiersIndexRoute
   '/companies': typeof AppCompaniesIndexRoute
   '/contact-messages': typeof AppContactMessagesIndexRoute
   '/countries': typeof AppCountriesIndexRoute
@@ -1092,6 +1110,7 @@ export interface FileRoutesById {
   '/_app/car-colors/': typeof AppCarColorsIndexRoute
   '/_app/catalogs/': typeof AppCatalogsIndexRoute
   '/_app/categories/': typeof AppCategoriesIndexRoute
+  '/_app/commission-tiers/': typeof AppCommissionTiersIndexRoute
   '/_app/companies/': typeof AppCompaniesIndexRoute
   '/_app/contact-messages/': typeof AppContactMessagesIndexRoute
   '/_app/countries/': typeof AppCountriesIndexRoute
@@ -1154,6 +1173,7 @@ export interface FileRouteTypes {
     | '/car-colors'
     | '/catalogs'
     | '/categories'
+    | '/commission-tiers'
     | '/companies'
     | '/contact-messages'
     | '/countries'
@@ -1212,6 +1232,7 @@ export interface FileRouteTypes {
     | '/car-colors'
     | '/catalogs'
     | '/categories'
+    | '/commission-tiers'
     | '/companies'
     | '/contact-messages'
     | '/countries'
@@ -1271,6 +1292,7 @@ export interface FileRouteTypes {
     | '/_app/car-colors/'
     | '/_app/catalogs/'
     | '/_app/categories/'
+    | '/_app/commission-tiers/'
     | '/_app/companies/'
     | '/_app/contact-messages/'
     | '/_app/countries/'
@@ -1353,6 +1375,7 @@ export const routeTree = rootRoute
         "/_app/car-colors/",
         "/_app/catalogs/",
         "/_app/categories/",
+        "/_app/commission-tiers/",
         "/_app/companies/",
         "/_app/contact-messages/",
         "/_app/countries/",
@@ -1446,6 +1469,10 @@ export const routeTree = rootRoute
     },
     "/_app/categories/": {
       "filePath": "_app/categories/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/commission-tiers/": {
+      "filePath": "_app/commission-tiers/index.tsx",
       "parent": "/_app"
     },
     "/_app/companies/": {

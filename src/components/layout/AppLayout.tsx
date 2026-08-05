@@ -30,6 +30,7 @@ import {
   MessageSquare,
   MapPin,
   HelpCircle,
+  Percent,
 } from "lucide-react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Sidebar, SidebarGroup, SidebarItem } from "../ui/sidebar";
@@ -37,6 +38,7 @@ import { Header } from "../ui/header";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/utils/translationLoader";
+import { useAuthStore } from "@/store/auth";
 
 interface AppLayoutProps {
   children?: ReactNode;
@@ -45,6 +47,11 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobileView = useMediaQuery("(width<48rem)");
   const { t } = useTranslation();
+  const user = useAuthStore((state) => state.user);
+
+  // The global commission tiers endpoint is restricted to admins, so a
+  // marketing user would only reach a 403 from the menu.
+  const isAdmin = user?.roles?.some((role) => role.name === "Admin") ?? false;
 
   const sidebarGroupsBeforeProducts = [
     {
@@ -187,6 +194,14 @@ export function AppLayout({ children }: AppLayoutProps) {
             items={group.items}
           />
         ))}
+
+        {isAdmin && (
+          <SidebarItem
+            icon={<Percent />}
+            label={t("global_commission_tiers")}
+            href="/commission-tiers"
+          />
+        )}
 
         <SidebarItem
           icon={<SettingsIcon />}

@@ -1,5 +1,30 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { controlPrivateApi } from "../axios/controlPrivateApi";
+import type { CommissionTier } from "@/components/ui/commission-tiers-editor";
+
+/**
+ * These forms post multipart (they carry an image), so the tier array goes in
+ * bracket notation. An empty array still has to reach the API — that is how a
+ * category drops its tiers — and PHP only sees an empty array if we say so.
+ */
+function appendCommissionTiers(
+  formData: FormData,
+  tiers: Array<CommissionTier> | null | undefined,
+) {
+  if (!tiers || tiers.length === 0) {
+    formData.append("commission_tiers", "");
+    return;
+  }
+
+  tiers.forEach((tier, index) => {
+    formData.append(`commission_tiers[${index}][min_amount]`, String(tier.min_amount));
+    formData.append(
+      `commission_tiers[${index}][max_amount]`,
+      tier.max_amount === null ? "" : String(tier.max_amount),
+    );
+    formData.append(`commission_tiers[${index}][percent]`, String(tier.percent));
+  });
+}
 
 // Types
 export interface Category {
@@ -53,6 +78,8 @@ interface CreateCategoryRequest {
   sort: number;
   /** null clears the category override so the platform rate applies */
   commission_percent?: number | null;
+  /** empty clears the tiers so the flat rate applies again */
+  commission_tiers?: Array<CommissionTier>;
   image: File;
 }
 
@@ -65,6 +92,8 @@ interface UpdateCategoryRequest {
   sort: number;
   /** null clears the category override so the platform rate applies */
   commission_percent?: number | null;
+  /** empty clears the tiers so the flat rate applies again */
+  commission_tiers?: Array<CommissionTier>;
   image?: File;
 }
 
@@ -78,6 +107,8 @@ interface CreateSubCategoryRequest {
   sort: number;
   /** null clears the category override so the platform rate applies */
   commission_percent?: number | null;
+  /** empty clears the tiers so the flat rate applies again */
+  commission_tiers?: Array<CommissionTier>;
   image: File;
 }
 
@@ -90,6 +121,8 @@ interface UpdateSubCategoryRequest {
   sort: number;
   /** null clears the category override so the platform rate applies */
   commission_percent?: number | null;
+  /** empty clears the tiers so the flat rate applies again */
+  commission_tiers?: Array<CommissionTier>;
   image?: File;
 }
 
@@ -137,6 +170,7 @@ async function createCategory(data: CreateCategoryRequest) {
       ? ""
       : String(data.commission_percent),
   );
+  appendCommissionTiers(formData, data.commission_tiers);
   formData.append("image", data.image);
 
   const response = await controlPrivateApi.post("/categories/add", formData, {
@@ -164,6 +198,7 @@ async function updateCategory(id: number, data: UpdateCategoryRequest) {
       ? ""
       : String(data.commission_percent),
   );
+  appendCommissionTiers(formData, data.commission_tiers);
   if (data.image) formData.append("image", data.image);
 
   const response = await controlPrivateApi.post(`/categories/update/${id}`, formData, {
@@ -228,6 +263,7 @@ async function createSubCategory(data: CreateSubCategoryRequest) {
       ? ""
       : String(data.commission_percent),
   );
+  appendCommissionTiers(formData, data.commission_tiers);
   formData.append("image", data.image);
 
   const response = await controlPrivateApi.post("/categories/add", formData, {
@@ -255,6 +291,7 @@ async function updateSubCategory(id: number, data: UpdateSubCategoryRequest) {
       ? ""
       : String(data.commission_percent),
   );
+  appendCommissionTiers(formData, data.commission_tiers);
   if (data.image) formData.append("image", data.image);
 
   const response = await controlPrivateApi.post(`/categories/update/${id}`, formData, {

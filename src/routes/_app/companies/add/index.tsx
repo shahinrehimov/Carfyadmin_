@@ -17,6 +17,12 @@ import { useLangs } from "@/lib/queries/langs";
 import { useCountries, useCities } from "@/lib/queries/countries";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LocationPickerModal from "@/components/ui/location-picker-modal";
+import {
+  CommissionTiersEditor,
+  rowsToTiers,
+  validateCommissionTiers,
+  type CommissionTierRow,
+} from "@/components/ui/commission-tiers-editor";
 
 export const Route = createFileRoute("/_app/companies/add/")({
   component: AddCompanyComponent,
@@ -32,6 +38,9 @@ function AddCompanyComponent() {
 
   const { data: countries = [] } = useCountries();
   const { data: cities = [] } = useCities(selectedCountryId);
+
+  const [commissionTiers, setCommissionTiers] = useState<CommissionTierRow[]>([]);
+  const [commissionTiersError, setCommissionTiersError] = useState<string | null>(null);
 
   // Zod validation schema
   const schema = z.object({
@@ -135,6 +144,16 @@ function AddCompanyComponent() {
       return;
     }
 
+    const tiersError = validateCommissionTiers(commissionTiers);
+
+    if (tiersError) {
+      setCommissionTiersError(tiersError);
+      toast.error(t(tiersError));
+      return;
+    }
+
+    setCommissionTiersError(null);
+
     try {
       const response = await createCompanyMutation.mutateAsync({
         ...data,
@@ -143,6 +162,7 @@ function AddCompanyComponent() {
           data.commission_percent === ""
             ? null
             : Number(data.commission_percent),
+        commission_tiers: rowsToTiers(commissionTiers),
       });
       toast.success(response.message || t("company_created_successfully"));
       router.navigate({ to: "/companies" });
@@ -377,6 +397,18 @@ function AddCompanyComponent() {
               />
               <Label htmlFor="is_active">{t("is_active")}</Label>
             </div>
+          </div>
+
+          {/* Commission tiers */}
+          <div className="space-y-4 border rounded-lg p-6">
+            <CommissionTiersEditor
+              value={commissionTiers}
+              onChange={(rows) => {
+                setCommissionTiers(rows);
+                setCommissionTiersError(null);
+              }}
+              error={commissionTiersError}
+            />
           </div>
 
           {/* Translations */}

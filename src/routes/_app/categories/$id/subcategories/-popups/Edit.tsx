@@ -17,6 +17,13 @@ import { useUpdateSubCategory, useSubCategory } from "@/lib/queries/categories";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { useLangs } from "@/lib/queries/langs";
 import ImageUploader from "@/components/ui/image-uploader";
+import {
+  CommissionTiersEditor,
+  rowsToTiers,
+  tiersToRows,
+  validateCommissionTiers,
+  type CommissionTierRow,
+} from "@/components/ui/commission-tiers-editor";
 
 interface EditProps {
   categoryId: number;
@@ -56,6 +63,9 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
     preview?: string;
   }>({});
 
+  const [commissionTiers, setCommissionTiers] = useState<CommissionTierRow[]>([]);
+  const [commissionTiersError, setCommissionTiersError] = useState<string | null>(null);
+
   const form = useForm<EditFormData>({
     resolver: zodResolver(EditFormSchema),
     defaultValues: {
@@ -93,6 +103,9 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
           })),
       });
 
+      setCommissionTiers(tiersToRows(subCategoryData.commission_tiers));
+      setCommissionTiersError(null);
+
       // Set existing image if available
       if (subCategoryData.image) {
         setFile({
@@ -104,6 +117,16 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
   }, [subCategory, langs, form]);
 
   const onSubmit = async (data: EditFormData) => {
+    const tiersError = validateCommissionTiers(commissionTiers);
+
+    if (tiersError) {
+      setCommissionTiersError(tiersError);
+      toast.error(t(tiersError));
+      return;
+    }
+
+    setCommissionTiersError(null);
+
     try {
       const requestData: any = {
         translations: data.translations,
@@ -114,6 +137,7 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
           data.commission_percent === ""
             ? null
             : Number(data.commission_percent),
+        commission_tiers: rowsToTiers(commissionTiers),
       };
 
       // Only include image if a new file was selected
@@ -237,6 +261,15 @@ const Edit: React.FC<EditProps> = ({ subCategoryId, onClose }) => {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <CommissionTiersEditor
+              value={commissionTiers}
+              onChange={(rows) => {
+                setCommissionTiers(rows);
+                setCommissionTiersError(null);
+              }}
+              error={commissionTiersError}
             />
           </div>
 

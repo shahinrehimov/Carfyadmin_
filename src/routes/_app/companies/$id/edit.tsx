@@ -24,6 +24,13 @@ import { useLangs } from "@/lib/queries/langs";
 import { useCountries, useCities } from "@/lib/queries/countries";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LocationPickerModal from "@/components/ui/location-picker-modal";
+import {
+  CommissionTiersEditor,
+  rowsToTiers,
+  tiersToRows,
+  validateCommissionTiers,
+  type CommissionTierRow,
+} from "@/components/ui/commission-tiers-editor";
 
 export const Route = createFileRoute("/_app/companies/$id/edit")({
   component: EditCompanyComponent,
@@ -121,6 +128,8 @@ function EditCompanyComponent() {
 
   const [workingHours, setWorkingHours] = useState<WorkingHour[]>(defaultWorkingHours);
   const [isFormReady, setIsFormReady] = useState(false);
+  const [commissionTiers, setCommissionTiers] = useState<CommissionTierRow[]>([]);
+  const [commissionTiersError, setCommissionTiersError] = useState<string | null>(null);
 
   const cityOptions = useMemo(() => {
     const options = cities.map((c) => ({ value: String(c.id), label: c.title }));
@@ -180,6 +189,9 @@ function EditCompanyComponent() {
     } else {
       setWorkingHours(defaultWorkingHours);
     }
+
+    setCommissionTiers(tiersToRows(company.commission_tiers));
+    setCommissionTiersError(null);
 
     setIsFormReady(true);
   }, [company, langs, reset]);
@@ -245,6 +257,16 @@ function EditCompanyComponent() {
       return;
     }
 
+    const tiersError = validateCommissionTiers(commissionTiers);
+
+    if (tiersError) {
+      setCommissionTiersError(tiersError);
+      toast.error(t(tiersError));
+      return;
+    }
+
+    setCommissionTiersError(null);
+
     try {
       const response = await updateCompanyMutation.mutateAsync({
         id: Number(id),
@@ -255,6 +277,7 @@ function EditCompanyComponent() {
             data.commission_percent === ""
               ? null
               : Number(data.commission_percent),
+          commission_tiers: rowsToTiers(commissionTiers),
         },
       });
       toast.success(response.message || t("company_updated_successfully"));
@@ -509,6 +532,18 @@ function EditCompanyComponent() {
               />
               <Label htmlFor="is_active">{t("is_active")}</Label>
             </div>
+          </div>
+
+          {/* Commission tiers */}
+          <div className="space-y-4 border rounded-lg p-6">
+            <CommissionTiersEditor
+              value={commissionTiers}
+              onChange={(rows) => {
+                setCommissionTiers(rows);
+                setCommissionTiersError(null);
+              }}
+              error={commissionTiersError}
+            />
           </div>
 
           {/* Translations */}

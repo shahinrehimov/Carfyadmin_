@@ -17,6 +17,12 @@ import { useCreateSubCategory } from "@/lib/queries/categories";
 import { useTranslation } from "@/lib/utils/translationLoader";
 import { useLangs } from "@/lib/queries/langs";
 import ImageUploader from "@/components/ui/image-uploader";
+import {
+  CommissionTiersEditor,
+  rowsToTiers,
+  validateCommissionTiers,
+  type CommissionTierRow,
+} from "@/components/ui/commission-tiers-editor";
 
 interface AddProps {
   categoryId: number;
@@ -54,6 +60,9 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
     preview?: string;
   }>({});
 
+  const [commissionTiers, setCommissionTiers] = useState<CommissionTierRow[]>([]);
+  const [commissionTiersError, setCommissionTiersError] = useState<string | null>(null);
+
   const form = useForm<AddFormData>({
     resolver: zodResolver(AddFormSchema),
     defaultValues: {
@@ -89,6 +98,16 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
       return;
     }
 
+    const tiersError = validateCommissionTiers(commissionTiers);
+
+    if (tiersError) {
+      setCommissionTiersError(tiersError);
+      toast.error(t(tiersError));
+      return;
+    }
+
+    setCommissionTiersError(null);
+
     try {
       const response = await createSubCategoryMutation.mutateAsync({
         category_id: categoryId,
@@ -100,6 +119,7 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
           data.commission_percent === ""
             ? null
             : Number(data.commission_percent),
+        commission_tiers: rowsToTiers(commissionTiers),
         image: file.file,
       });
       toast.success(response.message || t("subcategory_created_successfully"));
@@ -202,6 +222,15 @@ const Add: React.FC<AddProps> = ({ categoryId, onClose }) => {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <CommissionTiersEditor
+              value={commissionTiers}
+              onChange={(rows) => {
+                setCommissionTiers(rows);
+                setCommissionTiersError(null);
+              }}
+              error={commissionTiersError}
             />
           </div>
 

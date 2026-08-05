@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { controlPrivateApi } from "../axios/controlPrivateApi";
+import type { CommissionTier } from "@/components/ui/commission-tiers-editor";
 
 // Types
 export interface Company {
@@ -46,6 +47,8 @@ export interface CompanyDetails {
   is_active: boolean;
   /** null = inherits the category rate, or the platform default */
   commission_percent: number | null;
+  /** empty = no tiers, the flat rate above applies */
+  commission_tiers: Array<CommissionTier>;
   logo: string | null;
   banner: string | null;
   translations: Array<{
@@ -87,6 +90,8 @@ interface CreateCompanyRequest {
   is_active: boolean;
   /** null = no seller override, the category / platform rate applies */
   commission_percent: number | null;
+  /** empty = no tiers, the flat rate applies */
+  commission_tiers: Array<CommissionTier>;
   city_id: number;
   translations: Array<{
     language_id: number;
@@ -110,6 +115,8 @@ interface UpdateCompanyRequest {
   is_active: boolean;
   /** null clears the seller override so the category / platform rate applies */
   commission_percent: number | null;
+  /** empty clears the tiers so the flat rate applies again */
+  commission_tiers: Array<CommissionTier>;
   city_id: number;
   translations: Array<{
     language_id: number;
