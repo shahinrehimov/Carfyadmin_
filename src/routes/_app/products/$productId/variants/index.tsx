@@ -606,6 +606,8 @@ function RouteComponent() {
               <TableHead>{t("title")}</TableHead>
               <TableHead>{t("seller")}</TableHead>
               <TableHead>{t("price")}</TableHead>
+              <TableHead>{t("commission", "Komissiya")}</TableHead>
+              <TableHead>{t("site_price", "Saytda qiymət")}</TableHead>
               <TableHead>{t("stock")}</TableHead>
               <TableHead>{t("city")}</TableHead>
               <TableHead>{t("fitment") || "Uyğunluq"}</TableHead>
@@ -667,6 +669,18 @@ function RouteComponent() {
                         </span>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-500">
+                    {cpv.commission_percent != null
+                      ? `${cpv.commission_percent}%`
+                      : "—"}
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium">
+                      {cpv.site_price_final != null
+                        ? `${cpv.site_price_final} ₼`
+                        : "—"}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={cpv.stock > 0 ? "default" : "destructive"}>
@@ -775,7 +789,7 @@ function RouteComponent() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={12}
+                  colSpan={14}
                   className="py-12 text-center text-gray-500"
                 >
                   {t("no_data_found")}

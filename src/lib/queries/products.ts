@@ -271,6 +271,9 @@ export interface AdminCPV {
   stock: number;
   price: number;
   price_final: number;
+  commission_percent: number;
+  site_price: number;
+  site_price_final: number;
   discount: number;
   discount_type: string | null;
   discount_type_title: string | null;
