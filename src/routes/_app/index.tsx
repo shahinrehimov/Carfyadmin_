@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useMediaQuery } from "@uidotdev/usehooks";
 import {
   AreaChart,
   Area,
@@ -89,21 +90,27 @@ interface StatCardProps {
 function StatCard({ title, value, icon, color, loading }: StatCardProps) {
   return (
     <Card>
-      <CardContent className="flex items-center gap-4 p-5">
+      <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12"
           style={{ backgroundColor: `${color}18`, color }}
         >
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-muted-foreground truncate text-sm" title={title}>
+          <p
+            className="text-muted-foreground truncate text-xs sm:text-sm"
+            title={title}
+          >
             {title}
           </p>
           {loading ? (
             <div className="bg-muted mt-1 h-6 w-24 animate-pulse rounded" />
           ) : (
-            <p className="truncate text-2xl font-bold" title={String(value)}>
+            <p
+              className="truncate text-lg font-bold sm:text-2xl"
+              title={String(value)}
+            >
               {value}
             </p>
           )}
@@ -125,7 +132,7 @@ interface ProductRowProps {
 
 function ProductRow({ rank, cpv, value, valueClassName, sub }: ProductRowProps) {
   return (
-    <div className="hover:bg-muted/30 flex items-center gap-3 px-5 py-3 transition-colors">
+    <div className="hover:bg-muted/30 flex items-center gap-2 px-3 py-3 transition-colors sm:gap-3 sm:px-5">
       <span className="text-muted-foreground w-5 shrink-0 text-center text-sm font-semibold">
         {rank}
       </span>
@@ -170,15 +177,15 @@ function PeriodTabs({ value, onChange }: PeriodTabsProps) {
   };
 
   return (
-    <div className="bg-muted flex rounded-lg p-1 text-sm">
+    <div className="bg-muted flex w-full rounded-lg p-1 text-sm sm:w-auto">
       {PERIOD_VALUES.map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
           className={
             value === p
-              ? "bg-background rounded-md px-3 py-1 font-medium shadow-sm transition-all"
-              : "text-muted-foreground rounded-md px-3 py-1 transition-all hover:text-foreground"
+              ? "bg-background flex-1 rounded-md px-2 py-1.5 font-medium shadow-sm transition-all sm:flex-none sm:px-3 sm:py-1"
+              : "text-muted-foreground flex-1 rounded-md px-2 py-1.5 transition-all hover:text-foreground sm:flex-none sm:px-3 sm:py-1"
           }
         >
           {periodLabels[p]}
@@ -200,6 +207,7 @@ function ChartSkeleton({ height = 280 }: { height?: number }) {
 
 function DashboardPage() {
   const { t } = useTranslation();
+  const isMobile = useMediaQuery("(width<48rem)");
 
   const today = new Date().toISOString().slice(0, 10);
   const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -261,32 +269,38 @@ function DashboardPage() {
   const labelCount = t("count");
   const labelNoData = t("no_data_found");
 
+  const chartHeight = isMobile ? 220 : 280;
+  const chartTickSize = isMobile ? 10 : 12;
+  const areaChartMargin = isMobile
+    ? { top: 4, right: 8, left: -16, bottom: 0 }
+    : { top: 4, right: 16, left: 0, bottom: 0 };
+
   return (
-    <div className="space-y-6 p-6">
+    <div className="min-w-0 space-y-4 sm:space-y-6">
       {/* ── Header ── */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t("dashboard")}</h1>
+          <h1 className="text-xl font-bold sm:text-2xl">{t("dashboard")}</h1>
           <p className="text-muted-foreground text-sm">
             {t("platform_general_statistics")}
           </p>
         </div>
 
         {/* Date range filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 sm:flex sm:w-auto">
             <DatePicker
               value={dateFrom}
               onChange={(v) => v && setDateFrom(v)}
               placeholder={t("date_from")}
-              className="w-[9.5rem]"
+              className="w-full sm:w-[9.5rem]"
             />
-            <span className="text-muted-foreground select-none">—</span>
+            <span className="text-muted-foreground shrink-0 select-none">—</span>
             <DatePicker
               value={dateTo}
               onChange={(v) => v && setDateTo(v)}
               placeholder={t("date_to")}
-              className="w-[9.5rem]"
+              className="w-full sm:w-[9.5rem]"
             />
           </div>
           <PeriodTabs value={period} onChange={setPeriod} />
@@ -294,7 +308,7 @@ function DashboardPage() {
       </div>
 
       {/* ── KPI cards ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-6">
         <StatCard
           title={t("total_orders")}
           value={ordersData?.summary.total_orders ?? "—"}
@@ -349,14 +363,14 @@ function DashboardPage() {
             {t("order_dynamics")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {ordersLoading ? (
-            <ChartSkeleton />
+            <ChartSkeleton height={chartHeight} />
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={chartHeight} minWidth={0}>
               <AreaChart
                 data={orderChart}
-                margin={{ top: 4, right: 16, left: 0, bottom: 0 }}
+                margin={areaChartMargin}
               >
                 <defs>
                   <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -387,19 +401,22 @@ function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: chartTickSize }}
                   tickLine={false}
+                  interval={isMobile ? "preserveStartEnd" : "preserveEnd"}
                 />
                 <YAxis
                   yAxisId="left"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: chartTickSize }}
                   tickLine={false}
+                  width={isMobile ? 28 : 60}
                 />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: chartTickSize }}
                   tickLine={false}
+                  width={isMobile ? 36 : 60}
                   tickFormatter={(v) => `${v}₼`}
                 />
                 <Tooltip
@@ -409,7 +426,7 @@ function DashboardPage() {
                     return [value, name];
                   }}
                 />
-                <Legend />
+                {!isMobile && <Legend />}
                 <Area
                   yAxisId="left"
                   type="monotone"
@@ -444,22 +461,27 @@ function DashboardPage() {
             {t("user_registrations")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {usersLoading ? (
-            <ChartSkeleton height={220} />
+            <ChartSkeleton height={isMobile ? 180 : 220} />
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={isMobile ? 180 : 220} minWidth={0}>
               <LineChart
                 data={userChart}
-                margin={{ top: 4, right: 16, left: 0, bottom: 0 }}
+                margin={areaChartMargin}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: chartTickSize }}
                   tickLine={false}
+                  interval={isMobile ? "preserveStartEnd" : "preserveEnd"}
                 />
-                <YAxis tick={{ fontSize: 12 }} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: chartTickSize }}
+                  tickLine={false}
+                  width={isMobile ? 28 : 60}
+                />
                 <Tooltip />
                 <Line
                   type="monotone"
@@ -483,15 +505,20 @@ function DashboardPage() {
           <CardHeader>
             <CardTitle>{t("top_selling_stores")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             {storesLoading ? (
-              <ChartSkeleton height={280} />
+              <ChartSkeleton height={chartHeight} />
             ) : (
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={chartHeight} minWidth={0}>
                 <BarChart
                   data={storesChart}
                   layout="vertical"
-                  margin={{ top: 0, right: 16, left: 8, bottom: 0 }}
+                  margin={{
+                    top: 0,
+                    right: isMobile ? 8 : 16,
+                    left: 0,
+                    bottom: 0,
+                  }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -500,16 +527,16 @@ function DashboardPage() {
                   />
                   <XAxis
                     type="number"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: isMobile ? 10 : 11 }}
                     tickLine={false}
                     tickFormatter={(v) => `${v}₼`}
                   />
                   <YAxis
                     type="category"
                     dataKey="companyName"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: isMobile ? 10 : 11 }}
                     tickLine={false}
-                    width={110}
+                    width={isMobile ? 72 : 110}
                   />
                   <Tooltip
                     formatter={(value, name) => {
@@ -518,7 +545,7 @@ function DashboardPage() {
                       return [value, name];
                     }}
                   />
-                  <Legend />
+                  {!isMobile && <Legend />}
                   <Bar
                     dataKey="revenue"
                     name={labelRevenue}
@@ -548,17 +575,17 @@ function DashboardPage() {
             ) : (
               <>
                 {/* By actor pie */}
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
                   <div className="shrink-0">
-                    <PieChart width={140} height={140}>
+                    <PieChart width={isMobile ? 120 : 140} height={isMobile ? 120 : 140}>
                       <Pie
                         data={cancellations?.by_actor ?? []}
                         dataKey="count"
                         nameKey="actor"
                         cx="50%"
                         cy="50%"
-                        innerRadius={40}
-                        outerRadius={62}
+                        innerRadius={isMobile ? 32 : 40}
+                        outerRadius={isMobile ? 50 : 62}
                       >
                         {(cancellations?.by_actor ?? []).map((_, i) => (
                           <Cell
@@ -570,7 +597,7 @@ function DashboardPage() {
                       <Tooltip />
                     </PieChart>
                   </div>
-                  <div className="space-y-2 text-sm">
+                  <div className="w-full space-y-2 text-sm sm:w-auto">
                     {(cancellations?.by_actor ?? []).map((item, i) => (
                       <div key={item.actor} className="flex items-center gap-2">
                         <span
@@ -595,12 +622,13 @@ function DashboardPage() {
 
                 {/* Top reasons bar */}
                 {(cancellations?.top_reasons ?? []).length > 0 && (
-                  <ResponsiveContainer width="100%" height={130}>
-                    <BarChart
-                      data={cancellations?.top_reasons ?? []}
-                      layout="vertical"
-                      margin={{ top: 0, right: 8, left: 8, bottom: 0 }}
-                    >
+                  <div className="overflow-x-auto">
+                    <ResponsiveContainer width="100%" height={isMobile ? 160 : 130} minWidth={0}>
+                      <BarChart
+                        data={cancellations?.top_reasons ?? []}
+                        layout="vertical"
+                        margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
+                      >
                       <CartesianGrid
                         strokeDasharray="3 3"
                         horizontal={false}
@@ -614,9 +642,9 @@ function DashboardPage() {
                       <YAxis
                         type="category"
                         dataKey="reason"
-                        tick={{ fontSize: 10 }}
+                        tick={{ fontSize: isMobile ? 9 : 10 }}
                         tickLine={false}
-                        width={140}
+                        width={isMobile ? 96 : 140}
                       />
                       <Tooltip />
                       <Bar
@@ -627,6 +655,7 @@ function DashboardPage() {
                       />
                     </BarChart>
                   </ResponsiveContainer>
+                  </div>
                 )}
               </>
             )}
@@ -649,9 +678,9 @@ function DashboardPage() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Totals + top earners */}
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
                   <div className="rounded-lg border p-3">
-                    <p className="text-2xl font-bold text-violet-600">
+                    <p className="text-xl font-bold text-violet-600 sm:text-2xl">
                       {formatAZN(commissions?.summary.total_commission ?? 0)}
                     </p>
                     <p className="text-muted-foreground mt-0.5 text-xs">
@@ -659,7 +688,7 @@ function DashboardPage() {
                     </p>
                   </div>
                   <div className="rounded-lg border p-3">
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl font-bold sm:text-2xl">
                       {(commissions?.summary.effective_rate ?? 0).toFixed(1)}%
                     </p>
                     <p className="text-muted-foreground mt-0.5 text-xs">
@@ -705,14 +734,19 @@ function DashboardPage() {
               {/* Commission over time */}
               <div className="lg:col-span-2">
                 {commissionChart.length === 0 ? (
-                  <div className="text-muted-foreground flex h-[240px] items-center justify-center text-sm">
+                  <div className="text-muted-foreground flex h-[200px] items-center justify-center text-sm sm:h-[240px]">
                     {labelNoData}
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height={240}>
+                  <div className="overflow-x-auto">
+                    <ResponsiveContainer
+                      width="100%"
+                      height={isMobile ? 200 : 240}
+                      minWidth={0}
+                    >
                     <AreaChart
                       data={commissionChart}
-                      margin={{ top: 4, right: 16, left: 0, bottom: 0 }}
+                      margin={areaChartMargin}
                     >
                       <defs>
                         <linearGradient
@@ -737,12 +771,14 @@ function DashboardPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis
                         dataKey="date"
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: chartTickSize }}
                         tickLine={false}
+                        interval={isMobile ? "preserveStartEnd" : "preserveEnd"}
                       />
                       <YAxis
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: chartTickSize }}
                         tickLine={false}
+                        width={isMobile ? 36 : 60}
                         tickFormatter={(v) => `${v}₼`}
                       />
                       <Tooltip
@@ -751,7 +787,7 @@ function DashboardPage() {
                           name,
                         ]}
                       />
-                      <Legend />
+                      {!isMobile && <Legend />}
                       <Area
                         type="monotone"
                         dataKey="commission"
@@ -763,6 +799,7 @@ function DashboardPage() {
                       />
                     </AreaChart>
                   </ResponsiveContainer>
+                  </div>
                 )}
               </div>
             </div>
