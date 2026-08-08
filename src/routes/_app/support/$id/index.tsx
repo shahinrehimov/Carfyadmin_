@@ -134,7 +134,7 @@ function TicketDetailComponent() {
   const isClosed = ticket.status === "closed";
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] flex-col gap-0 pt-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-0 pt-5">
       {/* Header */}
       <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
