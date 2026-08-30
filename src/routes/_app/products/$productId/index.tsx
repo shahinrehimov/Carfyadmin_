@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowLeft,
   CheckCircle,
@@ -185,12 +185,10 @@ function RouteComponent() {
     return (
       <div className="py-12 text-center">
         <p className="text-red-600">{t("error_loading_data")}</p>
-        <Link to="/products">
-          <Button variant="outline" className="mt-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t("back")}
-          </Button>
-        </Link>
+        <Button variant="outline" className="mt-4" onClick={() => window.history.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("back")}
+        </Button>
       </div>
     );
   }
@@ -208,11 +206,9 @@ function RouteComponent() {
 
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link to="/products">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
+        <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <div className="flex flex-1 flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold">
             {product.translations?.[0]?.title || product.slug}
