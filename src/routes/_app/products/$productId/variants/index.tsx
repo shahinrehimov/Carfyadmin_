@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
+import { zodValidator } from "@tanstack/zod-adapter";
 import {
   ArrowLeft,
   CheckCircle,
@@ -47,8 +49,13 @@ import { useCompaniesList } from "@/lib/queries/companies";
 import { FitmentSummary } from "@/components/fitment/FitmentSummary";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
+const variantsSearchSchema = z.object({
+  page: z.number().int().min(1).catch(1).default(1),
+});
+
 export const Route = createFileRoute("/_app/products/$productId/variants/")({
   component: RouteComponent,
+  validateSearch: zodValidator(variantsSearchSchema),
 });
 
 type ModalState =
@@ -501,14 +508,14 @@ function RejectModal({ cpv, onClose }: { cpv: AdminCPV; onClose: () => void }) {
 function RouteComponent() {
   const { t } = useTranslation();
   const { productId } = Route.useParams();
+  const { page } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const id = Number(productId);
 
-  const [filters, setFilters] = useState<{
-    page: number;
-    product_id: number;
-    company_id?: number;
-  }>({ page: 1, product_id: id });
+  const [companyId, setCompanyId] = useState<number | undefined>(undefined);
   const [modalState, setModalState] = useState<ModalState>({ type: null });
+
+  const filters = { page, product_id: id, company_id: companyId };
 
   const { data, isLoading, error } = useAdminCPVs(filters);
   const { data: companiesData } = useCompaniesList();
@@ -578,14 +585,11 @@ function RouteComponent() {
       <div className="flex items-center gap-3">
         <select
           className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          value={filters.company_id?.toString() || ""}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              page: 1,
-              company_id: e.target.value ? Number(e.target.value) : undefined,
-            }))
-          }
+          value={companyId?.toString() || ""}
+          onChange={(e) => {
+            setCompanyId(e.target.value ? Number(e.target.value) : undefined);
+            navigate({ search: { page: 1 }, resetScroll: false });
+          }}
         >
           <option value="">{t("all_sellers") || "Bütün sellerlər"}</option>
           {(companiesData || []).map((c) => (
@@ -634,7 +638,7 @@ function RouteComponent() {
                 return (
                 <TableRow key={cpv.id}>
                   <TableCell>
-                    {filters.page * perPage - perPage + index + 1}
+                    {page * perPage - perPage + index + 1}
                   </TableCell>
                   <TableCell>
                     {image ? (
@@ -827,7 +831,7 @@ function RouteComponent() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">
-                    {filters.page * perPage - perPage + index + 1}.{" "}
+                    {page * perPage - perPage + index + 1}.{" "}
                     {cpv.variant?.title || cpv.variant?.slug}
                   </p>
                   {cpv.company?.title && (
@@ -921,11 +925,11 @@ function RouteComponent() {
 
       {/* Pagination */}
       <Pagination
-        currentPage={filters.page}
+        currentPage={page}
         totalPages={totalPages}
         pageSize={perPage}
         totalItems={total}
-        onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
+        onPageChange={(newPage) => navigate({ search: { page: newPage } })}
         onPageSizeChange={() => {}}
         disabled={isLoading}
       />

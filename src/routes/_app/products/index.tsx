@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
+import { zodValidator } from "@tanstack/zod-adapter";
 import {
   CheckCircle,
   Clock,
@@ -167,21 +169,26 @@ function ProductRevisionsModal({ productId, onClose }: { productId: number; onCl
   );
 }
 
+const productsSearchSchema = z.object({
+  page: z.number().int().min(1).catch(1).default(1),
+});
+
 export const Route = createFileRoute("/_app/products/")({
   component: RouteComponent,
+  validateSearch: zodValidator(productsSearchSchema),
 });
 
 function RouteComponent() {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    search: "",
-  });
+  const { page } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [search, setSearchValue] = useState("");
   const [revisionsProductId, setRevisionsProductId] = useState<number | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
+  const filters = { page, search };
   const { data, isLoading, error } = useProducts(filters);
   const toggleStatusMutation = useToggleProductStatus();
   const deleteProductMutation = useDeleteProduct();
@@ -192,11 +199,12 @@ function RouteComponent() {
   const totalPages = Math.ceil(total / perPage);
 
   const handleSearch = (value: string) => {
-    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
+    setSearchValue(value);
+    navigate({ search: { page: 1 }, resetScroll: false });
   };
 
-  const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+  const handlePageChange = (newPage: number) => {
+    navigate({ search: { page: newPage } });
   };
 
   const handleToggleStatus = async (product: Product) => {
@@ -264,7 +272,7 @@ function RouteComponent() {
           products.map((product, index) => (
             <TableRow key={product.id}>
               <TableCell>
-                {filters.page * perPage - perPage + index + 1}
+                {page * perPage - perPage + index + 1}
               </TableCell>
               <TableCell>
                 {product.main_image ? (
@@ -437,7 +445,7 @@ function RouteComponent() {
               )}
               <div className="flex-1">
                 <h3 className="font-medium">
-                  {filters.page * perPage - perPage + index + 1}. {product.title}
+                  {page * perPage - perPage + index + 1}. {product.title}
                 </h3>
                 <p className="mt-1 text-sm text-gray-600">
                   <ProductBrands
@@ -553,7 +561,7 @@ function RouteComponent() {
         <div className="flex-1">
           <Input
             placeholder={t("search")}
-            value={filters.search}
+            value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full"
           />
@@ -565,7 +573,7 @@ function RouteComponent() {
       </div>
 
       <Pagination
-        currentPage={filters.page}
+        currentPage={page}
         totalPages={totalPages}
         pageSize={perPage}
         totalItems={total}
