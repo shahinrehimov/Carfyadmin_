@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -146,6 +146,19 @@ function RouteComponent() {
                   {form.formState.errors.password.message}
                 </p>
               )}
+            </div>
+
+            <div className="flex justify-end">
+              <Link
+                to="/auth/forgot-password"
+                className={`text-sm ${
+                  isDark
+                    ? "text-gray-400 hover:text-gray-200"
+                    : "text-gray-500 hover:text-gray-700"
+                } transition-colors`}
+              >
+                {t("forgot_password_question", "Forgot password?")}
+              </Link>
             </div>
 
             <button
