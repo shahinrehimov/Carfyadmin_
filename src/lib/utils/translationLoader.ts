@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useTranslationStore } from "@/store/translations";
 import { controlPrivateApi } from "@/lib/axios/controlPrivateApi";
 
@@ -116,9 +117,12 @@ export function useTranslation() {
   const currentLang = useTranslationStore((state) => state.currentLang);
   const isLoading = useTranslationStore((state) => state.isLoading);
 
-  const t = (key: string, fallback?: string): string => {
-    return translations[key] || fallback || `{${key}}`;
-  };
+  const t = useCallback(
+    (key: string, fallback?: string): string => {
+      return translations[key] || fallback || `{${key}}`;
+    },
+    [translations],
+  );
 
   return {
     t,

@@ -157,6 +157,10 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   }, []);
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     if (skipSearchRef.current) {
       skipSearchRef.current = false;
       return;
@@ -164,7 +168,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
     const query = searchQuery.trim();
     if (query.length < 3) {
-      setSearchResults([]);
+      setSearchResults((prev) => (prev.length === 0 ? prev : []));
       setSearchError("");
       setIsSearching(false);
       return;
@@ -217,7 +221,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         clearTimeout(searchDebounceRef.current);
       }
     };
-  }, [searchQuery, t]);
+  }, [isOpen, searchQuery, t]);
 
   // Ensure map only renders on client side
   useEffect(() => {
@@ -261,6 +265,10 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
 
   // Fetch address from coordinates using Nominatim (OpenStreetMap)
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     if (position) {
       setIsLoadingAddress(true);
       fetch(
@@ -275,7 +283,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         .catch((err) => console.error("Error fetching address:", err))
         .finally(() => setIsLoadingAddress(false));
     }
-  }, [position]);
+  }, [isOpen, position]);
 
   const handleConfirm = () => {
     onSelectLocation(position[0], position[1], address);
@@ -436,7 +444,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -446,16 +454,16 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
       {/* Modal - Full screen on mobile, centered on desktop */}
       <div
         className={cn(
-          "relative flex flex-col overflow-hidden rounded-lg border shadow-lg",
+          "relative flex max-h-[100dvh] min-h-0 min-w-0 flex-col overflow-hidden rounded-none border shadow-lg md:rounded-lg",
           "border-border bg-card",
           "h-full w-full md:mx-4 md:h-auto md:max-h-[90vh] md:max-w-3xl",
         )}
       >
         {/* Header */}
-        <div className={cn("flex items-center justify-between border-b p-4")}>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b bg-card p-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <h2 className="truncate text-base font-semibold sm:text-lg">{title}</h2>
           </div>
           <button
             onClick={onClose}
@@ -466,10 +474,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         </div>
 
         {/* Map Container */}
-        <div
-          className="relative flex-1 overflow-visible"
-          style={{ minHeight: "400px", height: "500px" }}
-        >
+        <div className="relative min-h-0 flex-1 overflow-visible md:h-[500px] md:min-h-[500px] md:flex-none">
           {!isClient ? (
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
               <div className="text-sm text-muted-foreground">
@@ -581,12 +586,12 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         )}
 
         {/* Address Info */}
-        <div className="border-t p-4">
+        <div className="shrink-0 border-t p-4">
           <div className="mb-4">
             <p className="mb-1 text-sm font-medium text-muted-foreground">
               {t("selected_coordinates")}:
             </p>
-            <p className="text-sm">
+            <p className="break-all text-sm">
               Latitude: {position[0].toFixed(6)}, Longitude:{" "}
               {position[1].toFixed(6)}
             </p>
@@ -597,13 +602,13 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
               <p className="mb-1 text-sm font-medium text-muted-foreground">
                 {t("address")}:
               </p>
-              <p className="text-sm">
+              <p className="line-clamp-3 text-sm">
                 {isLoadingAddress ? t("loading_address") : address}
               </p>
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={onClose}
               className="flex-1 rounded-md px-4 py-2 font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80"

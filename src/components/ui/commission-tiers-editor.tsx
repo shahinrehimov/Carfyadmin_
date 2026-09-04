@@ -154,9 +154,9 @@ export function CommissionTiersEditor({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+    <div className="min-w-0 space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <Label>{t("commission_tiers")}</Label>
           <p className="text-muted-foreground mt-1 text-xs">
             {t("commission_tiers_hint")}
@@ -168,7 +168,7 @@ export function CommissionTiersEditor({
           size="sm"
           onClick={addRow}
           disabled={disabled}
-          className="flex shrink-0 items-center gap-2"
+          className="flex h-auto min-h-8 w-full shrink-0 items-center justify-center gap-2 whitespace-normal sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           {t("add_tier")}
@@ -180,8 +180,8 @@ export function CommissionTiersEditor({
           {t("no_commission_tiers")}
         </p>
       ) : (
-        <div className="space-y-2">
-          <div className="text-muted-foreground grid grid-cols-[1fr_1fr_1fr_40px] gap-2 text-xs">
+        <div className="space-y-3 sm:space-y-2">
+          <div className="text-muted-foreground hidden grid-cols-[1fr_1fr_1fr_40px] gap-2 text-xs sm:grid">
             <span>{t("tier_min_amount")}</span>
             <span>{t("tier_max_amount")}</span>
             <span>{t("tier_percent")}</span>
@@ -191,43 +191,58 @@ export function CommissionTiersEditor({
           {value.map((row, index) => (
             <div
               key={index}
-              className="grid grid-cols-[1fr_1fr_1fr_40px] items-center gap-2"
+              className="grid grid-cols-1 gap-2 rounded-md border p-3 sm:grid-cols-[1fr_1fr_1fr_40px] sm:items-center sm:rounded-none sm:border-0 sm:p-0"
             >
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={row.min_amount}
-                onChange={(e) => updateRow(index, "min_amount", e.target.value)}
-                placeholder="0"
-                disabled={disabled}
-              />
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={row.max_amount}
-                onChange={(e) => updateRow(index, "max_amount", e.target.value)}
-                placeholder={t("tier_max_empty")}
-                disabled={disabled}
-              />
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={row.percent}
-                onChange={(e) => updateRow(index, "percent", e.target.value)}
-                placeholder="0"
-                disabled={disabled}
-              />
+              <div className="min-w-0 space-y-1">
+                <span className="text-muted-foreground text-xs sm:hidden">
+                  {t("tier_min_amount")}
+                </span>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={row.min_amount}
+                  onChange={(e) => updateRow(index, "min_amount", e.target.value)}
+                  placeholder="0"
+                  disabled={disabled}
+                />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <span className="text-muted-foreground text-xs sm:hidden">
+                  {t("tier_max_amount")}
+                </span>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={row.max_amount}
+                  onChange={(e) => updateRow(index, "max_amount", e.target.value)}
+                  placeholder={t("tier_max_empty")}
+                  disabled={disabled}
+                />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <span className="text-muted-foreground text-xs sm:hidden">
+                  {t("tier_percent")}
+                </span>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={row.percent}
+                  onChange={(e) => updateRow(index, "percent", e.target.value)}
+                  placeholder="0"
+                  disabled={disabled}
+                />
+              </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => removeRow(index)}
                 disabled={disabled}
-                className="text-destructive hover:text-destructive h-9 px-2"
+                className="text-destructive hover:text-destructive h-9 w-full px-2 sm:w-auto"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

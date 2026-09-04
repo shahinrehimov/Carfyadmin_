@@ -289,17 +289,17 @@ function EditCompanyComponent() {
 
   if (companyLoading || !isFormReady) {
     return (
-      <div className="w-full flex flex-col gap-5 pt-5">
-        <div className="flex items-center gap-4">
+      <div className="flex w-full min-w-0 flex-col gap-5 pt-5">
+        <div className="flex min-w-0 items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.navigate({ to: "/companies" })}
-            className="flex items-center gap-2"
+            className="flex shrink-0 items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-2xl font-bold">{t("edit_company")}</h1>
+          <h1 className="min-w-0 text-xl font-bold sm:text-2xl">{t("edit_company")}</h1>
         </div>
         <div className="flex justify-center items-center py-8">
           <Loader2 className="w-8 h-8 animate-spin" />
@@ -309,28 +309,28 @@ function EditCompanyComponent() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-5 pt-5">
-      <div className="flex items-center gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-5 pt-5 pb-6">
+      <div className="flex min-w-0 items-center gap-3">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.navigate({ to: "/companies" })}
-          className="flex items-center gap-2"
+          className="flex shrink-0 items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <h1 className="text-2xl font-bold">{t("edit_company")}</h1>
+        <h1 className="min-w-0 text-xl font-bold sm:text-2xl">{t("edit_company")}</h1>
       </div>
 
-      <div className="max-w-4xl mt-5 w-full">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="mt-2 w-full min-w-0 max-w-4xl sm:mt-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           {/* Company Information */}
-          <div className="space-y-4 border rounded-lg p-6">
-            <h2 className="text-xl font-semibold">
+          <div className="space-y-4 rounded-lg border p-4 sm:p-6">
+            <h2 className="text-lg font-semibold sm:text-xl">
               {t("company_information")}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0">
               <div className="space-y-2">
                 <Label htmlFor="voen">{t("voen")}</Label>
                 <Controller
@@ -489,23 +489,23 @@ function EditCompanyComponent() {
                 )}
               </div>
 
-              <div className="col-span-2 space-y-2">
+              <div className="col-span-1 space-y-2 md:col-span-2">
                 <Label>{t("location")}</Label>
-                <div className="flex gap-2 items-start">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsMapOpen(true)}
-                    className="flex items-center gap-2"
+                    className="flex h-auto min-h-9 w-full items-center justify-center gap-2 whitespace-normal sm:w-auto"
                   >
                     <MapPin className="h-4 w-4" />
                     {t("select_location_on_map")}
                   </Button>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <p className="break-all text-sm text-muted-foreground">
                       {t("latitude")}: {watch("latitude").toFixed(6)}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="break-all text-sm text-muted-foreground">
                       {t("longitude")}: {watch("longitude").toFixed(6)}
                     </p>
                   </div>
@@ -535,7 +535,7 @@ function EditCompanyComponent() {
           </div>
 
           {/* Commission tiers */}
-          <div className="space-y-4 border rounded-lg p-6">
+          <div className="space-y-4 rounded-lg border p-4 sm:p-6">
             <CommissionTiersEditor
               value={commissionTiers}
               onChange={(rows) => {
@@ -547,16 +547,17 @@ function EditCompanyComponent() {
           </div>
 
           {/* Translations */}
-          <div className="space-y-4 border rounded-lg p-6">
-            <h2 className="text-xl font-semibold">{t("translations")}</h2>
+          <div className="space-y-4 rounded-lg border p-4 sm:p-6">
+            <h2 className="text-lg font-semibold sm:text-xl">{t("translations")}</h2>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList
-                className="grid w-full"
-                style={{ gridTemplateColumns: `repeat(${langs.length}, 1fr)` }}
-              >
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
+              <TabsList className="flex w-full min-w-0 overflow-x-auto">
                 {langs.map((lang: any, index: number) => (
-                  <TabsTrigger key={lang.id} value={String(index)}>
+                  <TabsTrigger
+                    key={lang.id}
+                    value={String(index)}
+                    className="shrink-0 px-3 sm:px-4"
+                  >
                     {lang.key}
                     {index === 0 && (
                       <span className="ml-1 text-red-500">*</span>
@@ -651,17 +652,17 @@ function EditCompanyComponent() {
 
           {/* Media (Logo & Banner) */}
           {(company?.logo || company?.banner) && (
-            <div className="space-y-4 border rounded-lg p-6">
-              <h2 className="text-xl font-semibold">{t("media")}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 rounded-lg border p-4 sm:p-6">
+              <h2 className="text-lg font-semibold sm:text-xl">{t("media")}</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {company?.logo && (
                   <div className="space-y-3">
                     <Label>{t("logo")}</Label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex min-w-0 flex-wrap items-center gap-3">
                       <img
                         src={company.logo}
                         alt="logo"
-                        className="w-20 h-20 object-cover rounded-lg border"
+                        className="h-20 w-20 shrink-0 rounded-lg border object-cover"
                       />
                       <Button
                         type="button"
@@ -669,7 +670,7 @@ function EditCompanyComponent() {
                         size="sm"
                         disabled={deleteLogoMutation.isPending}
                         onClick={handleDeleteLogo}
-                        className="flex items-center gap-2"
+                        className="flex h-auto min-h-8 items-center gap-2 whitespace-normal"
                       >
                         {deleteLogoMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -684,11 +685,11 @@ function EditCompanyComponent() {
                 {company?.banner && (
                   <div className="space-y-3">
                     <Label>{t("banner")}</Label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex min-w-0 flex-wrap items-center gap-3">
                       <img
                         src={company.banner}
                         alt="banner"
-                        className="w-32 h-20 object-cover rounded-lg border"
+                        className="h-20 w-full max-w-40 shrink-0 rounded-lg border object-cover sm:w-32"
                       />
                       <Button
                         type="button"
@@ -696,7 +697,7 @@ function EditCompanyComponent() {
                         size="sm"
                         disabled={deleteBannerMutation.isPending}
                         onClick={handleDeleteBanner}
-                        className="flex items-center gap-2"
+                        className="flex h-auto min-h-8 items-center gap-2 whitespace-normal"
                       >
                         {deleteBannerMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -713,10 +714,10 @@ function EditCompanyComponent() {
           )}
 
           {/* Working Hours */}
-          <div className="space-y-4 border rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Clock className="w-5 h-5" />
+          <div className="space-y-4 rounded-lg border p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="flex items-center gap-2 text-lg font-semibold sm:text-xl">
+                <Clock className="h-5 w-5 shrink-0" />
                 {t("working_hours")}
               </h2>
               <Button
@@ -725,7 +726,7 @@ function EditCompanyComponent() {
                 size="sm"
                 disabled={updateWorkingHoursMutation.isPending}
                 onClick={handleSaveWorkingHours}
-                className="flex items-center gap-2"
+                className="flex h-auto min-h-8 w-full items-center justify-center gap-2 whitespace-normal sm:w-auto"
               >
                 {updateWorkingHoursMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -738,26 +739,28 @@ function EditCompanyComponent() {
               {workingHours.map((wh, index) => (
                 <div
                   key={wh.day_of_week}
-                  className="grid grid-cols-[130px_100px_1fr_1fr] items-center gap-3 py-2.5 border-b last:border-b-0"
+                  className="flex flex-col gap-3 border-b py-3 last:border-b-0 sm:grid sm:grid-cols-[minmax(0,130px)_minmax(0,100px)_1fr_1fr] sm:items-center sm:gap-3 sm:py-2.5"
                 >
-                  <span className="font-medium text-sm">
-                    {t(DAY_NAMES[index] ?? `day_${wh.day_of_week}`)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={!wh.is_closed}
-                      onCheckedChange={(open) =>
-                        updateWorkingHour(index, "is_closed", !open)
-                      }
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {wh.is_closed ? t("closed") : t("open")}
+                  <div className="flex items-center justify-between gap-3 sm:contents">
+                    <span className="text-sm font-medium">
+                      {t(DAY_NAMES[index] ?? `day_${wh.day_of_week}`)}
                     </span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Switch
+                        checked={!wh.is_closed}
+                        onCheckedChange={(open) =>
+                          updateWorkingHour(index, "is_closed", !open)
+                        }
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {wh.is_closed ? t("closed") : t("open")}
+                      </span>
+                    </div>
                   </div>
                   {!wh.is_closed ? (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground shrink-0">
+                    <div className="grid grid-cols-2 gap-3 sm:contents">
+                      <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {t("open_time")}
                         </span>
                         <Input
@@ -766,11 +769,11 @@ function EditCompanyComponent() {
                           onChange={(e) =>
                             updateWorkingHour(index, "open_time", e.target.value)
                           }
-                          className="w-32"
+                          className="w-full min-w-0 sm:w-32"
                         />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground shrink-0">
+                      <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {t("close_time")}
                         </span>
                         <Input
@@ -779,12 +782,12 @@ function EditCompanyComponent() {
                           onChange={(e) =>
                             updateWorkingHour(index, "close_time", e.target.value)
                           }
-                          className="w-32"
+                          className="w-full min-w-0 sm:w-32"
                         />
                       </div>
-                    </>
+                    </div>
                   ) : (
-                    <div className="col-span-2" />
+                    <div className="hidden sm:col-span-2 sm:block" />
                   )}
                 </div>
               ))}
@@ -792,11 +795,11 @@ function EditCompanyComponent() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-2 sm:pt-4">
             <Button
               type="submit"
               disabled={updateCompanyMutation.isPending}
-              className="min-w-[200px]"
+              className="w-full sm:w-auto sm:min-w-[200px]"
             >
               {updateCompanyMutation.isPending ? (
                 <div className="flex items-center gap-2">
