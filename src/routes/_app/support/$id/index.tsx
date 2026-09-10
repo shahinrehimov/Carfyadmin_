@@ -152,7 +152,7 @@ function TicketDetailComponent() {
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
               <span>
-                {t("company")}: <strong>{ticket.company.store_code}</strong>
+                {t("company")}: <strong>{ticket.company?.store_code}</strong>
               </span>
               <span>
                 {t("assigned_admin")}:{" "}
@@ -280,7 +280,9 @@ function TicketDetailComponent() {
                   <button
                     type="button"
                     onClick={() =>
-                      setReplyFiles((prev) => prev.filter((_, idx) => idx !== i))
+                      setReplyFiles((prev) =>
+                        prev.filter((_, idx) => idx !== i),
+                      )
                     }
                     className="text-gray-400 hover:text-red-500"
                   >
@@ -320,9 +322,7 @@ function TicketDetailComponent() {
                 size="icon"
                 className="h-8 w-8"
                 onClick={handleSendReply}
-                disabled={
-                  replyMutation.isPending || !replyBody.trim()
-                }
+                disabled={replyMutation.isPending || !replyBody.trim()}
               >
                 {replyMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -362,10 +362,7 @@ function TicketDetailComponent() {
             }))}
           />
           <div className="flex justify-end gap-2 border-t pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setAssignModalOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setAssignModalOpen(false)}>
               {t("cancel")}
             </Button>
             <Button
