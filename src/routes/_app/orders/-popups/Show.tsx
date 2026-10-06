@@ -39,6 +39,7 @@ import {
   type SellerGroup,
   type OrderCompany,
 } from "@/lib/queries/orders";
+import { FitmentSelectionBadge } from "@/components/fitment/FitmentSelectionBadge";
 import { useTranslation } from "@/lib/utils/translationLoader";
 
 interface ShowProps {
@@ -450,7 +451,10 @@ export default function Show({ orderId, onClose }: ShowProps) {
                   <TableBody>
                     {group.items.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className="text-sm">{item.product_title}</TableCell>
+                        <TableCell className="text-sm">
+                          <div>{item.product_title}</div>
+                          <FitmentSelectionBadge selection={item.fitment_selection} />
+                        </TableCell>
                         <TableCell className="text-right text-sm">{item.quantity}</TableCell>
                         <TableCell className="text-right font-medium">{item.amount_final} ₼</TableCell>
                         <TableCell>

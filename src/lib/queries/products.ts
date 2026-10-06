@@ -145,6 +145,7 @@ export interface ProductVariant {
   brand_models: VariantBrandModel[];
   fitments: Fitment[];
   is_universal: boolean;
+  requires_fitment_selection?: boolean;
   /** @deprecated use year_from / year_to */
   year: number | null;
   year_from: number | null;
@@ -208,6 +209,7 @@ export interface ProductVariantDetail {
   brand_models: VariantBrandModel[];
   fitments: Fitment[];
   is_universal: boolean;
+  requires_fitment_selection?: boolean;
   /** @deprecated use year_from / year_to */
   year: number | null;
   year_from: number | null;
@@ -255,6 +257,7 @@ export interface AdminCPV {
     brand_models: Array<{ id: number; title: string }>;
     fitments: Fitment[];
     is_universal: boolean;
+    requires_fitment_selection?: boolean;
     /** @deprecated use year_from / year_to */
     year: number | null;
     year_from: number | null;
@@ -314,12 +317,14 @@ export interface VariantRevision {
     oem_code: string | null;
     // Resolved to titles server-side; used to be bare ids.
     fitments: Fitment[];
+    requires_fitment_selection?: boolean | null;
     options: { option_id: number; value: any }[];
   };
   current: {
     oem_code: string | null;
     fitments: Fitment[];
     is_universal: boolean;
+    requires_fitment_selection?: boolean;
     options: { option_id: number; value: any }[];
   };
   images: {

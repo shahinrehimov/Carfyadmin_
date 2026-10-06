@@ -52,6 +52,10 @@ export interface OrderItem {
   quantity: number;
   amount: number;
   amount_final: number;
+  fitment_selection?: {
+    brand: { id: number; title: string } | null;
+    brand_model: { id: number; title: string } | null;
+  } | null;
   product: {
     uuid: string;
     variant_slug: string;
@@ -80,6 +84,10 @@ export interface OrderItemBySeller {
   amount: number;
   amount_final: number;
   product_title: string;
+  fitment_selection?: {
+    brand: { id: number; title: string } | null;
+    brand_model: { id: number; title: string } | null;
+  } | null;
   status_history: Array<{
     status: string;
     created_at: string;

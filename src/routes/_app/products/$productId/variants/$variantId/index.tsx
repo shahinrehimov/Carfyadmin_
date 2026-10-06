@@ -257,6 +257,16 @@ function RouteComponent() {
                     isUniversal={variant.is_universal}
                   />
                 </div>
+                <p className="mt-2 text-sm">
+                  <span className="text-gray-500">
+                    {t("requires_fitment_selection") || "Müştəri maşın seçir"}:
+                  </span>{" "}
+                  <span className="font-medium">
+                    {variant.requires_fitment_selection
+                      ? t("yes") || "Bəli"
+                      : t("no") || "Xeyr"}
+                  </span>
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t("product")}</p>

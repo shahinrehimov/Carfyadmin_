@@ -253,6 +253,14 @@ function RevisionsModal({
                       isUniversal={revision.current.is_universal}
                     />
                   </div>
+                  <p>
+                    <span className="text-gray-500">
+                      {t("requires_fitment_selection") || "Müştəri maşın seçir"}:
+                    </span>{" "}
+                    {revision.current.requires_fitment_selection
+                      ? t("yes") || "Bəli"
+                      : t("no") || "Xeyr"}
+                  </p>
                 </div>
                 <div className="rounded bg-blue-50 dark:bg-blue-950 p-3 space-y-1">
                   <p className="font-semibold text-xs text-blue-600 mb-2">
@@ -273,6 +281,25 @@ function RevisionsModal({
                       )}
                     />
                   </div>
+                  <p
+                    className={
+                      typeof revision.data.requires_fitment_selection ===
+                        "boolean" &&
+                      revision.data.requires_fitment_selection !==
+                        Boolean(revision.current.requires_fitment_selection)
+                        ? "font-medium text-amber-700"
+                        : undefined
+                    }
+                  >
+                    <span className="text-gray-500">
+                      {t("requires_fitment_selection") || "Müştəri maşın seçir"}:
+                    </span>{" "}
+                    {revision.data.requires_fitment_selection == null
+                      ? t("unchanged") || "dəyişməyib"
+                      : revision.data.requires_fitment_selection
+                        ? t("yes") || "Bəli"
+                        : t("no") || "Xeyr"}
+                  </p>
                 </div>
               </div>
 
